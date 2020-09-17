@@ -11,30 +11,30 @@ import com.ur.urcap.api.domain.data.DataModel;
 
 public class ServiceCallerProgramNodeService implements SwingProgramNodeService<ServiceCallerProgramNodeContribution, ServiceCallerProgramNodeView>{
 
-	@Override
-	public String getId() {
-		return "serviceCaller";
-	}
+  @Override
+  public String getId() {
+    return "serviceCaller";
+  }
 
-	@Override
-	public void configureContribution(ContributionConfiguration configuration) {
-		configuration.setChildrenAllowed(false);
-	}
+  @Override
+  public void configureContribution(ContributionConfiguration configuration) {
+    configuration.setChildrenAllowed(false);
+  }
 
-	@Override
-	public String getTitle(Locale locale) {
-		return "Service Call";
-	}
+  @Override
+  public String getTitle(Locale locale) {
+    return "Service Call";
+  }
 
-	@Override
-	public ServiceCallerProgramNodeView createView(ViewAPIProvider apiProvider) {
-		return new ServiceCallerProgramNodeView(apiProvider);
-	}
+  @Override
+  public ServiceCallerProgramNodeView createView(ViewAPIProvider apiProvider) {
+    return new ServiceCallerProgramNodeView(apiProvider);
+  }
 
-	@Override
-	public ServiceCallerProgramNodeContribution createNode(ProgramAPIProvider apiProvider,
-			ServiceCallerProgramNodeView view, DataModel model, CreationContext context) {
-		return new ServiceCallerProgramNodeContribution(apiProvider, view, model);
-	}
+  @Override
+  public ServiceCallerProgramNodeContribution createNode(ProgramAPIProvider apiProvider,
+      ServiceCallerProgramNodeView view, DataModel model, CreationContext context) {
+    return new ServiceCallerProgramNodeContribution(apiProvider, view, model);
+  }
 
 }

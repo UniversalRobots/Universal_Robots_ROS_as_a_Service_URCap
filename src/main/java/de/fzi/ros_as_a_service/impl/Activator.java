@@ -20,8 +20,8 @@ public class Activator implements BundleActivator {
     bundleContext.registerService(SwingProgramNodeService.class, new ServiceCallerProgramNodeService(), null);
   }
 
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-	}
+  @Override
+  public void stop(BundleContext bundleContext) throws Exception {
+  }
 }
 
