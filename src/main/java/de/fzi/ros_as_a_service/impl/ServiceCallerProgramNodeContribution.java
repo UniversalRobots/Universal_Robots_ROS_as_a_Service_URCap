@@ -16,6 +16,8 @@ public class ServiceCallerProgramNodeContribution implements ProgramNodeContribu
 	
 	private static final String MASTER_KEY = "master";
 	private static final String DEFAULT_MASTER = "";
+	private static final String TOPIC_KEY = "topic";
+	private static final String DEFAULT_TOPIC = "";
 	
 	public ServiceCallerProgramNodeContribution(ProgramAPIProvider apiProvider, ServiceCallerProgramNodeView view, DataModel model) {
 		this.apiProvider = apiProvider;
@@ -34,8 +36,22 @@ public class ServiceCallerProgramNodeContribution implements ProgramNodeContribu
 		});
 	}
 	
+	public void onTopicSelection(final String master) {
+		undoRedoManager.recordChanges(new UndoableChanges() {
+			
+			@Override
+			public void executeChanges() {
+				model.set(TOPIC_KEY, master);
+			}
+		});
+	}
+	
 	private String getMaster() {
 		return model.get(MASTER_KEY, DEFAULT_MASTER);
+	}
+	
+	private String getTopic() {
+		return model.get(TOPIC_KEY, DEFAULT_TOPIC);
 	}
 	
 	private String[] getMasterList() {
@@ -44,10 +60,19 @@ public class ServiceCallerProgramNodeContribution implements ProgramNodeContribu
 		items[0] = "192.168.56.1";
 		return items;
 	}
+	
+	private String[] getTopicsList() {
+		// TODO: Get this dynamically
+		String[] items = new String[2];
+		items[0] = "";
+		items[1] = "/test_service";
+		return items;
+	}
 
 	@Override
 	public void openView() {
 		view.setMasterComboBoxItems(getMasterList());
+		view.setTopicComboBoxItems(getTopicsList());
 		// view.setMasterComboBoxSelection(getMaster());
 	}
 
@@ -58,18 +83,17 @@ public class ServiceCallerProgramNodeContribution implements ProgramNodeContribu
 	@Override
 	public String getTitle() {
 		// TODO: Put service name here
-		return "Call service";
+		return "Call " + getTopic();
 	}
 
 	@Override
 	public boolean isDefined() {
-		// TODO Auto-generated method stub
-		return true;
+		return getTopic() != "";
 	}
 
 	@Override
 	public void generateScript(ScriptWriter writer) {
-		// TODO Auto-generated method stub
+		writer.appendLine("sendToSocket('test')");
 	}
 
 }
