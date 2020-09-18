@@ -33,9 +33,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
   @Override
   public void generateScript(ScriptWriter writer) {
-    writer.appendLine("def sendToSocket(data):");
-    writer.appendLine("  textmsg(data)");
-    writer.appendLine("end");
+    writer.appendLine("socket_open(\"192.168.56.1\", 9090, \"testserver\")");
   }
 
 }

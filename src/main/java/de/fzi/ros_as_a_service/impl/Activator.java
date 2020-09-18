@@ -3,7 +3,6 @@ package de.fzi.ros_as_a_service.impl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import com.fzi.externalcontrol.impl.ExternalControlInstallationNodeService;
 import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeService;
 import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeService;
 

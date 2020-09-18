@@ -93,7 +93,11 @@ public class ServiceCallerProgramNodeContribution implements ProgramNodeContribu
 
   @Override
   public void generateScript(ScriptWriter writer) {
-    writer.appendLine("sendToSocket('test')");
+    String test_string = "{\"op\":\"publish\", \"topic\": \"/test\", \"msg\": {\"data\": \"world\"}}";
+    byte[] bytes = test_string.getBytes();
+    for (int j = 0; j < bytes.length; j++) {
+      writer.appendLine("socket_send_byte("+ bytes[j] + ", " + "\"testserver\"" + ")");
+    }
   }
 
 }
