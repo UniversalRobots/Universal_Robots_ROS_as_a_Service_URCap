@@ -1,0 +1,144 @@
+def checkKeywordMatch(src, target, index=0)
+  src_length = str_len(src)
+  tgt_length = str_len(target)
+  if index == 0 or src_length == 0 or tgt_length == 0:
+    return False
+  end
+  
+  if str_at(src,index-1) != 34 or str_at(src, index + tgt_length) != 34 or str_at(src, index + tgt_length + 1) != ":":
+    return False
+  end
+  
+  retrun True
+end
+
+def fzi_str_find_char(src, target, start = 0)
+  position = start
+  while position < str_len(src):
+    if str_at(src, position) == target:
+      return position
+    end
+    position = position + 1
+  end
+  return -1
+end
+
+def fzi_str_find_first_not_of(src, target, start = 0)
+  position = start;
+  while position < str_len(src):
+    a = str_at(src, position)
+    if str_find(target, a) == -1:
+      return position
+    end;
+    position = position + 1
+  end
+  return -1
+end
+
+def find_coresponding_closing_container(src, open_sign, closing_sign, start=0)
+  position = start
+  brace_count = 0
+  while position < str_len(src):
+    if str_at(src, position) = open_sign:
+      brace_count = brace_count + 1
+    end
+    
+    if str_at(src, position) = closing_sign:
+      brace_count = brace_count - 1
+      if brace_count == 0:
+        return position
+      end
+    end
+    
+    position = position + 1
+  end
+  
+  return -1
+end
+
+def find_corresponding_braces(src, start = 0)
+  return find_coresponding_closing_container(src, 123, 125, start)
+end
+
+def find_corresponding_brackets(src, start = 0)
+  return find_coresponding_closing_container(src, 91, 93, start)
+end
+
+def find_corresponding_parentheses(src, start = 0)
+  return find_coresponding_closing_container(src, 40, 41, start)
+end
+
+def get_keyword(inp_str, key, start = 0)
+  length = str_len(inp_string)
+  length_key = str_len(key)
+  
+  start_search = start
+  index = 0
+  
+  while start_search < length:
+    index = str_find(inp_string, key, start_search)
+    if checkKeywordMatch(inp_string, key, index):
+      return index
+    end
+    
+    start_search = index + 1
+    if index == -1:
+      return -1
+    end
+  end
+end
+
+def get_argument_of_key(src, start=0)
+  colcon = str_find(src, ":", start)
+  if colcon == -1:
+    return ""
+  end
+  
+  sign=fzi_str_find_first_not_of(src, ": ", colcon)
+  if sign == -1:
+    return ""
+  end
+  
+  last_char = 0
+  if sign == "{":
+    last_char = find_corresponding_brackets(src, sign + 1)
+  end
+  
+  if sign == 34:
+    last_char = fzi_str_find_char(src, 34, sign + 1)
+  end
+  
+  if last_char != -1:
+    return str_sub(src, sign + 1, last_char - sign + 1)
+  end
+   return ""
+end
+
+def getOperation(inp_string):
+  length = str_len(inp_string)
+  textmsg("input_length=", length)
+  
+  start_search = 0
+  index = 0
+  
+  while start_search < length:
+    index = str_find(inp_string, "op", start_search)
+    if checkKeywordMatch(inp_string, "op", index):
+      break
+    end
+    
+    start_search = index + 1
+    if index == -1:
+      break
+    end
+  end
+  
+  op_start = fzi_str_find_char(inp_string, 34, index + 3)
+  op_end = fzi_str_find_char(inp_string, 34, op_start + 1)
+  op_name = str_sub(inp_string, op_start + 1, op_end - op_start - 1)
+  red_input_1 = str_sub(inp_string, 0, index - 1)
+  red_input_2 = str_sub(inp_string, op_end, 1023)
+  red_inp = str_cat(red_input_1, red_input_2)
+  
+  return [op_name, red_inp]
+end
