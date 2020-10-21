@@ -1,4 +1,9 @@
-def checkKeywordMatch(src, target, index=0)
+values = ""
+op = ""
+result = ""
+service = ""
+
+def json_checkKeywordMatch(src, target, index=0)
   src_length = str_len(src)
   tgt_length = str_len(target)
   if index == 0 or src_length == 0 or tgt_length == 0:
@@ -12,18 +17,7 @@ def checkKeywordMatch(src, target, index=0)
   retrun True
 end
 
-def fzi_str_find_char(src, target, start = 0)
-  position = start
-  while position < str_len(src):
-    if str_at(src, position) == target:
-      return position
-    end
-    position = position + 1
-  end
-  return -1
-end
-
-def fzi_str_find_first_not_of(src, target, start = 0)
+def json_strFindFirstNotOf(src, target, start = 0)
   position = start;
   while position < str_len(src):
     a = str_at(src, position)
@@ -35,15 +29,15 @@ def fzi_str_find_first_not_of(src, target, start = 0)
   return -1
 end
 
-def find_coresponding_closing_container(src, open_sign, closing_sign, start=0)
+def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=0)
   position = start
   brace_count = 0
   while position < str_len(src):
-    if str_at(src, position) = open_sign:
+    if str_at(src, position) == open_sign and str_at(src, position -1) != '\':
       brace_count = brace_count + 1
     end
     
-    if str_at(src, position) = closing_sign:
+    if str_at(src, position) == closing_sign and str_at(src, position -1) != '\':
       brace_count = brace_count - 1
       if brace_count == 0:
         return position
@@ -56,89 +50,143 @@ def find_coresponding_closing_container(src, open_sign, closing_sign, start=0)
   return -1
 end
 
-def find_corresponding_braces(src, start = 0)
-  return find_coresponding_closing_container(src, 123, 125, start)
+def json_findCorrespondingDelimiter(src, start = 0):
+  length = str_len(src)
+  if length <= 0 or start >= length:
+    return -1
+  end
+  
+  delimiter_start = str_at(src, start)
+  delimiter_end = ' '
+  
+  if delimiter_start == 34:
+    delimiter_end = 34
+  elif delimiter_start == '{':
+    delimiter_end = '}'
+  elif delimiter_start == '[':
+    delimiter_end = ']'
+  elif delimiter_start == '(':
+    delimiter_end = ')'
+  else
+    position = json_strFindFirstNotOf(src, "truefalsn", start +1)
+    return position
+  end
+  
+  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start +1)
 end
 
-def find_corresponding_brackets(src, start = 0)
-  return find_coresponding_closing_container(src, 91, 93, start)
+def json_getElementName(element):
+  bound = [0, 0]
+  if str_len(element) <= 0:
+    return [0, 0]
+  end
+  bounds[0] = 0
+  bounds[1] = json_findCorrespondingDelimiter(element, start_value)
+  if end_value <= 0:
+    return [0, 0]
+  end
+  return bounds
 end
 
-def find_corresponding_parentheses(src, start = 0)
-  return find_coresponding_closing_container(src, 40, 41, start)
+def json_getElementValue(element):
+  if str_len(element) <= 0:
+    return [0, 0]
+  end
+  bounds = json_getElementName(element)
+  if bounds[0] = 0 or bounds[1] = 0:
+    return [0, 0]
+  end
+  
+  bounds[0] = json_strFindFirstNotOf(element, ": ", bounds[1])
+  if bounds[0] <= 0:
+    return [0, 0]
+  end
+  bounds[1] = json_findCorrespondingDelimiter(element, bounds[0])
+  if bounds[1] <= 0:
+    retrun [0, 0]
+  end
+  
+  return bounds
 end
 
-def get_keyword(inp_str, key, start = 0)
+def json_getElement(inp_string, name):
   length = str_len(inp_string)
-  length_key = str_len(key)
-  
-  start_search = start
-  index = 0
-  
-  while start_search < length:
-    index = str_find(inp_string, key, start_search)
-    if checkKeywordMatch(inp_string, key, index):
-      return index
-    end
-    
-    start_search = index + 1
-    if index == -1:
-      return -1
-    end
-  end
-end
-
-def get_argument_of_key(src, start=0)
-  colcon = str_find(src, ":", start)
-  if colcon == -1:
-    return ""
-  end
-  
-  sign=fzi_str_find_first_not_of(src, ": ", colcon)
-  if sign == -1:
-    return ""
-  end
-  
-  last_char = 0
-  if sign == "{":
-    last_char = find_corresponding_brackets(src, sign + 1)
-  end
-  
-  if sign == 34:
-    last_char = fzi_str_find_char(src, 34, sign + 1)
-  end
-  
-  if last_char != -1:
-    return str_sub(src, sign + 1, last_char - sign + 1)
-  end
-   return ""
-end
-
-def getOperation(inp_string):
-  length = str_len(inp_string)
+  name_length = str_len(name)
   textmsg("input_length=", length)
   
-  start_search = 0
+  if length <= 0:
+    return [0, 0]
+  end
+  if name_length <= 0:
+    return [0, 0]
+  end
+  
+  start_element = 0
+  end_element = 0
   index = 0
   
-  while start_search < length:
-    index = str_find(inp_string, "op", start_search)
-    if checkKeywordMatch(inp_string, "op", index):
+  while start_element < length:
+    start_element = index
+    index = str_find(inp_string, name, start_element)
+    if json_checkKeywordMatch(inp_string, name, index):
       break
     end
     
-    start_search = index + 1
+    index = index + 1
     if index == -1:
-      break
+      return [0, 0]
     end
   end
   
-  op_start = fzi_str_find_char(inp_string, 34, index + 3)
-  op_end = fzi_str_find_char(inp_string, 34, op_start + 1)
-  op_name = str_sub(inp_string, op_start + 1, op_end - op_start - 1)
-  red_input_1 = str_sub(inp_string, 0, index - 1)
-  red_input_2 = str_sub(inp_string, op_end, 1023)
-  red_inp = str_cat(red_input_1, red_input_2)
+  end_element = json_findCorrespondingDelimiter(inp_string, start_element)
   
-  return [op_name, red_inp]
+  end_element = json_strFindFirstNotOf(inp_string, ": ", end_element)
+  if end_element == -1:
+    return [0, 0]
+  end
+  
+  end_element = json_findCorrespondingDelimiter(inp_string, end_element)
+    if end_element == -1:
+    return [0, 0]
+  end
+  return [start_element, end_element]
+end
+
+def ri_reduceString(src, target)
+  length = str_len(target)
+  start = str_find(src, target)
+  before = str_sub(src, 0, start -1)
+  after = str_sub(src, start + length)
+  return str_cat(before, after)
+end
+
+def ri_getOperation(inp_string):
+  op_bounds = json_getElement(inp_string, "op")
+  return str_sub(inp_string, op_bounds[0], op_bounds[1]-op_bounds[0])
+end
+
+def ri_parseServiceResponse(inp_msg)
+  msg = inp_msg
+  
+  values = ri_getValues(msg)
+  msg = ri_reduceString(msg, values)
+  bounds = json_getElementValue(values)
+  values = str_sub(values, bounds[0], bounds[1] - bounds[0])
+  
+  result = ri_getResult(msg)
+  msg = ri_reduceString(msg, result)
+  bounds = json_getElementValue(result)
+  result = str_sub(result, bounds[0], bounds[1] - bounds[0])
+  
+  op = ri_getOperation(msg)
+  msg = ri_reduceString(msg, op)
+  bounds = json_getElementValue(op)
+  op = str_sub(op, bounds[0], bounds[1] - bounds[0])
+  
+  service = ri_getService(msg)
+  bounds = json_getElementValue(service)
+  service = str_sub(service, bounds[0], bounds[1] - bounds[0])
+  
+  //THIS WILL FAIL AS URSCRIPT DOES NOT SUPPORT ARRAYS OF STRINGS
+  return [values, result, op, service]
 end

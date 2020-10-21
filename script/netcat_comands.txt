@@ -1,0 +1,16 @@
+{"op":"call_service","service":"/rosapi/service_request_details", "args":{"type":"rosapi/Services"}}
+{"op":"call_service","service":"/rosapi/service_response_details", "args":{"type":"rosapi/Services"}}
+{"op":"call_service","service":"/rosapi/services"}
+
+{"op":"call_service","service":"/rosapi/get_param", "args":{"name":"/rosdistro"}}
+
+{"op":"call_service","service":"/rosapi/service_request_details", "args":{"type":"rosapi/ServiceType"}}
+{"op":"call_service","service":"/rosapi/service_type", "args":{"service":"/simpleService"}}
+{"op":"call_service","service":"/rosapi/service_request_details", "args":{"type":"test_service/SimpleSrv"}}
+{"op":"call_service","service":"/simpleService", "args":{}}
+
+
+
+---------------
+{"op":"call_service","service":"/simpleService", "args":{}}
+{"values": {"pose": {"header": {"stamp": {"secs": 0, "nsecs": 0}, "frame_id": "", "seq": 0}, "pose": {"position": {"y": 2.0, "x": 1.0, "z": 3.0}, "orientation": {"y": 0.0, "x": 0.0, "z": 0.0, "w": 0.0}}}}, "result": true, "service": "/simpleService", "op": "service_response"}
