@@ -1,0 +1,269 @@
+def service_response():
+  global values = ""
+  global op = ""
+  global result = ""
+  global service = ""
+  
+  def json_checkKeywordMatch(src, target, index=0)
+    src_length = str_len(src)
+    tgt_length = str_len(target)
+    if index == 0 or src_length == 0 or tgt_length == 0:
+      return False
+    end
+    
+    if str_at(src,index-1) != 34 or str_at(src, index + tgt_length) != 34 or str_at(src, index + tgt_length + 1) != ":":
+      return False
+    end
+    
+    retrun True
+  end
+  
+  def json_strFindFirstNotOf(src, target, start = 0)
+    position = start;
+    while position < str_len(src):
+      a = str_at(src, position)
+      if str_find(target, a) == -1:
+        return position
+      end;
+      position = position + 1
+    end
+    return -1
+  end
+  
+  def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=0)
+    position = start
+    brace_count = 0
+    while position < str_len(src):
+      if str_at(src, position) == open_sign and str_at(src, position -1) != '\':
+        brace_count = brace_count + 1
+      end
+      
+      if str_at(src, position) == closing_sign and str_at(src, position -1) != '\':
+        brace_count = brace_count - 1
+        if brace_count == 0:
+          return position
+        end
+      end
+      
+      position = position + 1
+    end
+    
+    return -1
+  end
+  
+  def json_findCorrespondingDelimiter(src, start = 0):
+    length = str_len(src)
+    if length <= 0 or start >= length:
+      return -1
+    end
+    
+    delimiter_start = str_at(src, start)
+    delimiter_end = ' '
+    
+    if delimiter_start == 34:
+      delimiter_end = 34
+    elif delimiter_start == '{':
+      delimiter_end = '}'
+    elif delimiter_start == '[':
+      delimiter_end = ']'
+    elif delimiter_start == '(':
+      delimiter_end = ')'
+    else
+      position = json_strFindFirstNotOf(src, "truefalsn", start +1)
+      return position
+    end
+    
+    return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start +1)
+  end
+  
+  def json_getElementName(element):
+    bound = [0, 0]
+    if str_len(element) <= 0:
+      return [0, 0]
+    end
+    bounds[0] = 0
+    bounds[1] = json_findCorrespondingDelimiter(element, start_value)
+    if end_value <= 0:
+      return [0, 0]
+    end
+    return bounds
+  end
+  
+  def json_getElementValue(element):
+    if str_len(element) <= 0:
+      return [0, 0]
+    end
+    bounds = json_getElementName(element)
+    if bounds[0] = 0 or bounds[1] = 0:
+      return [0, 0]
+    end
+    
+    bounds[0] = json_strFindFirstNotOf(element, ": ", bounds[1])
+    if bounds[0] <= 0:
+      return [0, 0]
+    end
+    bounds[1] = json_findCorrespondingDelimiter(element, bounds[0])
+    if bounds[1] <= 0:
+      retrun [0, 0]
+    end
+    
+    return bounds
+  end
+  
+  def json_getElement(inp_string, name):
+    length = str_len(inp_string)
+    name_length = str_len(name)
+    textmsg("input_length=", length)
+    
+    if length <= 0:
+      return [0, 0]
+    end
+    if name_length <= 0:
+      return [0, 0]
+    end
+    
+    start_element = 0
+    end_element = 0
+    index = 0
+    
+    while start_element < length:
+      start_element = index
+      index = str_find(inp_string, name, start_element)
+      if json_checkKeywordMatch(inp_string, name, index):
+        break
+      end
+      
+      index = index + 1
+      if index == -1:
+        return [0, 0]
+      end
+    end
+    
+    end_element = json_findCorrespondingDelimiter(inp_string, start_element)
+    end_element = json_strFindFirstNotOf(inp_string, ": ", end_element)
+    if end_element == -1:
+      return [0, 0]
+    end
+    
+    end_element = json_findCorrespondingDelimiter(inp_string, end_element)
+      if end_element == -1:
+      return [0, 0]
+    end
+    
+    return [start_element, end_element]
+  end
+  
+  def ri_reduceString(src, target)
+    length = str_len(target)
+    start = str_find(src, target)
+    before = str_sub(src, 0, start -1)
+    after = str_sub(src, start + length)
+    return str_cat(before, after)
+  end
+  
+  def ri_getOperation(inp_string):
+    op_bounds = json_getElement(inp_string, "op")
+    return str_sub(inp_string, op_bounds[0], op_bounds[1]-op_bounds[0])
+  end
+  
+  def ri_parseServiceResponse(inp_msg)
+    msg = inp_msg
+    values = ri_getValues(msg)
+    msg = ri_reduceString(msg, values)
+    bounds = json_getElementValue(values)
+    values = str_sub(values, bounds[0], bounds[1] - bounds[0])
+    
+    textmsg("value = ", values)
+    result = ri_getResult(msg)
+    msg = ri_reduceString(msg, result)
+    bounds = json_getElementValue(result)
+    result = str_sub(result, bounds[0], bounds[1] - bounds[0])
+    
+    op = ri_getOperation(msg)
+    msg = ri_reduceString(msg, op)
+    bounds = json_getElementValue(op)
+    op = str_sub(op, bounds[0], bounds[1] - bounds[0])
+    
+    service = ri_getService(msg)
+    bounds = json_getElementValue(service)
+    service = str_sub(service, bounds[0], bounds[1] - bounds[0])
+  end
+  
+
+  set_tcp(p[0.0,0.0,0.0,0.0,0.0,0.0])
+  set_payload(1.0)
+  set_gravity([0.0, 0.0, 9.82])
+  
+  while (True):
+    textmsg("run ", "again!")
+    
+    socket_open("192.168.0.71", 9090, rosbridge)
+    
+    socket_send_byte(123, rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(111, rosbridge) 
+    socket_send_byte(112, rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(58 , rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(99 , rosbridge) 
+    socket_send_byte(97 , rosbridge) 
+    socket_send_byte(108, rosbridge) 
+    socket_send_byte(108, rosbridge) 
+    socket_send_byte(95 , rosbridge) 
+    socket_send_byte(115, rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(114, rosbridge) 
+    socket_send_byte(118, rosbridge) 
+    socket_send_byte(105, rosbridge) 
+    socket_send_byte(99 , rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(44 , rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(115, rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(114, rosbridge) 
+    socket_send_byte(118, rosbridge) 
+    socket_send_byte(105, rosbridge) 
+    socket_send_byte(99 , rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(58 , rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(47 , rosbridge) 
+    socket_send_byte(115, rosbridge) 
+    socket_send_byte(105, rosbridge) 
+    socket_send_byte(109, rosbridge) 
+    socket_send_byte(112, rosbridge) 
+    socket_send_byte(108, rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(83 , rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(114, rosbridge) 
+    socket_send_byte(118, rosbridge) 
+    socket_send_byte(105, rosbridge) 
+    socket_send_byte(99 , rosbridge) 
+    socket_send_byte(101, rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(44 , rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(97 , rosbridge) 
+    socket_send_byte(114, rosbridge) 
+    socket_send_byte(103, rosbridge) 
+    socket_send_byte(115, rosbridge) 
+    socket_send_byte(34 , rosbridge) 
+    socket_send_byte(58 , rosbridge) 
+    socket_send_byte(123, rosbridge) 
+    socket_send_byte(125, rosbridge) 
+    socket_send_byte(125, rosbridge) 
+    socket_send_byte(10 , rosbridge)
+    
+    sleep(0.1)
+    
+    string_from_server = socket_read_string(rosbridge)
+    ri_parseServiceResponse(string_from_server)
+    
+    sleep(2.0)
+  end
+end
