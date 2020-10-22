@@ -191,65 +191,65 @@ end
 
 socket_open("192.168.0.71", 9090, rosbridge)
 
-socket_send_byte(123, rosbridge)   //{
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(111, rosbridge)   //o
-socket_send_byte(112, rosbridge)   //p
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(58 , rosbridge)   //:
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(99 , rosbridge)   //c
-socket_send_byte(97 , rosbridge)   //a
-socket_send_byte(108, rosbridge)   //l
-socket_send_byte(108, rosbridge)   //l
-socket_send_byte(95 , rosbridge)   //_
-socket_send_byte(115, rosbridge)   //s
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(114, rosbridge)   //r
-socket_send_byte(118, rosbridge)   //v
-socket_send_byte(105, rosbridge)   //i
-socket_send_byte(99 , rosbridge)   //c
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(44 , rosbridge)   //,
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(115, rosbridge)   //s
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(114, rosbridge)   //r
-socket_send_byte(118, rosbridge)   //v
-socket_send_byte(105, rosbridge)   //i
-socket_send_byte(99 , rosbridge)   //c
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(58 , rosbridge)   //:
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(47 , rosbridge)   ///
-socket_send_byte(115, rosbridge)   //s
-socket_send_byte(105, rosbridge)   //i
-socket_send_byte(109, rosbridge)   //m
-socket_send_byte(112, rosbridge)   //p
-socket_send_byte(108, rosbridge)   //l
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(83 , rosbridge)   //S
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(114, rosbridge)   //r
-socket_send_byte(118, rosbridge)   //v
-socket_send_byte(105, rosbridge)   //i
-socket_send_byte(99 , rosbridge)   //c
-socket_send_byte(101, rosbridge)   //e
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(44 , rosbridge)   //,
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(97 , rosbridge)   //a
-socket_send_byte(114, rosbridge)   //r
-socket_send_byte(103, rosbridge)   //g
-socket_send_byte(115, rosbridge)   //s
-socket_send_byte(34 , rosbridge)   //"
-socket_send_byte(58 , rosbridge)   //:
-socket_send_byte(123, rosbridge)   //{
-socket_send_byte(125, rosbridge)   //}
-socket_send_byte(125, rosbridge)   //}
-socket_send_byte(10 , rosbridge)   //\n
+socket_send_byte(123, rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(111, rosbridge) 
+socket_send_byte(112, rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(58 , rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(99 , rosbridge) 
+socket_send_byte(97 , rosbridge) 
+socket_send_byte(108, rosbridge) 
+socket_send_byte(108, rosbridge) 
+socket_send_byte(95 , rosbridge) 
+socket_send_byte(115, rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(114, rosbridge) 
+socket_send_byte(118, rosbridge) 
+socket_send_byte(105, rosbridge) 
+socket_send_byte(99 , rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(44 , rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(115, rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(114, rosbridge) 
+socket_send_byte(118, rosbridge) 
+socket_send_byte(105, rosbridge) 
+socket_send_byte(99 , rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(58 , rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(47 , rosbridge) 
+socket_send_byte(115, rosbridge) 
+socket_send_byte(105, rosbridge) 
+socket_send_byte(109, rosbridge) 
+socket_send_byte(112, rosbridge) 
+socket_send_byte(108, rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(83 , rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(114, rosbridge) 
+socket_send_byte(118, rosbridge) 
+socket_send_byte(105, rosbridge) 
+socket_send_byte(99 , rosbridge) 
+socket_send_byte(101, rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(44 , rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(97 , rosbridge) 
+socket_send_byte(114, rosbridge) 
+socket_send_byte(103, rosbridge) 
+socket_send_byte(115, rosbridge) 
+socket_send_byte(34 , rosbridge) 
+socket_send_byte(58 , rosbridge) 
+socket_send_byte(123, rosbridge) 
+socket_send_byte(125, rosbridge) 
+socket_send_byte(125, rosbridge) 
+socket_send_byte(10 , rosbridge)
 
 string_from_server = socket_read_string(rosbridge)
 ri_parseServiceResponse(string_from_server)
