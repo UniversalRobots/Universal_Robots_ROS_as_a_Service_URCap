@@ -78,7 +78,7 @@ def json_findCorrespondingDelimiter(src, start = 0):
 end
 
 def json_getElementName(element):
-  bound = [0, 0]
+  local bounds = [0, 0]
   if str_len(element) <= 0:
     return [0, 0]
   end
@@ -94,7 +94,7 @@ def json_getElementValue(element):
   if str_len(element) <= 0:
     return [0, 0]
   end
-  bounds = json_getElementName(element)
+  local bounds = json_getElementName(element)
   if bounds[0] = 0 or bounds[1] = 0:
     return [0, 0]
   end
