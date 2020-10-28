@@ -5,8 +5,8 @@ global op = ""
 global result = ""
 global service = ""
 
-def ri_parseServiceResponse(inp_msg)
-  msg = inp_msg
+def ri_parseServiceResponse(inp_msg="")
+  local msg = inp_msg
   
   values = "toll"
   textmsg("value = ", values)
