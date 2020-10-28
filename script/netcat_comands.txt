@@ -14,3 +14,5 @@
 ---------------
 {"op":"call_service","service":"/simpleService", "args":{}}
 {"values": {"pose": {"header": {"stamp": {"secs": 0, "nsecs": 0}, "frame_id": "", "seq": 0}, "pose": {"position": {"y": 2.0, "x": 1.0, "z": 3.0}, "orientation": {"y": 0.0, "x": 0.0, "z": 0.0, "w": 0.0}}}}, "result": true, "service": "/simpleService", "op": "service_response"}
+
+{"op":"call_service","service":"/complexService", "args":{"pose": {"header": {"stamp": {"secs": 0, "nsecs": 0}, "frame_id": "", "seq": 0}, "pose": {"position": {"y": 0.0, "x": 0.0, "z": 0.0}, "orientation": {"y": 0.0, "x": 0.0, "z": 0.0, "w": 0.0}}}}}
