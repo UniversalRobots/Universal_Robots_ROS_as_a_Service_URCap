@@ -182,7 +182,7 @@ def ri_getService(inp_string):
   return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
 end
 
-def ri_parseServiceResponse(inp_msg)
+def ri_parseServiceResponse(inp_msg):
   msg = inp_msg
   
   values = ri_getValues(msg)
