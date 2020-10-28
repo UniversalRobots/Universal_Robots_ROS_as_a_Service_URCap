@@ -1,9 +1,9 @@
 {{BEGIN_REPLACE}}
 
-values = ""
-op = ""
-result = ""
-service = ""
+global values = ""
+global op = ""
+global result = ""
+global service = ""
 
 def json_checkKeywordMatch(src, target, index=0):
   src_length = str_len(src)
@@ -163,8 +163,23 @@ def ri_reduceString(src, target)
 end
 
 def ri_getOperation(inp_string):
-  op_bounds = json_getElement(inp_string, "op")
-  return str_sub(inp_string, op_bounds[0], op_bounds[1]-op_bounds[0])
+  local bounds = json_getElement(inp_string, "op")
+  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
+end
+
+def ri_getValues(inp_string):
+  local bounds = json_getElement(inp_string, "values")
+  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
+end
+
+def ri_getResult(inp_string):
+  local bounds = json_getElement(inp_string, "result")
+  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
+end
+
+def ri_getService(inp_string):
+  local bounds = json_getElement(inp_string, "service")
+  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
 end
 
 def ri_parseServiceResponse(inp_msg)
@@ -253,5 +268,7 @@ socket_send_byte(125, rosbridge)
 socket_send_byte(125, rosbridge) 
 socket_send_byte(10 , rosbridge)
 
+sleep(0.1)
 string_from_server = socket_read_string(rosbridge)
 ri_parseServiceResponse(string_from_server)
+socket_close(rosbridge)
