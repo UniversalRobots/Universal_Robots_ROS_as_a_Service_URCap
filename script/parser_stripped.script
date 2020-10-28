@@ -5,10 +5,20 @@ global op = ""
 global result = ""
 global service = ""
 
+def json_getElement(inp_string, name):
+  length = str_len(inp_string)
+  return [0, length]
+end
+
+def ri_getValues(inp_string):
+  local bounds = json_getElement(inp_string, "values")
+  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
+end
+
 def ri_parseServiceResponse(inp_msg=""):
   local msg = inp_msg
   
-  values = "toll"
+  values = ri_getValues(msg)
   textmsg("value = ", values)
 end
 
