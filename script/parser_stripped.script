@@ -5,7 +5,11 @@ global op = ""
 global result = ""
 global service = ""
 
-def json_checkKeywordMatch(src="", target="", index=0):  
+def json_checkKeywordMatch(src="", target="", index=0):
+  textmsg("check match in: ", src)
+  textmsg("check for: ", target)
+  textmsg("from position: ", index)
+
   return True
 end
 
@@ -14,18 +18,18 @@ def json_getElement(inp_string, name):
   name_length = str_len(name)
   textmsg("input_length =", inp_length)
   textmsg("name_length =", name_length)
-  
+
   if inp_length <= 0:
     return [0, 0]
   end
   if name_length <= 0:
     return [0, 0]
   end
-  
+
   local start_element = 0
   local end_element = 0
   local index = 0
-  
+
   while index < inp_length:
     textmsg("startelement: ", index)
     start_element = index
@@ -33,17 +37,18 @@ def json_getElement(inp_string, name):
     if json_checkKeywordMatch(inp_string, name, index):
       break
     end
-    
+
     index = index + 1
     if index == -1:
       return [0, 0]
     end
   end
-  
+
   return [0, inp_length]
 end
 
 def ri_getValues(inp_string):
+  textmsg("get values from", inp_string)
   local bounds = json_getElement(inp_string, "values")
   return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
 end
