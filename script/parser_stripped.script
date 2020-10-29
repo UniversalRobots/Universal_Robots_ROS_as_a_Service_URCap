@@ -4,6 +4,7 @@ global values = ""
 global op = ""
 global result = ""
 global service = ""
+global quote = ""
 
 def json_checkKeywordMatch(src="", target="", index=1):
   textmsg("check match in: ", src)
@@ -93,6 +94,13 @@ def ri_parseServiceResponse(inp_msg=""):
   values = ri_getValues(msg)
   textmsg("value = ", values)
 end
+
+socket_open("127.0.0.1", 9191, "lo")
+socket_send_byte(34, "lo")
+socket_send_byte(10, "lo")
+quote = socket_read_string("lo")
+
+textmsg("quote is: ", quote)
 
 socket_open("192.168.0.71", 9090, "rosbridge")
 
