@@ -6,7 +6,7 @@ global result = ""
 global service = ""
 
 def json_checkKeywordMatch(src="", target="", index=0):  
-  retrun True
+  return True
 end
 
 def json_getElement(inp_string, name):
