@@ -34,7 +34,7 @@ def json_getElement(inp_string, name):
     textmsg("startelement: ", index)
     start_element = index
     index = str_find(inp_string, name, start_element)
-    if json_checkKeywordMatch(inp_string, name, index):
+    if json_checkKeywordMatch(inp_string, name, index) == True:
       break
     end
 
