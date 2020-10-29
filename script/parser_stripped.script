@@ -12,12 +12,33 @@ def json_checkKeywordMatch(src="", target="", index=1):
 
   src_length = str_len(src)
   tgt_length = str_len(target)
-  if index == 0 or src_length == 0 or tgt_length == 0:
-    textmsg("either src or target empty or index to low!")
+  if tgt_length == 0:
+    textmsg("target empty!")
+    return False
+  end
+  if src_length == 0:
+    textmsg("src empty!")
+    return False
+  end
+  if index == 0:
+    textmsg("index to low!")
+    return False
+  end
+  if index + tgt_length + 1 < src_length:
+    textmsg("index to high!")
     return False
   end
 
-  if str_at(src,index-1) != 34 or str_at(src, index + tgt_length) != 34 or str_at(src, index + tgt_length + 1) != ":":
+  if str_at(src,index-1) != 34:
+    textmsg("keyword not headed by a quote!")
+    return False
+  end
+  if str_at(src, index + tgt_length) != 34:
+    textmsg("keyword not followed by a quote!")
+    return False
+  end
+  if str_at(src, index + tgt_length + 1) != ':':
+    textmsg("keyword not followed by a colcon!")
     return False
   end
 
