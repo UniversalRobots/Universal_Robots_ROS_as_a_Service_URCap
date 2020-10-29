@@ -20,12 +20,12 @@ def json_checkKeywordMatch(src="", target="", index=1):
     textmsg("src empty!")
     return False
   end
-  if index == 0:
-    textmsg("index to low!")
+  if index <= 0:
+    textmsg("index to low!", index)
     return False
   end
-  if index + tgt_length + 1 < src_length:
-    textmsg("index to high!")
+  if index + tgt_length + 1 > src_length:
+    textmsg("index to high!", index)
     return False
   end
 
@@ -82,7 +82,7 @@ def json_getElement(inp_string, name):
 end
 
 def ri_getValues(inp_string):
-  textmsg("get values from", inp_string)
+  textmsg("get values from ", inp_string)
   local bounds = json_getElement(inp_string, "values")
   return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
 end
