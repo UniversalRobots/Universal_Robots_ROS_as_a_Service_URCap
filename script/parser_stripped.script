@@ -5,10 +5,21 @@ global op = ""
 global result = ""
 global service = ""
 
-def json_checkKeywordMatch(src="", target="", index=0):
+def json_checkKeywordMatch(src="", target="", index=1):
   textmsg("check match in: ", src)
   textmsg("check for: ", target)
   textmsg("from position: ", index)
+
+  src_length = str_len(src)
+  tgt_length = str_len(target)
+  if index == 0 or src_length == 0 or tgt_length == 0:
+    textmsg("either src or target empty or index to low!")
+    return False
+  end
+
+  if str_at(src,index-1) != 34 or str_at(src, index + tgt_length) != 34 or str_at(src, index + tgt_length + 1) != ":":
+    return False
+  end
 
   return True
 end
@@ -16,8 +27,8 @@ end
 def json_getElement(inp_string, name):
   inp_length = str_len(inp_string)
   name_length = str_len(name)
-  textmsg("input_length =", inp_length)
-  textmsg("name_length =", name_length)
+  textmsg("input_length = ", inp_length)
+  textmsg("name_length = ", name_length)
 
   if inp_length <= 0:
     return [0, 0]
@@ -38,12 +49,14 @@ def json_getElement(inp_string, name):
       break
     end
 
-    index = index + 1
     if index == -1:
       return [0, 0]
     end
+
+    index = index + 1
   end
 
+  textmsg("found element at: ", start_element)
   return [0, inp_length]
 end
 
