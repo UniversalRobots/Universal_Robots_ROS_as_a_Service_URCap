@@ -171,7 +171,7 @@ def json_getElement(inp_string, name):
   local index = 0
 
   while index < inp_length:
-    textmsg("startelement: ", index)
+    # textmsg("startelement: ", index)
     index = str_find(inp_string, name, start_element)
     if json_checkKeywordMatch(inp_string, name, index) == True:
       start_element = index
