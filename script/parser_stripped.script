@@ -14,9 +14,9 @@ global x = 0.0
 ### target: identifier key
 ### index: position of first character of target in src
 def json_checkKeywordMatch(src="", target="", index=1):
-  textmsg("check match in: ", src)
-  textmsg("check for: ", target)
-  textmsg("from position: ", index)
+  # textmsg("check match in: ", src)
+  # textmsg("check for: ", target)
+  # textmsg("from position: ", index)
 
   src_length = str_len(src)
   tgt_length = str_len(target)
@@ -137,8 +137,8 @@ def json_findCorrespondingDelimiter(src, start = 0):
   elif delimiter_start == "(":
     delimiter_end = ")"
   else:
-    # boolean expressions without quotes
-    position = json_strFindFirstNotOf(src, "truefalsn", start +1)
+    # boolean expressions and numbers without quotes
+    position = json_strFindFirstNotOf(src, "truefalsn0123456789.", start +1)
     return position -1
   end
   
@@ -215,24 +215,22 @@ def ri_reduceString(inp_string="", start=0, length=0):
 end
 
 def ri_getValues(inp_string):
-  textmsg("get values from ", inp_string)
-  # local bounds = json_getElement(inp_string, "values")
-  # return str_sub(inp_string, bounds[2], bounds[3]-bounds[2]+1)
+  # textmsg("get values from ", inp_string)
   return json_getElement(inp_string, "values")
 end
 
 def ri_getOperation(inp_string):
-  textmsg("get operation from ", inp_string)
+  # textmsg("get operation from ", inp_string)
   return json_getElement(inp_string, "op")
 end
 
 def ri_getResult(inp_string):
-  textmsg("get result from ", inp_string)
+  # textmsg("get result from ", inp_string)
   return json_getElement(inp_string, "result")
 end
 
 def ri_getService(inp_string):
-  textmsg("get service from ", inp_string)
+  # textmsg("get service from ", inp_string)
   return json_getElement(inp_string, "service")
 end
 
@@ -272,6 +270,24 @@ def ri_parseServiceResponse(inp_msg=""):
   msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
   textmsg("service = ", service)
   textmsg("rest: ", msg)
+  
+  bounds = json_getElement(values, "pose")
+  local pose = str_sub(values, bounds[2], bounds[3]-bounds[2]+1)
+  textmsg("pose1: ", pose)
+  
+  bounds = json_getElement(pose, "pose")
+  pose = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
+  textmsg("pose2: ", pose)
+  
+  bounds = json_getElement(pose, "position")
+  pose = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
+  textmsg("pose3: ", pose)
+  
+  bounds = json_getElement(pose, "x")
+  pose = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
+  textmsg("pose4: ", pose)
+  
+  x = to_num(pose)
 end
 
 ###################
