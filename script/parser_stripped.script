@@ -46,6 +46,66 @@ def json_checkKeywordMatch(src="", target="", index=1):
   return True
 end
 
+def json_strFindFirstNotOf(src, target, start = 0):
+  position = start
+  while position < str_len(src):
+    a = str_at(src, position)
+    if str_find(target, a) == -1:
+      return position
+    end
+    position = position + 1
+  end
+  return -1
+end
+
+def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=0):
+  position = start
+  brace_count = 0
+  while position < str_len(src):
+    if str_at(src, position) == open_sign and str_at(src, position -1) != '\':
+      brace_count = brace_count + 1
+    end
+    
+    if str_at(src, position) == closing_sign and str_at(src, position -1) != '\':
+      brace_count = brace_count - 1
+      if brace_count == 0:
+        textmsg("found closing container at ", position)
+        return position
+      end
+    end
+    
+    position = position + 1
+  end
+  
+  textmsg("no closing container found for opening at ", start)
+  return -1
+end
+
+def json_findCorrespondingDelimiter(src, start = 0):
+  length = str_len(src)
+  if length <= 0 or start >= length:
+    return -1
+  end
+  
+  delimiter_start = str_at(src, start)
+  delimiter_end = ' '
+  
+  if delimiter_start == quote:
+    delimiter_end = quote
+  elif delimiter_start == '{':
+    delimiter_end = '}'
+  elif delimiter_start == '[':
+    delimiter_end = ']'
+  elif delimiter_start == '(':
+    delimiter_end = ')'
+  else
+    position = json_strFindFirstNotOf(src, "truefalsn", start +1)
+    return position
+  end
+  
+  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start +1)
+end
+
 def json_getElement(inp_string, name):
   inp_length = str_len(inp_string)
   name_length = str_len(name)
@@ -65,9 +125,9 @@ def json_getElement(inp_string, name):
 
   while index < inp_length:
     textmsg("startelement: ", index)
-    start_element = index
     index = str_find(inp_string, name, start_element)
     if json_checkKeywordMatch(inp_string, name, index) == True:
+      start_element = index
       break
     end
 
@@ -79,7 +139,21 @@ def json_getElement(inp_string, name):
   end
 
   textmsg("found element at: ", start_element)
-  return [0, inp_length]
+  
+  end_element = json_findCorrespondingDelimiter(inp_string, start_element)
+  
+  end_element = json_strFindFirstNotOf(inp_string, ": ", end_element)
+  if end_element == -1:
+    textmsg("did not sign after colcon")
+    return [0, 0]
+  end
+  
+  end_element = json_findCorrespondingDelimiter(inp_string, end_element)
+    if end_element == -1:
+    textmsg("did not find end of element")
+    return [0, 0]
+  end
+  return [start_element, end_element]
 end
 
 def ri_getValues(inp_string):
