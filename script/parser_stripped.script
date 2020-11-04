@@ -6,6 +6,8 @@ global result = ""
 global service = ""
 global quote = " "
 global x = 0.0
+global y = 0.0
+global z = 0.0
 
 ### bool json_checkKeywordMatch(src="", target="", index=1)
 ### check if a given name in src is a valid identifier
@@ -243,6 +245,9 @@ def ri_parseServiceResponse(inp_msg=""):
   # TODO: it is a dirty hack to get quote from json string
   quote = str_at(inp_msg, 1)
   textmsg("quote is: ", quote)
+  textmsg("x is: ", x)
+  textmsg("y is: ", y)
+  textmsg("z is: ", z)
   
   local bounds = [0, 0, 0, 0]
   local msg = inp_msg
@@ -251,43 +256,56 @@ def ri_parseServiceResponse(inp_msg=""):
   values = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
   msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
   textmsg("value = ", values)
-  textmsg("rest: ", msg)
+  # textmsg("rest: ", msg)
   
   bounds = ri_getResult(msg)
   result = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
   msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
   textmsg("result = ", result)
-  textmsg("rest: ", msg)
+  # textmsg("rest: ", msg)
   
   bounds = ri_getOperation(msg)
   op = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
   msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
   textmsg("op = ", op)
-  textmsg("rest: ", msg)
+  # textmsg("rest: ", msg)
   
   bounds = ri_getService(msg)
   service = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
   msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
   textmsg("service = ", service)
-  textmsg("rest: ", msg)
+  # textmsg("rest: ", msg)
   
   bounds = json_getElement(values, "pose")
   local pose = str_sub(values, bounds[2], bounds[3]-bounds[2]+1)
-  textmsg("pose1: ", pose)
+  # textmsg("pose1: ", pose)
   
   bounds = json_getElement(pose, "pose")
   pose = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
-  textmsg("pose2: ", pose)
+  # textmsg("pose2: ", pose)
   
   bounds = json_getElement(pose, "position")
-  pose = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
-  textmsg("pose3: ", pose)
+  position = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
+  # textmsg("pose3: ", pose)
   
-  bounds = json_getElement(pose, "x")
-  pose = str_sub(pose, bounds[2], bounds[3]-bounds[2]+1)
-  textmsg("pose4: ", pose)
-  
+  bounds = json_getElement(position, "x")
+  pose = str_sub(position, bounds[2], bounds[3]-bounds[2]+1)
+  # textmsg("pose4: ", pose)
   x = to_num(pose)
+  
+  bounds = json_getElement(position, "y")
+  pose = str_sub(position, bounds[2], bounds[3]-bounds[2]+1)
+  # textmsg("pose4: ", pose)
+  y = to_num(pose)
+  
+  bounds = json_getElement(position, "z")
+  pose = str_sub(position, bounds[2], bounds[3]-bounds[2]+1)
+  # textmsg("pose4: ", pose)
+  z = to_num(pose)
+  
+  textmsg("x is: ", x)
+  textmsg("y is: ", y)
+  textmsg("z is: ", z)
 end
 
 ###################
