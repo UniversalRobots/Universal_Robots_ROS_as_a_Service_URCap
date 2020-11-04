@@ -59,17 +59,23 @@ def json_strFindFirstNotOf(src, target, start = 0):
 end
 
 def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1):
+  textmsg("look for Closing Container. start: ", start)
+  textmsg("opening: ", open_sign)
+  textmsg("closing: ", closing_sign)
   position = start
   brace_count = 0
+  
   while position < str_len(src):
     if str_at(src, position) == open_sign and str_at(src, position -1) != "\":
+      textmsg("found an opening at ", position)
       brace_count = brace_count + 1
     end
     
     if str_at(src, position) == closing_sign and str_at(src, position -1) != "\":
       brace_count = brace_count - 1
+      textmsg("found a closing at ", position)
       if brace_count == 0:
-        textmsg("found closing container at ", position)
+        textmsg("found closing for the container at ", position)
         return position
       end
     end
@@ -82,6 +88,7 @@ def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1
 end
 
 def json_findCorrespondingDelimiter(src, start = 0):
+  textmsg("find corresponding delimiter. start ", start)
   length = str_len(src)
   if length <= 0 or start >= length:
     return -1
@@ -140,26 +147,30 @@ def json_getElement(inp_string, name):
 
   textmsg("found element at: ", start_element)
   
-  end_element = json_findCorrespondingDelimiter(inp_string, start_element)
+  end_element = start_element + name_length + 1
+  textmsg("end_element in step1: ", end_element)
   
   end_element = json_strFindFirstNotOf(inp_string, ": ", end_element)
+  textmsg("end_element in step2: ", end_element)
   if end_element == -1:
     textmsg("did not sign after colcon")
     return [0, 0]
   end
   
   end_element = json_findCorrespondingDelimiter(inp_string, end_element)
-    if end_element == -1:
+  textmsg("end_element in step3: ", end_element)
+  if end_element == -1:
     textmsg("did not find end of element")
     return [0, 0]
   end
+  start_element = start_element -1
   return [start_element, end_element]
 end
 
 def ri_getValues(inp_string):
   textmsg("get values from ", inp_string)
   local bounds = json_getElement(inp_string, "values")
-  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0])
+  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0]+1)
 end
 
 def ri_parseServiceResponse(inp_msg=""):
