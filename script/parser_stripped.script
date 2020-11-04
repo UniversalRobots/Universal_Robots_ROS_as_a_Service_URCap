@@ -58,15 +58,15 @@ def json_strFindFirstNotOf(src, target, start = 0):
   return -1
 end
 
-def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=0):
+def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1):
   position = start
   brace_count = 0
   while position < str_len(src):
-    if str_at(src, position) == open_sign and str_at(src, position -1) != '\':
+    if str_at(src, position) == open_sign and str_at(src, position -1) != "\":
       brace_count = brace_count + 1
     end
     
-    if str_at(src, position) == closing_sign and str_at(src, position -1) != '\':
+    if str_at(src, position) == closing_sign and str_at(src, position -1) != "\":
       brace_count = brace_count - 1
       if brace_count == 0:
         textmsg("found closing container at ", position)
@@ -88,22 +88,24 @@ def json_findCorrespondingDelimiter(src, start = 0):
   end
   
   delimiter_start = str_at(src, start)
-  delimiter_end = ' '
+  delimiter_end = " "
   
   if delimiter_start == quote:
     delimiter_end = quote
-  elif delimiter_start == '{':
-    delimiter_end = '}'
-  elif delimiter_start == '[':
-    delimiter_end = ']'
-  elif delimiter_start == '(':
-    delimiter_end = ')'
+  elif delimiter_start == "{":
+    delimiter_end = "}"
+  elif delimiter_start == "[":
+    delimiter_end = "]"
+  elif delimiter_start == "(":
+    delimiter_end = ")"
   else
-    position = json_strFindFirstNotOf(src, "truefalsn", start +1)
+    start_s = start + 1
+    position = json_strFindFirstNotOf(src, "truefalsn", start_s)
     return position
   end
   
-  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start +1)
+  start_d = start + 1
+  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start_d)
 end
 
 def json_getElement(inp_string, name):
