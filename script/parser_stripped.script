@@ -139,7 +139,7 @@ def json_findCorrespondingDelimiter(src, start = 0):
   else:
     # boolean expressions without quotes
     position = json_strFindFirstNotOf(src, "truefalsn", start +1)
-    return position
+    return position -1
   end
   
   return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start)
