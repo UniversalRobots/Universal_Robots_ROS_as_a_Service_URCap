@@ -30,7 +30,7 @@ def json_checkKeywordMatch(src="", target="", index=1):
     return False
   end
 
-  if str_at(src,index-1) != 34:
+  if str_at(src,index-1) != quote:
     textmsg("keyword not headed by a quote!")
     return False
   end
@@ -89,20 +89,16 @@ def ri_getValues(inp_string):
 end
 
 def ri_parseServiceResponse(inp_msg=""):
-  local msg = inp_msg
+  if str_empty(inp_msg) == True:
+    textmsg("no string to parse!")
+    return None
+  end
   
-  values = ri_getValues(msg)
+  quote = str_at(inp_msg, 1)
+  textmsg("quote is: ", quote)
+  values = ri_getValues(inp_msg)
   textmsg("value = ", values)
 end
-
-socket_open("127.0.0.1", 9191, "lo")
-socket_send_byte(34, "lo")
-socket_send_byte(10, "lo")
-quote = socket_read_string("lo")
-socket_close("lo")
-textmsg("quote is: ", quote)
-quote[0]=34
-textmsg("quote is: ", quote)
 
 socket_open("192.168.0.71", 9090, "rosbridge")
 
