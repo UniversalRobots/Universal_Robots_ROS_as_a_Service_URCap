@@ -87,15 +87,19 @@ def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1
   return -1
 end
 
+# Look for a following corresponding Delimiter in a Json string.
+# src: json string to evaluate
+# start: position of delimiter to look for a corresponding element
 def json_findCorrespondingDelimiter(src, start = 0):
-  textmsg("find corresponding delimiter. start ", start)
-  length = str_len(src)
-  if length <= 0 or start >= length:
+  # textmsg("find corresponding delimiter. start ", start)
+  if str_empty(src) == True:
+    textmsg("Cannot find a corresponding delimiter in empty string")
     return -1
   end
   
-  delimiter_start = str_at(src, start)
-  delimiter_end = " "
+  local length = str_len(src)
+  local delimiter_start = str_at(src, start)
+  local delimiter_end = " "
   
   if delimiter_start == quote:
     delimiter_end = quote
@@ -106,6 +110,7 @@ def json_findCorrespondingDelimiter(src, start = 0):
   elif delimiter_start == "(":
     delimiter_end = ")"
   else:
+    # boolean expressions without quotes
     position = json_strFindFirstNotOf(src, "truefalsn", start +1)
     return position
   end
@@ -113,18 +118,24 @@ def json_findCorrespondingDelimiter(src, start = 0):
   return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start)
 end
 
+# return positions of an Element in a json string
+# inp_string: json to extract the element from
+# name: identifier of the element
+# return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
 def json_getElement(inp_string, name):
+  if str_empty(inp_string) == True:
+    textmsg("Can not evaluate empty json string. abort")
+    return [0, 0, 0, 0]
+  end
+  if str_empty(name) == True:
+    textmsg("Empty json identifier to look for. abort")
+    return [0, 0, 0, 0]
+  end
+
   inp_length = str_len(inp_string)
   name_length = str_len(name)
-  textmsg("input_length = ", inp_length)
-  textmsg("name_length = ", name_length)
-
-  if inp_length <= 0:
-    return [0, 0, 0, 0]
-  end
-  if name_length <= 0:
-    return [0, 0, 0, 0]
-  end
+  # textmsg("input_length = ", inp_length)
+  # textmsg("name_length = ", name_length)
 
   local start_element = 0
   local begin_value = 0
@@ -146,27 +157,25 @@ def json_getElement(inp_string, name):
     index = index + 1
   end
 
-  textmsg("found element at: ", start_element)
+  # textmsg("found element at: ", start_element)
   
   end_element = start_element + name_length + 1
-  textmsg("end_element in step1: ", end_element)
+  # textmsg("end_element in step1: ", end_element)
   
-  end_element = json_strFindFirstNotOf(inp_string, ": ", end_element)
-  textmsg("end_element in step2: ", end_element)
-  if end_element == -1:
-    textmsg("did not find sign after colcon")
+  begin_value = json_strFindFirstNotOf(inp_string, ": ", end_element)
+  # textmsg("end_element in step2: ", begin_value)
+  if begin_value == -1:
+    textmsg("did not find begin of value")
     return [0, 0, 0, 0]
   end
   
-  
-  begin_value = end_element
-  
-  end_element = json_findCorrespondingDelimiter(inp_string, end_element)
-  textmsg("end_element in step3: ", end_element)
+  end_element = json_findCorrespondingDelimiter(inp_string, begin_value)
+  # textmsg("end_element in step3: ", end_element)
   if end_element == -1:
     textmsg("did not find end of element")
     return [0, 0, 0, 0]
   end
+  
   start_element = start_element -1
   return [start_element, start_element + name_length + 2, begin_value, end_element]
 end
