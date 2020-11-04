@@ -34,11 +34,11 @@ def json_checkKeywordMatch(src="", target="", index=1):
     textmsg("keyword not headed by a quote!")
     return False
   end
-  if str_at(src, index + tgt_length) != 34:
+  if str_at(src, index + tgt_length) != quote:
     textmsg("keyword not followed by a quote!")
     return False
   end
-  if str_at(src, index + tgt_length + 1) != 58:
+  if str_at(src, index + tgt_length + 1) != ":":
     textmsg("keyword not followed by a colcon!")
     return False
   end
