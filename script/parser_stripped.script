@@ -98,14 +98,12 @@ def json_findCorrespondingDelimiter(src, start = 0):
     delimiter_end = "]"
   elif delimiter_start == "(":
     delimiter_end = ")"
-  else
-    start_s = start + 1
-    position = json_strFindFirstNotOf(src, "truefalsn", start_s)
+  else:
+    position = json_strFindFirstNotOf(src, "truefalsn", start +1)
     return position
   end
   
-  start_d = start + 1
-  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start_d)
+  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start +1)
 end
 
 def json_getElement(inp_string, name):
