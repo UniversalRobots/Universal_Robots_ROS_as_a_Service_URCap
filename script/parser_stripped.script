@@ -5,12 +5,14 @@ global op = ""
 global result = ""
 global service = ""
 global quote = " "
+global x = 0.0
 
-# check if a given name in src is a valid identifier
-# This is checked by testing for a prepositioned and a postpositioned quote + colcon
-# src: string in which to check if a target is a valid identifier
-# target: identifier key
-# index: position of first character of target in src
+### bool json_checkKeywordMatch(src="", target="", index=1)
+### check if a given name in src is a valid identifier
+### This is checked by testing for a prepositioned and a postpositioned quote + colcon
+### src: string in which to check if a target is a valid identifier
+### target: identifier key
+### index: position of first character of target in src
 def json_checkKeywordMatch(src="", target="", index=1):
   textmsg("check match in: ", src)
   textmsg("check for: ", target)
@@ -52,6 +54,12 @@ def json_checkKeywordMatch(src="", target="", index=1):
   return True
 end
 
+### int json_strFindFirstNotOf(src, target, start = 0)
+### find first character in src that is not in target
+### src: string in which to look for characters
+### target: string with allowed characters
+### start: first character to check in src
+### return position of first character not in target. if none is found return -1
 def json_strFindFirstNotOf(src, target, start = 0):
   position = start
   while position < str_len(src):
@@ -64,24 +72,31 @@ def json_strFindFirstNotOf(src, target, start = 0):
   return -1
 end
 
+### int json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1)
+### with a defined character to open a container and one to close it look for the end of the container
+### src: string where to look for delimiters
+### open_sign: character to open a container
+### closing_sign: character to close a container
+### start: first character to check in src
+### return position of closing character in src. -1 if none is found
 def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1):
-  textmsg("look for Closing Container. start: ", start)
-  textmsg("opening: ", open_sign)
-  textmsg("closing: ", closing_sign)
+  # textmsg("look for Closing Container. start: ", start)
+  # textmsg("opening: ", open_sign)
+  # textmsg("closing: ", closing_sign)
   position = start
   brace_count = 0
   
   while position < str_len(src):
     if str_at(src, position) == open_sign and str_at(src, position -1) != "\":
-      textmsg("found an opening at ", position)
+      # textmsg("found an opening at ", position)
       brace_count = brace_count + 1
     end
     
     if str_at(src, position) == closing_sign and str_at(src, position -1) != "\":
       brace_count = brace_count - 1
-      textmsg("found a closing at ", position)
+      # textmsg("found a closing at ", position)
       if brace_count == 0:
-        textmsg("found closing for the container at ", position)
+        # textmsg("found closing for the container at ", position)
         return position
       end
     end
@@ -93,9 +108,11 @@ def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1
   return -1
 end
 
-# Look for a following corresponding Delimiter in a Json string.
-# src: json string to evaluate
-# start: position of delimiter to look for a corresponding element
+### int json_findCorrespondingDelimiter(src, start = 0)
+### Look for a following corresponding Delimiter in a Json string.
+### src: json string to evaluate
+### start: position of delimiter to look for a corresponding element
+### return: position of character closing the container
 def json_findCorrespondingDelimiter(src, start = 0):
   # textmsg("find corresponding delimiter. start ", start)
   if str_empty(src) == True:
@@ -124,10 +141,11 @@ def json_findCorrespondingDelimiter(src, start = 0):
   return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start)
 end
 
-# return positions of an Element in a json string
-# inp_string: json to extract the element from
-# name: identifier of the element
-# return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
+### int[4] json_getElement
+### return positions of an Element in a json string
+### inp_string: json to extract the element from
+### name: identifier of the element
+### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
 def json_getElement(inp_string, name):
   if str_empty(inp_string) == True:
     textmsg("Can not evaluate empty json string. abort")
@@ -186,10 +204,17 @@ def json_getElement(inp_string, name):
   return [start_element, start_element + name_length + 2, begin_value, end_element]
 end
 
+def ri_reduceString(inp_string="", start=0, length=0):
+  before = str_sub(inp_string, 0, start -1)
+  after = str_sub(inp_string, start + length)
+  return str_cat(before, after)
+end
+
 def ri_getValues(inp_string):
   textmsg("get values from ", inp_string)
-  local bounds = json_getElement(inp_string, "values")
-  return str_sub(inp_string, bounds[2], bounds[3]-bounds[2]+1)
+  # local bounds = json_getElement(inp_string, "values")
+  # return str_sub(inp_string, bounds[2], bounds[3]-bounds[2]+1)
+  return json_getElement(inp_string, "values")
 end
 
 def ri_parseServiceResponse(inp_msg=""):
@@ -198,11 +223,25 @@ def ri_parseServiceResponse(inp_msg=""):
     return None
   end
   
+  # TODO: it is a dirty hack to get quote from json string
   quote = str_at(inp_msg, 1)
   textmsg("quote is: ", quote)
-  values = ri_getValues(inp_msg)
+  
+  local bounds = [0, 0, 0, 0]
+  local msg = inp_msg
+  # values = ri_getValues(msg)
+  bounds = ri_getValues(msg)
+  values = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
+  msg = ri_reduceString(msg, bounds[0], bounds[3])
+  
+  textmsg("rest: ", msg)
+  
   textmsg("value = ", values)
 end
+
+###################
+# START EXECUTION #
+###################
 
 socket_open("192.168.0.71", 9090, "rosbridge")
 
