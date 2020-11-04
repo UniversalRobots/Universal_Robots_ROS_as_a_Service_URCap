@@ -79,11 +79,15 @@ end
 ### closing_sign: character to close a container
 ### start: first character to check in src
 ### return position of closing character in src. -1 if none is found
-def json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1):
+def json_findCorrespondingClosingContainer(src="", open_sign=" ", closing_sign=" ", start=1):
   # textmsg("look for Closing Container. start: ", start)
   # textmsg("opening: ", open_sign)
   # textmsg("closing: ", closing_sign)
-  position = start
+  if open_sign == quote:
+    position = start +1
+  else:
+    position = start
+  end
   brace_count = 0
   
   while position < str_len(src):
@@ -205,15 +209,9 @@ def json_getElement(inp_string, name):
 end
 
 def ri_reduceString(inp_string="", start=0, length=0):
-  textmsg("input: ", inp_string)
-  textmsg("start: ", start)
-  textmsg("length: ", length)
-  local before = str_sub(inp_string, 0, start)
-  textmsg("prefix: ", before)
-  local after = str_sub(inp_string, start + length)
-  textmsg("postfix: ", after)
-  
-  return str_cat(before, after)
+  local prefix = str_sub(inp_string, 0, start)
+  local postfix = str_sub(inp_string, start + length)
+  return str_cat(prefix, postfix)
 end
 
 def ri_getValues(inp_string):
@@ -221,6 +219,21 @@ def ri_getValues(inp_string):
   # local bounds = json_getElement(inp_string, "values")
   # return str_sub(inp_string, bounds[2], bounds[3]-bounds[2]+1)
   return json_getElement(inp_string, "values")
+end
+
+def ri_getOperation(inp_string):
+  textmsg("get operation from ", inp_string)
+  return json_getElement(inp_string, "op")
+end
+
+def ri_getResult(inp_string):
+  textmsg("get result from ", inp_string)
+  return json_getElement(inp_string, "result")
+end
+
+def ri_getService(inp_string):
+  textmsg("get service from ", inp_string)
+  return json_getElement(inp_string, "service")
 end
 
 def ri_parseServiceResponse(inp_msg=""):
@@ -239,10 +252,26 @@ def ri_parseServiceResponse(inp_msg=""):
   bounds = ri_getValues(msg)
   values = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
   msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
-  
+  textmsg("value = ", values)
   textmsg("rest: ", msg)
   
-  textmsg("value = ", values)
+  bounds = ri_getResult(msg)
+  result = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
+  msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
+  textmsg("result = ", result)
+  textmsg("rest: ", msg)
+  
+  bounds = ri_getOperation(msg)
+  op = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
+  msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
+  textmsg("op = ", op)
+  textmsg("rest: ", msg)
+  
+  bounds = ri_getService(msg)
+  service = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
+  msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
+  textmsg("service = ", service)
+  textmsg("rest: ", msg)
 end
 
 ###################
