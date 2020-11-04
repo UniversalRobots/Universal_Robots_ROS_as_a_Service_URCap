@@ -6,6 +6,11 @@ global result = ""
 global service = ""
 global quote = " "
 
+# check if a given name in src is a valid identifier
+# This is checked by testing for a prepositioned and a postpositioned quote + colcon
+# src: string in which to check if a target is a valid identifier
+# target: identifier key
+# index: position of first character of target in src
 def json_checkKeywordMatch(src="", target="", index=1):
   textmsg("check match in: ", src)
   textmsg("check for: ", target)
@@ -30,6 +35,7 @@ def json_checkKeywordMatch(src="", target="", index=1):
     return False
   end
 
+  # TODO: check for missing backslash before prepositioned quote if index is high enough
   if str_at(src,index-1) != quote:
     textmsg("keyword not headed by a quote!")
     return False
