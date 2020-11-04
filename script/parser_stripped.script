@@ -120,13 +120,14 @@ def json_getElement(inp_string, name):
   textmsg("name_length = ", name_length)
 
   if inp_length <= 0:
-    return [0, 0]
+    return [0, 0, 0, 0]
   end
   if name_length <= 0:
-    return [0, 0]
+    return [0, 0, 0, 0]
   end
 
   local start_element = 0
+  local begin_value = 0
   local end_element = 0
   local index = 0
 
@@ -139,7 +140,7 @@ def json_getElement(inp_string, name):
     end
 
     if index == -1:
-      return [0, 0]
+      return [0, 0, 0, 0]
     end
 
     index = index + 1
@@ -153,24 +154,27 @@ def json_getElement(inp_string, name):
   end_element = json_strFindFirstNotOf(inp_string, ": ", end_element)
   textmsg("end_element in step2: ", end_element)
   if end_element == -1:
-    textmsg("did not sign after colcon")
-    return [0, 0]
+    textmsg("did not find sign after colcon")
+    return [0, 0, 0, 0]
   end
+  
+  
+  begin_value = end_element
   
   end_element = json_findCorrespondingDelimiter(inp_string, end_element)
   textmsg("end_element in step3: ", end_element)
   if end_element == -1:
     textmsg("did not find end of element")
-    return [0, 0]
+    return [0, 0, 0, 0]
   end
   start_element = start_element -1
-  return [start_element, end_element]
+  return [start_element, start_element + name_length + 2, begin_value, end_element]
 end
 
 def ri_getValues(inp_string):
   textmsg("get values from ", inp_string)
   local bounds = json_getElement(inp_string, "values")
-  return str_sub(inp_string, bounds[0], bounds[1]-bounds[0]+1)
+  return str_sub(inp_string, bounds[2], bounds[3]-bounds[2]+1)
 end
 
 def ri_parseServiceResponse(inp_msg=""):
