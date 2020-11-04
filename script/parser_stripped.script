@@ -110,7 +110,7 @@ def json_findCorrespondingDelimiter(src, start = 0):
     return position
   end
   
-  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start +1)
+  return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start)
 end
 
 def json_getElement(inp_string, name):
