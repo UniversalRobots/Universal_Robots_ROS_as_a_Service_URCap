@@ -205,8 +205,14 @@ def json_getElement(inp_string, name):
 end
 
 def ri_reduceString(inp_string="", start=0, length=0):
-  before = str_sub(inp_string, 0, start -1)
-  after = str_sub(inp_string, start + length)
+  textmsg("input: ", inp_string)
+  textmsg("start: ", start)
+  textmsg("length: ", length)
+  local before = str_sub(inp_string, 0, start)
+  textmsg("prefix: ", before)
+  local after = str_sub(inp_string, start + length)
+  textmsg("postfix: ", after)
+  
   return str_cat(before, after)
 end
 
@@ -232,7 +238,7 @@ def ri_parseServiceResponse(inp_msg=""):
   # values = ri_getValues(msg)
   bounds = ri_getValues(msg)
   values = str_sub(msg, bounds[2], bounds[3]-bounds[2]+1)
-  msg = ri_reduceString(msg, bounds[0], bounds[3])
+  msg = ri_reduceString(msg, bounds[0], bounds[3]-bounds[0]+1)
   
   textmsg("rest: ", msg)
   
