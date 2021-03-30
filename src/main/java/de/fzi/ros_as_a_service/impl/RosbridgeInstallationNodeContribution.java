@@ -1,12 +1,47 @@
+// -- BEGIN LICENSE BLOCK ----------------------------------------------
+// Copyright 2019 FZI Forschungszentrum Informatik
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// -- END LICENSE BLOCK ------------------------------------------------
+
+//----------------------------------------------------------------------
+/*!\file
+ *
+ * \author  Lea Steffen steffen@fzi.de
+ * \date    2020-12-09
+ *
+ */
+//----------------------------------------------------------------------
+
 package de.fzi.ros_as_a_service.impl;
 
 import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.InstallationAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.stream.Collectors;
 
 public class RosbridgeInstallationNodeContribution implements InstallationNodeContribution {
+  private static final String HOST_IP = "host_ip";
+  private static final String PORT_NR = "port_nr";
+  private static final String DEFAULT_IP = "192.168.56.1";
+  private static final String DEFAULT_PORT = "9090";
   private DataModel model;
   private final RosbridgeInstallationNodeView view;
   private final KeyboardInputFactory keyboardFactory;
@@ -20,17 +55,134 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   }
 
   @Override
-  public void openView() {
-    // TODO Auto-generated method stub
-  }
+  public void openView() {}
 
   @Override
-  public void closeView() {
-    // TODO Auto-generated method stub
+  public void closeView() {}
+
+  public boolean isDefined() {
+    return !getHostIP().isEmpty();
   }
 
   @Override
   public void generateScript(ScriptWriter writer) {
-    writer.appendLine("socket_open(\"192.168.56.1\", 9090, \"testserver\")");
+    // writer.appendLine("MASTER1_IP = \"" + getHostIP() + "\"");
+    // writer.appendLine("MASTER1_PORT = " + getCustomPort());
+    // writer.appendLine("socket_open(MASTER1_IP, MASTER1_PORT,
+    // \"testserver\")");
+
+    // Append JSON Parser
+    writer.appendRaw(LoadResourceFile("json_parser.script"));
+
+    // generate quote here!
+    writer.appendLine("# get quote for json parsing");
+    writer.defineFunction("get_quote");
+    writer.appendLine(
+        "socket_open(\"" + getHostIP() + "\", " + getCustomPort() + ", \"quotesocket\")");
+    String call_time = "{\"op\":\"call_service\", \"service\":\"/rosapi/get_time\"}";
+    byte[] bytes = call_time.getBytes();
+    char a;
+    for (int j = 0; j < bytes.length; j++) {
+      a = (char) bytes[j];
+      writer.appendLine("socket_send_byte(" + bytes[j] + ", \"quotesocket\")\t# " + a);
+    }
+    writer.appendLine("local response = \" \"");
+    writer.assign("response", "socket_read_string(\"quotesocket\")");
+    writer.assign("quote", "str_at(response, 1)");
+    writer.appendLine("socket_close(\"quotesocket\")");
+    writer.end();
+    writer.appendLine("get_quote()");
+  }
+
+  // IP helper functions
+  public void setHostIP(String ip) {
+    if ("".equals(ip)) {
+      resetToDefaultIP();
+    } else {
+      model.set(HOST_IP, ip);
+    }
+  }
+
+  public String getHostIP() {
+    return model.get(HOST_IP, DEFAULT_IP);
+  }
+
+  // TODO return pairs of IP and Port
+  public MasterPair[] getMastersList() {
+    MasterPair[] items = new MasterPair[2];
+    items[0] = new MasterPair();
+    items[1] = new MasterPair(getHostIP(), getCustomPort());
+    return items;
+  }
+
+  private void resetToDefaultIP() {
+    model.set(HOST_IP, DEFAULT_IP);
+  }
+
+  public KeyboardTextInput getInputForIPTextField() {
+    KeyboardTextInput keyboInput = keyboardFactory.createStringKeyboardInput();
+    keyboInput.setInitialValue(getHostIP());
+    return keyboInput;
+  }
+
+  public KeyboardInputCallback<String> getCallbackForIPTextField() {
+    return new KeyboardInputCallback<String>() {
+      @Override
+      public void onOk(String value) {
+        setHostIP(value);
+        view.UpdateIPTextField(value);
+      }
+    };
+  }
+
+  // port helper functions
+  public void setHostPort(String port) {
+    if ("".equals(port)) {
+      resetToDefaultPort();
+    } else {
+      model.set(PORT_NR, port);
+    }
+  }
+
+  public String getCustomPort() {
+    return model.get(PORT_NR, DEFAULT_PORT);
+  }
+
+  private void resetToDefaultPort() {
+    model.set(PORT_NR, DEFAULT_PORT);
+  }
+
+  public KeyboardTextInput getInputForPortTextField() {
+    KeyboardTextInput keyboInput = keyboardFactory.createStringKeyboardInput();
+    keyboInput.setInitialValue(getCustomPort());
+    return keyboInput;
+  }
+
+  public KeyboardInputCallback<String> getCallbackForPortTextField() {
+    return new KeyboardInputCallback<String>() {
+      @Override
+      public void onOk(String value) {
+        setHostPort(value);
+        view.UpdatePortTextField(value);
+      }
+    };
+  }
+
+  public String LoadResourceFile(String fileName) {
+    if ("".contentEquals(fileName)) {
+      return "# empty filename to load from resource";
+    }
+    URL fileURL = getClass().getClassLoader().getResource(fileName);
+    if (fileURL == null) {
+      return "# " + fileName + " not found!";
+    }
+
+    InputStreamReader inputReader =
+        new InputStreamReader(getClass().getResourceAsStream(fileURL.getPath()));
+    BufferedReader reader = new BufferedReader(inputReader);
+
+    String line = reader.lines().collect(Collectors.joining("\n"));
+
+    return line;
   }
 }

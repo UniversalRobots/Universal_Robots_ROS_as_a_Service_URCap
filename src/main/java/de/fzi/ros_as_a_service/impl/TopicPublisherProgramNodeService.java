@@ -17,8 +17,8 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Felix Exner exner@fzi.de
- * \date    2020-09-16
+ * \author  Carsten Plasberg plasberg@fzi.de
+ * \date    2021-01-26
  *
  */
 //----------------------------------------------------------------------
@@ -33,12 +33,12 @@ import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeService;
 import com.ur.urcap.api.domain.data.DataModel;
 import java.util.Locale;
 
-public class ServiceCallerProgramNodeService
-    implements SwingProgramNodeService<ServiceCallerProgramNodeContribution,
-        ServiceCallerProgramNodeView> {
+public class TopicPublisherProgramNodeService
+    implements SwingProgramNodeService<TopicPublisherProgramNodeContribution,
+        TopicPublisherProgramNodeView> {
   @Override
   public String getId() {
-    return "serviceCaller";
+    return "topicPublisher";
   }
 
   @Override
@@ -48,17 +48,17 @@ public class ServiceCallerProgramNodeService
 
   @Override
   public String getTitle(Locale locale) {
-    return "Service Call";
+    return "Publish Topic";
   }
 
   @Override
-  public ServiceCallerProgramNodeView createView(ViewAPIProvider apiProvider) {
-    return new ServiceCallerProgramNodeView(apiProvider);
+  public TopicPublisherProgramNodeView createView(ViewAPIProvider apiProvider) {
+    return new TopicPublisherProgramNodeView(apiProvider);
   }
 
   @Override
-  public ServiceCallerProgramNodeContribution createNode(ProgramAPIProvider apiProvider,
-      ServiceCallerProgramNodeView view, DataModel model, CreationContext context) {
-    return new ServiceCallerProgramNodeContribution(apiProvider, view, model);
+  public TopicPublisherProgramNodeContribution createNode(ProgramAPIProvider apiProvider,
+      TopicPublisherProgramNodeView view, DataModel model, CreationContext context) {
+    return new TopicPublisherProgramNodeContribution(apiProvider, view, model);
   }
 }
