@@ -1,16 +1,16 @@
 package de.fzi.ros_as_a_service.impl;
 
-import java.util.Locale;
-
 import com.ur.urcap.api.contribution.ViewAPIProvider;
 import com.ur.urcap.api.contribution.program.ContributionConfiguration;
 import com.ur.urcap.api.contribution.program.CreationContext;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeService;
 import com.ur.urcap.api.domain.data.DataModel;
+import java.util.Locale;
 
-public class ServiceCallerProgramNodeService implements SwingProgramNodeService<ServiceCallerProgramNodeContribution, ServiceCallerProgramNodeView>{
-
+public class ServiceCallerProgramNodeService
+    implements SwingProgramNodeService<ServiceCallerProgramNodeContribution,
+        ServiceCallerProgramNodeView> {
   @Override
   public String getId() {
     return "serviceCaller";
@@ -36,5 +36,4 @@ public class ServiceCallerProgramNodeService implements SwingProgramNodeService<
       ServiceCallerProgramNodeView view, DataModel model, CreationContext context) {
     return new ServiceCallerProgramNodeContribution(apiProvider, view, model);
   }
-
 }

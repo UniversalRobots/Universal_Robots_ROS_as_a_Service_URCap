@@ -1,15 +1,13 @@
 package de.fzi.ros_as_a_service.impl;
 
+import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeView;
 import java.awt.Component;
-
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeView;
-
-public class RosbridgeInstallationNodeView implements SwingInstallationNodeView<RosbridgeInstallationNodeContribution>{
-
+public class RosbridgeInstallationNodeView
+    implements SwingInstallationNodeView<RosbridgeInstallationNodeContribution> {
   @Override
   public void buildUI(JPanel panel, RosbridgeInstallationNodeContribution contribution) {
     panel.add(createDescription("This will be the configuration"));
@@ -24,5 +22,4 @@ public class RosbridgeInstallationNodeView implements SwingInstallationNodeView<
 
     return box;
   }
-
 }
