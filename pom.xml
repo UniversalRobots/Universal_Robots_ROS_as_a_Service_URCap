@@ -19,8 +19,8 @@
 		<!--********************************************************************-->
 		<!--******************* BEGINNING OF URCAP META DATA *******************-->
 		<urcap.symbolicname>de.fzi.ros_as_a_service</urcap.symbolicname>
-		<urcap.vendor>URCaps R us Inc.</urcap.vendor>
-		<urcap.contactAddress>123 URCap Street</urcap.contactAddress>
+		<urcap.vendor>FZI Research Center for Information Technology</urcap.vendor>
+		<urcap.contactAddress>Haid-und-Neu-Straße 10-14, 76131 Karlsruhe</urcap.contactAddress>
 		<urcap.copyright>Copyright notice (C)</urcap.copyright>
 		<urcap.description>This is a description of the URCap</urcap.description>
 		<urcap.licenseType>License type</urcap.licenseType>
@@ -33,10 +33,10 @@
 		<urcap.install.password>easybot</urcap.install.password>
 
 		<!--Install path for the UR Sim-->
-		<ursim.home>/home/ur/ursim/ursim-5.8.0.10253</ursim.home>
+		<ursim.home>/home/ur/ursim/ursim-5.9.4.1031232</ursim.home>
 
 		<!--Host and standard user/password for UR Sim running in a VM-->
-		<ursimvm.install.host></ursimvm.install.host>
+		<ursimvm.install.host>192.168.56.101</ursimvm.install.host>
 		<ursimvm.install.username>ur</ursimvm.install.username>
 		<ursimvm.install.password>easybot</ursimvm.install.password>
 	</properties>
@@ -48,8 +48,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.6.0</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -105,9 +105,10 @@
 						<Bundle-Description>${urcap.description}</Bundle-Description>
 						<!--***************************************************************-->
 						<Import-Package>
-							com.ur.urcap.api*,
+							com.ur.urcap.api*,org.json*,
 							*
 						</Import-Package>
+						<Embed-Dependency>json;scope=compile|runtime</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -147,6 +148,12 @@
 			<version>1.6.0</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<dependency>
+	        <groupId>org.json</groupId>
+	        <artifactId>json</artifactId>
+	        <version>20200518</version>
+	    </dependency>
 
 		<!-- test dependencies -->
 		<dependency>
