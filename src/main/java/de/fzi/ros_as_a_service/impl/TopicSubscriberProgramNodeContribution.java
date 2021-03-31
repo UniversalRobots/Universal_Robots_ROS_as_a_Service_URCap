@@ -101,7 +101,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
       masterExists |= (model.toString().compareTo(i) == 0);
     }
     view.setMasterComboBoxSelection(model.toString());
-    // TODO hack hack
+    // TODO Find a better solution for this
     if (!masterExists) {
       onMasterSelection(getMastersList()[0]);
     }
