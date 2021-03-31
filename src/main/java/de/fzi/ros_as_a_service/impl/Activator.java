@@ -35,9 +35,9 @@ public class Activator implements BundleActivator {
     System.out.println("Registering ros_as_a_service_Installation!");
     bundleContext.registerService(
         SwingInstallationNodeService.class, new RosbridgeInstallationNodeService(), null);
-    System.out.println("Registering ServiceCaller!");
-    bundleContext.registerService(
-        SwingProgramNodeService.class, new ServiceCallerProgramNodeService(), null);
+    // System.out.println("Registering ServiceCaller!");
+    // bundleContext.registerService(
+    //    SwingProgramNodeService.class, new ServiceCallerProgramNodeService(), null);
     System.out.println("Registering TopicPublisher!");
     bundleContext.registerService(
         SwingProgramNodeService.class, new TopicPublisherProgramNodeService(), null);
