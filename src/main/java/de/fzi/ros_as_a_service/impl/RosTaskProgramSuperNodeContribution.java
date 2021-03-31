@@ -239,8 +239,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
           ValueInputNode[] nodes = new ValueInputNode[subTypes.size()];
           int cnt = 0;
           for (Entry<String, String> st : subTypes.entrySet()) {
-            ValueInputNode leafNode =
-                new ValueInputNode(st.getKey(), st.getValue(), getDefaultType(st.getValue()));
+            ValueInputNode leafNode = new ValueInputNode(st.getKey(), st.getValue(), " ");
             nodes[cnt] = leafNode;
             ++cnt;
           }
@@ -305,20 +304,27 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
           val = ((ValueInputNode) node).getJson();
           usevar = ((ValueInputNode) node).getUseVariable();
         }
-        if (usevar) {
-          if (sendable_vars) {
-            jObj.put(name,
-                "-+useVar+- + to_str(" + ((ValueInputNode) node).getValue() + ") + -+useVar+-");
-          } else {
-            jObj.put(name, new JSONObject(val));
+        try {
+          if (usevar) {
+            if (sendable_vars) {
+              jObj.put(name,
+                  "-+useVar+- + to_str(" + ((ValueInputNode) node).getValue() + ") + -+useVar+-");
+            } else {
+              jObj.put(name, new JSONObject(val));
+            }
+          } else if (!(node instanceof ValueInputNode)) { // ValueInputNode not using a variable
+            jObj.put(name, "");
+          } else if (type.equals("string")) {
+            jObj.put(name, val);
+          } else if (type.equals("int32") | type.equals("int64") | type.equals("uint32")
+              | type.equals("uint64")) {
+            jObj.put(name, Integer.parseInt(val));
+          } else if (type.equals("float64")) {
+            jObj.put(name, Double.parseDouble(val));
           }
-        } else if (type.equals("string")) {
-          jObj.put(name, val);
-        } else if (type.equals("int32") | type.equals("int64") | type.equals("uint32")
-            | type.equals("uint64")) {
-          jObj.put(name, Integer.parseInt(val));
-        } else if (type.equals("float64")) {
-          jObj.put(name, Double.parseDouble(val));
+        } catch (Exception e) {
+          System.err.println("getJsonLevel: Error: " + usevar + " " + e);
+          jObj.put(name, "");
         }
 
       } else { // If Child is not a Leaf
@@ -353,6 +359,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
             Object obj = treenode.getUserObject();
             if (obj instanceof ValueInputNode) {
               ((ValueInputNode) obj).setValue(node.getChildren().get(j).getValue());
+              node.getChildren().get(j).setNumericType(((ValueInputNode) obj).isNumericType());
               if (obj instanceof ValueOutputNode) {
                 ((ValueOutputNode) obj)
                     .setVariableUsed(node.getChildren().get(j).getVariableUsed());
@@ -367,14 +374,13 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     }
   }
 
+  // TODO rename e.g. getLoadValueNodeTreeFromJSON
   protected LoadValueNode loadValuesToTree(LoadValueNode parent, JSONObject values, String name) {
     JSONArray keys = null;
     try {
-      System.out.println("Obj is: " + values.toString());
       keys = values.names();
-      System.out.println("keys are: " + keys.toString());
     } catch (Exception nptr) {
-      System.out.println("Error: " + nptr);
+      System.out.println("loadValuesToTree: Error: " + nptr);
       return null;
     }
 
@@ -391,6 +397,14 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
           LoadValueNode new_child = new LoadValueNode(
               child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
           new_child.setVariableUsed(true);
+          child.addChild(new_child);
+          continue;
+        } else if (obj.names().get(0).toString().equals("-+useVarNum+-")) {
+          System.out.println("detected use of numeric variable in " + keys.get(i).toString());
+          LoadValueNode new_child = new LoadValueNode(
+              child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
+          new_child.setVariableUsed(true);
+          new_child.setNumericType(true);
           child.addChild(new_child);
           continue;
         }
@@ -863,6 +877,10 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     });
   }
 
+  public void generateInstallationCodeContribution(ScriptWriter writer) {
+    return;
+  }
+
   public void generateInstallationContributionSkipped(ScriptWriter writer) {}
 
   public void setID(final String id) {
@@ -898,7 +916,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     String tmp1 = json.replaceAll("\"", "\" + quote + \"");
     // add variable handling
     String tmp2 = tmp1.replaceAll("\" \\+ quote \\+ \"-\\+useVar\\+-", "\"");
-    String urscriptified = tmp2.replaceAll("-\\+useVar\\+-\" \\+ quote \\+ \"", "\"");
+    String tmp3 = tmp2.replaceAll("-\\+useVar\\+-\" \\+ quote \\+ \"", "\"");
+    String urscriptified = tmp3.replaceAll("-\\+useVarNum\\+-\" \\+ quote \\+ \"", "\"");
     return urscriptified;
   }
 

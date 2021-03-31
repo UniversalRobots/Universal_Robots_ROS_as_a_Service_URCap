@@ -149,7 +149,7 @@
   ### return positions of an Element in a json string
   ### inp_string: json to extract the element from
   ### name: identifier of the element
-  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
+  ### return: [pos of quote before identifier, pos of quote after identifier, begin of value, end of value]
   def json_getElement(inp_string="", name=""):
     # check inputs not empty
     if str_empty(inp_string) == True:
@@ -162,8 +162,8 @@
     end
   
     # determine actual length of inputs
-    inp_length = str_len(inp_string)
-    name_length = str_len(name)
+    local inp_length = str_len(inp_string)
+    local name_length = str_len(name)
   
     local element_begin = 0
     local value_begin = 0
@@ -186,13 +186,13 @@
       index = index + 1
     end
     
-    # set element_begin to quote befor identifier, always valid as otherwise checkKeywordMatch fails
-    element_begin = element_begin -1
+    # set element_begin to quote before identifier, always valid as otherwise checkKeywordMatch fails
+    element_begin = element_begin - 1
     
     # set temporary element_end to end of identifier
-    element_end = element_begin + name_length + 1
+    element_end = element_begin + name_length + 2
     
-    # serch for begin of elements value
+    # search for begin of elements value
     value_begin = json_strFindFirstNotOf(inp_string, ": ", element_end)
     
     # return 0 if no value found
@@ -210,7 +210,7 @@
       return [0, 0, 0, 0]
     end
     
-    return [element_begin, element_begin + name_length + 2, value_begin, element_end]
+    return [element_begin, element_begin + name_length + 1, value_begin, element_end]
   end
   
   ### string ri_reduceString(inp_string="", start=0, length=0)
