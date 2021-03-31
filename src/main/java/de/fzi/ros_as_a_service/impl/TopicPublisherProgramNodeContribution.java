@@ -44,6 +44,23 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
       ProgramAPIProvider apiProvider, TopicPublisherProgramNodeView view, DataModel model) {
     super(apiProvider, model, TaskType.PUBLISHER, LeafDataDirection.OUTPUT);
     this.view = view;
+
+    JSONObject typedefs = getMsgLayout();
+    if (typedefs != null) {
+      tree = createMsgTreeLayout(typedefs.getJSONArray("layout"), tree_direction);
+
+      JSONObject values = getMsgValue();
+      if (!values.isEmpty()) {
+        LoadValueNode base_node = loadValuesToTree(null, values, "msg_base");
+        try {
+          System.out.println("detected values: " + base_node.toString());
+          setTreeValues(base_node, tree);
+        } catch (Exception e) {
+          System.err.println("Error: " + e);
+        }
+      }
+    }
+    ID = getMsg().replaceAll("/", "_");
   }
 
   public void onTopicSelection(final String topic,
@@ -140,8 +157,7 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
 
   @Override
   public boolean isDefined() {
-    // return getTopic() != "";
-    return true;
+    return tree != null;
   }
 
   public void setVariable(final Variable variable) {
@@ -171,7 +187,6 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
     json = "{\"op\": \"publish\", \"topic\": \"" + getMsg()
         + "\", \"msg\": " + buildJsonString(tree, true) + "}";
 
-    writer.appendLine("local msg = \"" + urscriptifyJson(json) + "\"");
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
   }
 }
