@@ -79,7 +79,7 @@ class ValueNodeRenderer implements TreeCellRenderer {
         variableCheckbox = new JCheckBox();
         variableCheckbox.setText("Use variable");
         variableCombobox.setPreferredSize(new Dimension(100, 30));
-        variableCombobox.setVisible(variableCheckbox.isSelected());
+        //variableCombobox.setVisible(variableCheckbox.isSelected());
         variableCombobox.addItem("");
         while (variableIterator.hasNext()) {
           variableCombobox.addItem(variableIterator.next().getDisplayName());

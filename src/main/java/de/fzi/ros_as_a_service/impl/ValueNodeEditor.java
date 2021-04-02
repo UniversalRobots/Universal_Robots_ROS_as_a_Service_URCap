@@ -123,7 +123,7 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
         checkbox.addItemListener(new ItemListener() {
           @Override
           public void itemStateChanged(ItemEvent e) {
-            combobox.setVisible(e.getStateChange() == ItemEvent.SELECTED);
+            //combobox.setVisible(e.getStateChange() == ItemEvent.SELECTED);
             textfield.setEditable(e.getStateChange() != ItemEvent.SELECTED);
             stopCellEditing();
           }
