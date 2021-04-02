@@ -77,6 +77,7 @@ class ValueNodeRenderer implements TreeCellRenderer {
         textfield.setMaximumSize(textfield.getPreferredSize());
         label.setLabelFor(textfield);
         variableCheckbox = new JCheckBox();
+        variableCheckbox.setText("Use variable");
         variableCombobox.setPreferredSize(new Dimension(100, 30));
         variableCombobox.setVisible(variableCheckbox.isSelected());
         variableCombobox.addItem("");
