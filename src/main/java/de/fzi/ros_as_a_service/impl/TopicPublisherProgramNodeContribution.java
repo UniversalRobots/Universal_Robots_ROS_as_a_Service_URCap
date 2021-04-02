@@ -92,19 +92,10 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
     if (layout == null) {
       return;
     };
-    Map<String, String> request_types = getMsgFields(layout, 0);
     JPanel panel = view.createMsgPanel("Message:");
-    for (Entry<String, String> pair : request_types.entrySet()) {
-      if (isSimpleType(pair.getValue())) {
-        System.out.println("Primitive type: " + pair.getValue());
-        view.addMsgField(pair.getKey(), pair.getValue(), panel);
-      } else {
-        System.out.println("Add tree");
-        tree = createMsgTreeLayout(layout, tree_direction);
-        view.addTreePanel(tree, panel);
-        break;
-      }
-    }
+    System.out.println("Add tree");
+    tree = createMsgTreeLayout(layout, tree_direction);
+    view.addTreePanel(tree, panel);
   }
 
   public void setvar(boolean bool) {

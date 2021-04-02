@@ -203,7 +203,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     JSONObject obj_j = (JSONObject) typedefs.get(0);
     String type = obj_j.get("type").toString();
     TreeNodeVector<Object> root = new TreeNodeVector<Object>(type);
-    getNextLevel(typedefs, obj, "", root, tree_direction);
+    getNextLevel(typedefs, obj, type, root, tree_direction);
     return root;
   }
 
