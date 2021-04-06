@@ -79,6 +79,7 @@ public class RosbridgeInstallationNodeView
     textFieldIP.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
+        // TODO: Use IPAddress keyboard here
         KeyboardTextInput keyboardInput = contribution.getInputForIPTextField();
         keyboardInput.show(textFieldIP, contribution.getCallbackForIPTextField());
       }
@@ -99,6 +100,7 @@ public class RosbridgeInstallationNodeView
     textFieldPort.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
+        // TODO: Use Integer keyboard here
         KeyboardTextInput keyboardInput = contribution.getInputForPortTextField();
         keyboardInput.show(textFieldPort, contribution.getCallbackForPortTextField());
       }

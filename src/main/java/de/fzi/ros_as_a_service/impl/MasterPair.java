@@ -50,6 +50,8 @@ public class MasterPair {
     return ip + " : " + port;
   }
   public MasterPair fromString(String value) {
+    // TODO: Further error handling necessary.
+    //  - What happens, when we don't find a ':'?
     String[] data = value.split(" : ", 2);
     return new MasterPair(data[0], data[1]);
   }

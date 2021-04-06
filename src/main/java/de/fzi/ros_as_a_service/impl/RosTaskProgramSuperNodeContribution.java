@@ -101,12 +101,14 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     this.undoRedoManager = this.apiProvider.getProgramAPI().getUndoRedoManager();
   }
 
+  // I think, this should go into the view component
   public void updateVariables() {
     System.out.println("### updateVariables");
     this.varCollection = apiProvider.getProgramAPI().getVariableModel().getAll();
     this.varList = varCollection.toArray();
   }
 
+  // This should to to the service. Let's use the power of polymorphism to handle this...
   public String getTitle() {
     String title = "";
     switch (task) {
@@ -134,6 +136,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return title;
   }
 
+  // TODO: This should also go into the view
   public void updateMsgList() {}
 
   public void onMasterSelection(final String selected_master) {
@@ -178,6 +181,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     });
   }
 
+  // TODO: See main data handling change
   public JTree createMsgTreeLayout(JSONArray msg_layout, LeafDataDirection direction) {
     System.out.println("### createMsgTreeLayout");
     JTree tree = null;
@@ -199,6 +203,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return tree;
   }
 
+  // TODO: See main data handling change
   public TreeNodeVector<Object> getRoot(JSONArray typedefs, JSONObject obj) {
     JSONObject obj_j = (JSONObject) typedefs.get(0);
     String type = obj_j.get("type").toString();
@@ -207,6 +212,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return root;
   }
 
+  // TODO: See main data handling change
   public void getNextLevel(JSONArray typedefs, JSONObject obj, String supertype,
       TreeNodeVector<Object> parentVector, LeafDataDirection direction) {
     JSONArray fieldtypes = obj.getJSONArray("fieldtypes");
@@ -259,6 +265,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     }
   }
 
+  // TODO: See main data handling change
   private String getDefaultType(String type) {
     if (type.equals("int32") | type.equals("int64") | type.equals("uint32")
         | type.equals("uint64")) {
@@ -271,6 +278,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   // methods used for building of json String from TreeModel created with user
+  // TODO: This should be called on every change made from the GUI
   public String buildJsonString(JTree tree) {
     return buildJsonString(tree, false);
   }
@@ -555,6 +563,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return null;
   }
 
+  // TODO: This should go into the view.
   protected String[] getMastersList() {
     System.out.println("### getMastersList");
     String[] items = new String[1];
@@ -718,6 +727,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         response_placeholder = "action_servers";
         break;
       default:
+        // TODO: Throw an exception here.
         return items;
     }
 
@@ -740,6 +750,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return items;
   }
 
+  // TODO: Is this needed anymore? I would assume, that getTopicType does the trick, as well.
   protected String getServiceType(String service_name) {
     try {
       Objects.requireNonNull(service_name, "ServiceName null");
@@ -877,15 +888,20 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     });
   }
 
+  // TODO: Remove this function
   public void generateInstallationCodeContribution(ScriptWriter writer) {
     return;
   }
 
+  // TODO: Remove this function
   public void generateInstallationContributionSkipped(ScriptWriter writer) {}
 
+  // TODO: This is currently unused. Remove?
   public void setID(final String id) {
     this.ID = id;
   }
+
+  // TODO: This is currently unused. Remove?
   public final String getID() {
     return ID;
   }

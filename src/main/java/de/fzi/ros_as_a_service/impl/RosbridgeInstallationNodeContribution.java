@@ -76,6 +76,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
     // generate quote here!
     writer.appendLine("# get quote for json parsing");
+    // TODO: Couldn't we hardcode this? I mean, it's a fixed character, anyway, right?
     writer.defineFunction("get_quote");
     writer.appendLine(
         "socket_open(\"" + getHostIP() + "\", " + getCustomPort() + ", \"quotesocket\")");
@@ -107,7 +108,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     return model.get(HOST_IP, DEFAULT_IP);
   }
 
-  // TODO return pairs of IP and Port
+  // TODO Receive masters list from model
   public MasterPair[] getMastersList() {
     MasterPair[] items = new MasterPair[1];
     items[0] = new MasterPair(getHostIP(), getCustomPort());
@@ -152,7 +153,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   }
 
   public KeyboardTextInput getInputForPortTextField() {
-    KeyboardTextInput keyboInput = keyboardFactory.createStringKeyboardInput();
+    KeyboardTextInput keyboInput = keyboardFactory.createIPAddressKeyboardInput();
     keyboInput.setInitialValue(getCustomPort());
     return keyboInput;
   }
