@@ -1,0 +1,262 @@
+  # buffer for char quote as we can not put this explicitly in UR Script
+  # TODO: is there a way to make it a const?
+  global quote = " "
+  
+  ### bool json_checkKeywordMatch(src="", target="", index=1)
+  ### check if a given name in src is a valid identifier
+  ### This is checked by testing for a prepositioned and a postpositioned quote + colcon
+  ### src: string in which to check if a target is a valid identifier
+  ### target: identifier key
+  ### index: position of first character of target in src, min value = 1
+  def json_checkKeywordMatch(src="", target="", index=1):
+    # check strings not empty
+    if str_empty(target):
+      textmsg("target empty!")
+      return False
+    end
+    if str_empty(src):
+      textmsg("src empty!")
+      return False
+    end
+    
+    # determin string lengths
+    src_length = str_len(src)
+    tgt_length = str_len(target)
+    
+    # check index in valid range
+    if index <= 0:
+      textmsg("index to low!", index)
+      return False
+    end
+    if index + tgt_length + 1 > src_length:
+      textmsg("index to high!", index)
+      return False
+    end
+  
+    # TODO: check for missing backslash before prepositioned quote if index is high enough
+    if index >= 2 and str_at(src, index-2) == "\":
+      textmsg("keyword is not valid due to escape sequence")
+      return False
+    end
+    if str_at(src,index-1) != quote:
+      textmsg("keyword not headed by a quote!")
+      return False
+    end
+    if str_at(src, index + tgt_length) != quote:
+      textmsg("keyword not followed by a quote!")
+      return False
+    end
+    if str_at(src, index + tgt_length + 1) != ":":
+      textmsg("keyword not followed by a colcon!")
+      return False
+    end
+  
+    return True
+  end
+  
+  ### int json_strFindFirstNotOf(src, target, start = 0)
+  ### find first character in src that is not in target
+  ### src: string in which to look for characters
+  ### target: string with allowed characters
+  ### start: first character to check in src
+  ### return position of first character not in target. if none is found return -1
+  def json_strFindFirstNotOf(src, target, start = 0):
+    position = start
+    while position < str_len(src):
+      a = str_at(src, position)
+      if str_find(target, a) == -1:
+        return position
+      end
+      position = position + 1
+    end
+    return -1
+  end
+  
+  ### int json_findCorrespondingClosingContainer(src, open_sign, closing_sign, start=1)
+  ### with a defined character to open a container and one to close it look for the end of the container
+  ### src: string where to look for delimiters
+  ### open_sign: character to open a container
+  ### closing_sign: character to close a container
+  ### start: first character to check in src
+  ### return position of closing character in src. -1 if none is found
+  def json_findCorrespondingClosingContainer(src="", open_sign=" ", closing_sign=" ", start=1):
+    # textmsg("look for Closing Container. start: ", start)
+    # textmsg("opening: ", open_sign)
+    # textmsg("closing: ", closing_sign)
+    if open_sign == quote:
+      position = start +1
+    else:
+      position = start
+    end
+    brace_count = 0
+    
+    while position < str_len(src):
+      if str_at(src, position) == open_sign and str_at(src, position -1) != "\":
+        # textmsg("found an opening at ", position)
+        brace_count = brace_count + 1
+      end
+      
+      if str_at(src, position) == closing_sign and str_at(src, position -1) != "\":
+        brace_count = brace_count - 1
+        # textmsg("found a closing at ", position)
+        if brace_count == 0:
+          # textmsg("found closing for the container at ", position)
+          return position
+        end
+      end
+      
+      position = position + 1
+    end
+    
+    textmsg("no closing container found for opening at ", start)
+    return -1
+  end
+  
+  ### int json_findCorrespondingDelimiter(src, start = 0)
+  ### Look for a following corresponding Delimiter in a Json string.
+  ### src: json string to evaluate
+  ### start: position of delimiter to look for a corresponding element
+  ### return: position of character closing the container
+  def json_findCorrespondingDelimiter(src, start = 0):
+    # textmsg("find corresponding delimiter. start ", start)
+    if str_empty(src) == True:
+      textmsg("Cannot find a corresponding delimiter in empty string")
+      return -1
+    end
+    
+    local length = str_len(src)
+    local delimiter_start = str_at(src, start)
+    local delimiter_end = " "
+    
+    if delimiter_start == quote:
+      delimiter_end = quote
+    elif delimiter_start == "{":
+      delimiter_end = "}"
+    elif delimiter_start == "[":
+      delimiter_end = "]"
+    elif delimiter_start == "(":
+      delimiter_end = ")"
+    else:
+      # boolean expressions and numbers without quotes
+      position = json_strFindFirstNotOf(src, "truefalsn0123456789.", start +1)
+      return position -1
+    end
+    
+    return json_findCorrespondingClosingContainer(src, delimiter_start, delimiter_end, start)
+  end
+  
+  ### int[4] json_getElement(inp_string, name)
+  ### return positions of an Element in a json string
+  ### inp_string: json to extract the element from
+  ### name: identifier of the element
+  ### return: [pos of quote before identifier, pos of quote after identifier, begin of value, end of value]
+  def json_getElement(inp_string="", name=""):
+    # check inputs not empty
+    if str_empty(inp_string) == True:
+      textmsg("Can not evaluate empty json string. abort")
+      return [0, 0, 0, 0]
+    end
+    if str_empty(name) == True:
+      textmsg("Empty json identifier to look for. abort")
+      return [0, 0, 0, 0]
+    end
+  
+    # determine actual length of inputs
+    local inp_length = str_len(inp_string)
+    local name_length = str_len(name)
+  
+    local element_begin = 0
+    local value_begin = 0
+    local element_end = 0
+    local index = 0
+  
+    # search for name and check it is a keyword
+    while index < inp_length:
+      index = str_find(inp_string, name, element_begin)
+      if json_checkKeywordMatch(inp_string, name, index) == True:
+        element_begin = index
+        break
+      end
+  
+      # return 0 if no valid identifier was found
+      if index == -1:
+        return [0, 0, 0, 0]
+      end
+  
+      index = index + 1
+    end
+    
+    # set element_begin to quote before identifier, always valid as otherwise checkKeywordMatch fails
+    element_begin = element_begin - 1
+    
+    # set temporary element_end to end of identifier
+    element_end = element_begin + name_length + 2
+    
+    # search for begin of elements value
+    value_begin = json_strFindFirstNotOf(inp_string, ": ", element_end)
+    
+    # return 0 if no value found
+    if value_begin == -1:
+      textmsg("did not find begin of value")
+      return [0, 0, 0, 0]
+    end
+    
+    # search end of value
+    element_end = json_findCorrespondingDelimiter(inp_string, value_begin)
+    
+    # return 0 if no valid end of value/element found
+    if element_end == -1:
+      textmsg("did not find end of element")
+      return [0, 0, 0, 0]
+    end
+    
+    return [element_begin, element_begin + name_length + 1, value_begin, element_end]
+  end
+  
+  ### string ri_reduceString(inp_string="", start=0, length=0)
+  ### get the string without a substring defined by start and length
+  ### inp_string: string that shall be reduced
+  ### start: index of first character of substring to be removed
+  ### length: length of substring to be removed
+  ### return: catenated string of residual strings before and behind substring
+  def ri_reduceString(inp_string="", start=0, length=0):
+    local prefix = str_sub(inp_string, 0, start)
+    local postfix = str_sub(inp_string, start + length)
+    return str_cat(prefix, postfix)
+  end
+  
+  ### int[4] ri_getValues(inp_string)
+  ### get the Element with identifier "values". results in [0, 0, 0, 0] on error
+  ### inp_string: string to search for element
+  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
+  def ri_getValues(inp_string):
+    return json_getElement(inp_string, "values")
+  end
+  
+  ### int[4] ri_getOperation(inp_string)
+  ### get the Element with identifier "op". results in [0, 0, 0, 0] on error
+  ### this element is a short description of request
+  ### inp_string: string to search for element
+  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
+  def ri_getOperation(inp_string):
+    return json_getElement(inp_string, "op")
+  end
+  
+  ### int[4] ri_getResult(inp_string)
+  ### get the Element with identifier "result". results in [0, 0, 0, 0] on error
+  ### typically used to determine the valid execution of a request
+  ### inp_string: string to search for element
+  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
+  def ri_getResult(inp_string):
+    return json_getElement(inp_string, "result")
+  end
+  
+  ### int[4] ri_getService(inp_string)
+  ### get the Element with identifier "service". results in [0, 0, 0, 0] on error
+  ### this element typically is the name of the requested service
+  ### inp_string: string to search for element
+  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
+  def ri_getService(inp_string):
+    return json_getElement(inp_string, "service")
+  end
+  

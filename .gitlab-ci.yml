@@ -1,0 +1,21 @@
+default:
+  image: ubuntu:focal
+
+stages:
+  - check
+  - build
+
+variables:
+  SDK_VERSION: 1.7.0
+
+build-job:
+  stage: build
+  script:
+    - apt-get update && apt-get install -y  default-jdk maven unzip dialog sshpass curl
+    - ./.github/actions/build_urcap/entrypoint.sh
+
+check_formatting:
+  stage: check
+  script:
+    - apt-get update && apt-get install -y clang-format bc
+    - python3 .clang_format_check.py **/*.java
