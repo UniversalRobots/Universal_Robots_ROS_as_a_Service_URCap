@@ -109,9 +109,8 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
   // TODO return pairs of IP and Port
   public MasterPair[] getMastersList() {
-    MasterPair[] items = new MasterPair[2];
-    items[0] = new MasterPair();
-    items[1] = new MasterPair(getHostIP(), getCustomPort());
+    MasterPair[] items = new MasterPair[1];
+    items[0] = new MasterPair(getHostIP(), getCustomPort());
     return items;
   }
 
