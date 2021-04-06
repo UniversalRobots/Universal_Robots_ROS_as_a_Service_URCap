@@ -27,84 +27,27 @@ package de.fzi.ros_as_a_service.impl;
 
 import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.ViewAPIProvider;
-import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeView;
 import de.fzi.ros_as_a_service.impl.RosTaskProgramSuperNodeContribution.TaskType;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTree;
+import org.json.JSONArray;
 
-public class TopicSubscriberProgramNodeView extends RosTaskProgramSuperNodeView
-    implements SwingProgramNodeView<TopicSubscriberProgramNodeContribution> {
+public class TopicSubscriberProgramNodeView
+    extends RosTaskProgramSuperNodeView<TopicSubscriberProgramNodeContribution> {
   public TopicSubscriberProgramNodeView(ViewAPIProvider apiProvider) {
     super(apiProvider, TaskType.SUBSCRIBER);
+    this.description = "Select the Topic on that you want to subscribe to.";
   }
 
   @Override
-  public void buildUI(
-      JPanel panel, ContributionProvider<TopicSubscriberProgramNodeContribution> provider) {
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    panel.add(createDescription("Select the Topic on that you want to subscribe"));
-    panel.add(createMasterComboBox(masterComboBox, provider));
-    panel.add(createTopicComboBox(topicComboBox, provider));
-    panel.add(createVertSeparator(50));
-    //
-    panel.add(createMsgPanel());
-    panel.add(createVertSeparator(20));
-  }
-
-  private Box createMasterComboBox(final JComboBox<String> combo,
+  protected void createTreeView(JSONArray layout,
       final ContributionProvider<TopicSubscriberProgramNodeContribution> provider) {
-    Box box = Box.createHorizontalBox();
-    box.setAlignmentX(Component.LEFT_ALIGNMENT);
-    JLabel label = new JLabel("Remote master");
-
-    combo.setPreferredSize(new Dimension(200, 30));
-    combo.setMaximumSize(combo.getPreferredSize());
-
-    combo.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        if (e.getStateChange() == ItemEvent.SELECTED) {
-          provider.get().onMasterSelection((String) e.getItem());
-        }
-      }
-    });
-
-    box.add(label);
-    box.add(createHorSpacer(10));
-    box.add(combo);
-
-    return box;
-  }
-
-  private Box createTopicComboBox(final JComboBox<String> combo,
-      final ContributionProvider<TopicSubscriberProgramNodeContribution> provider) {
-    Box box = Box.createHorizontalBox();
-    box.setAlignmentX(Component.LEFT_ALIGNMENT);
-    JLabel label = new JLabel("Topic");
-
-    combo.setPreferredSize(new Dimension(400, 30));
-    combo.setMaximumSize(combo.getPreferredSize());
-
-    combo.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        if (e.getStateChange() == ItemEvent.SELECTED) {
-          provider.get().onTopicSelection((String) e.getItem(), provider);
-        }
-      }
-    });
-
-    box.add(label);
-    box.add(createHorSpacer(10));
-    box.add(combo);
-
-    return box;
+    if (layout == null) {
+      return;
+    };
+    JPanel panel = createMsgPanel("Data:");
+    System.out.println("#createTreeView");
+    JTree tree = createMsgTreeLayout(layout, provider.get().tree_direction, provider.get().getVarCollection());
+    addTreePanel(tree, panel);
   }
 }

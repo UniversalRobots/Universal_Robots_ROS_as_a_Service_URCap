@@ -25,17 +25,9 @@
 
 package de.fzi.ros_as_a_service.impl;
 
-import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
-import com.ur.urcap.api.domain.undoredo.UndoableChanges;
-import com.ur.urcap.api.domain.variable.Variable;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.swing.JPanel;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
   private final TopicPublisherProgramNodeView view;
@@ -44,125 +36,19 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
       ProgramAPIProvider apiProvider, TopicPublisherProgramNodeView view, DataModel model) {
     super(apiProvider, model, TaskType.PUBLISHER, LeafDataDirection.OUTPUT);
     this.view = view;
-
-    JSONObject typedefs = getMsgLayout();
-    if (typedefs != null) {
-      tree = createMsgTreeLayout(typedefs.getJSONArray("layout"), tree_direction);
-
-      JSONObject values = getMsgValue();
-      if (!values.isEmpty()) {
-        LoadValueNode base_node = loadValuesToTree(null, values, "msg_base");
-        try {
-          System.out.println("detected values: " + base_node.toString());
-          setTreeValues(base_node, tree);
-        } catch (Exception e) {
-          System.err.println("Error: " + e);
-        }
-      }
-    }
-    ID = getMsg().replaceAll("/", "_");
-  }
-
-  public void onTopicSelection(final String topic,
-      final ContributionProvider<TopicPublisherProgramNodeContribution> provider) {
-    JSONArray typedefs = null;
-
-    if (!topic.equals(getMsg())) { // topic in model is not the selected one
-      String topic_type = getTopicType(topic);
-      typedefs = getTopicLayout(topic_type);
-
-      JSONObject layout = new JSONObject();
-      layout.put("layout", typedefs);
-      onMsgSelection(topic, layout.toString(), MSG_KEY, MSG_LAYOUT_KEY);
-      ID = topic.replaceAll("/", "_");
-    } else {
-      try {
-        typedefs = getMsgLayout().getJSONArray("layout");
-        ID = getMsg().replaceAll("/", "_");
-      } catch (Exception e) {
-        System.err.println("openView: Error: " + e);
-      }
-    }
-
-    view.cleanPanel();
-    createTreeView(typedefs);
-  }
-
-  private void createTreeView(JSONArray layout) {
-    if (layout == null) {
-      return;
-    };
-    JPanel panel = view.createMsgPanel("Message:");
-    System.out.println("Add tree");
-    tree = createMsgTreeLayout(layout, tree_direction);
-    view.addTreePanel(tree, panel);
-  }
-
-  public void setvar(boolean bool) {
-    useVar = bool;
   }
 
   @Override
   public void openView() {
-    updateVariables();
-    // TODO on Task creation needs to go out of focus once to get TopicList...
-    view.setMasterComboBoxItems(getMastersList());
-    view.setTopicComboBoxItems(getMsgList());
-    MasterPair model = new MasterPair(getMaster(), getPort());
-    boolean masterExists = false;
-    for (String i : getMastersList()) {
-      masterExists |= (model.toString().compareTo(i) == 0);
-    }
-    view.setMasterComboBoxSelection(model.toString());
-    // TODO Find a better solution for this
-    if (!masterExists) {
-      System.out.println("former master not found");
-      onMasterSelection(getMastersList()[0]);
-    }
-    view.setTopicComboBoxSelection(getMsg());
-
-    LoadValueNode base_node = loadValuesToTree(null, getMsgValue(), "msg_base");
-    try {
-      System.out.println("detected values: " + base_node.toString());
-      setTreeValues(base_node, tree);
-    } catch (Exception e) {
-      System.err.println("Error: " + e);
-    }
-  }
-
-  @Override
-  public void updateMsgList() {
-    view.setTopicComboBoxItems(getMsgList());
-  }
-
-  public void updateView() {
-    System.out.println("### updateView");
-    view.setMasterComboBoxSelection(new MasterPair(getMaster(), getPort()).toString());
-    view.setTopicComboBoxSelection(getMsg());
-  }
-
-  @Override
-  public void closeView() {
-    onCloseView();
-  }
-
-  @Override
-  public boolean isDefined() {
-    return tree != null;
-  }
-
-  public void setVariable(final Variable variable) {
-    System.out.println("### setVariable");
-    undoRedoManager.recordChanges(new UndoableChanges() {
-      @Override
-      public void executeChanges() {
-        model.set(SELECTED_VAR, variable);
-      }
-    });
+    // TODO: If we parametrize RosTaskSuperNodeContribution with the view type, we get a cyclic
+    // parametrization. So, for now we keep solving this here, but there might be a better solution.
+    super.openView();
+    view.updateView(this);
   }
 
   @Override
   public void generateScript(ScriptWriter writer) {
+    System.out.println("# TopicPub generateScript");
     // TODO: Create unique ID here
     final String sockname = "publisher_" + ID;
 
@@ -175,8 +61,9 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
     writer.appendLine("socket_send_line(\"" + urscriptified + "\", \"" + sockname + "\")");
     useVar = false;
 
+    System.out.println("Building json string");
     json = "{\"op\": \"publish\", \"topic\": \"" + getMsg()
-        + "\", \"msg\": " + buildJsonString(tree, true) + "}";
+        ;//+ "\", \"msg\": " + buildJsonString(tree, true) + "}";
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
   }

@@ -25,16 +25,11 @@
 
 package de.fzi.ros_as_a_service.impl;
 
-import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.swing.JPanel;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
@@ -44,104 +39,14 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
       ProgramAPIProvider apiProvider, TopicSubscriberProgramNodeView view, DataModel model) {
     super(apiProvider, model, TaskType.SUBSCRIBER, LeafDataDirection.INPUT);
     this.view = view;
-
-    JSONObject typedefs = getMsgLayout();
-    if (typedefs != null) {
-      tree = createMsgTreeLayout(typedefs.getJSONArray("layout"), tree_direction);
-
-      JSONObject values = getMsgValue();
-      if (!values.isEmpty()) {
-        LoadValueNode base_node = loadValuesToTree(null, values, "msg_base");
-        try {
-          System.out.println("detected values: " + base_node.toString());
-          setTreeValues(base_node, tree);
-        } catch (Exception e) {
-          System.err.println("Error: " + e);
-        }
-      }
-    }
-    ID = getMsg().replaceAll("/", "_");
-  }
-
-  public void onTopicSelection(final String topic,
-      final ContributionProvider<TopicSubscriberProgramNodeContribution> provider) {
-    JSONArray typedefs = null;
-
-    if (!topic.equals(getMsg())) { // topic in model is not the selected one
-      String topic_type = getTopicType(topic);
-      typedefs = getTopicLayout(topic_type);
-
-      JSONObject layout = new JSONObject();
-      layout.put("layout", typedefs);
-      onMsgSelection(topic, layout.toString(), MSG_KEY, MSG_LAYOUT_KEY);
-      ID = topic.replaceAll("/", "_");
-    } else {
-      try {
-        typedefs = getMsgLayout().getJSONArray("layout");
-        ID = getMsg().replaceAll("/", "_");
-      } catch (Exception e) {
-        System.err.println("openView: Error: " + e);
-      }
-    }
-
-    view.cleanPanel();
-    createTreeView(typedefs);
-  }
-
-  private void createTreeView(JSONArray layout) {
-    if (layout == null) {
-      return;
-    }
-    JPanel panel = view.createMsgPanel();
-    tree = createMsgTreeLayout(layout, tree_direction);
-    view.addTreePanel(tree, panel);
   }
 
   @Override
   public void openView() {
-    updateVariables();
-    // TODO on Task creation needs to go out of focus once to get TopicList...
-    view.setMasterComboBoxItems(getMastersList());
-    view.setTopicComboBoxItems(getMsgList());
-    MasterPair model = new MasterPair(getMaster(), getPort());
-    boolean masterExists = false;
-    for (String i : getMastersList()) {
-      masterExists |= (model.toString().compareTo(i) == 0);
-    }
-    view.setMasterComboBoxSelection(model.toString());
-    // TODO Find a better solution for this
-    if (!masterExists) {
-      onMasterSelection(getMastersList()[0]);
-    }
-    view.setTopicComboBoxSelection(getMsg());
-
-    LoadValueNode base_node = loadValuesToTree(null, getMsgValue(), "msg_base");
-    try {
-      System.out.println("detected values: " + base_node.toString());
-      setTreeValues(base_node, tree);
-    } catch (Exception e) {
-      System.err.println("Error: " + e);
-    }
-  }
-
-  @Override
-  public void updateMsgList() {
-    view.setTopicComboBoxItems(getMsgList());
-  }
-
-  public void updateView() {
-    view.setMasterComboBoxSelection(new MasterPair(getMaster(), getPort()).toString());
-    view.setTopicComboBoxSelection(getMsg());
-  }
-
-  @Override
-  public void closeView() {
-    onCloseView();
-  }
-
-  @Override
-  public boolean isDefined() {
-    return tree != null;
+    // TODO: If we parametrize RosTaskSuperNodeContribution with the view type, we get a cyclic
+    // parametrization. So, for now we keep solving this here, but there might be a better solution.
+    super.openView();
+    view.updateView(this);
   }
 
   private void generateElementParser(String element_name, String source_var, String target_var,
@@ -193,8 +98,8 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
 
     System.out.println("Subscriber generate subscriber Script");
     // add parser for values!
-    LoadValueNode base_node =
-        loadValuesToTree(null, new JSONObject(buildJsonString(tree, false)), "l_msg");
+    LoadValueNode base_node = new LoadValueNode(null, null);
+    //    loadValuesToTree(null, new JSONObject(buildJsonString(tree, false)), "l_msg");
     base_node.setExtractionAdded();
     List<LoadValueNode> nodes_list = base_node.getVariableUsingNodes(null);
     ListIterator<LoadValueNode> iterator = nodes_list.listIterator();
