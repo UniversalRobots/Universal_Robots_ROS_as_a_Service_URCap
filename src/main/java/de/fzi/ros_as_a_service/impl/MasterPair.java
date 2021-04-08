@@ -49,13 +49,19 @@ public class MasterPair {
   public String toString() {
     return ip + " : " + port;
   }
-  public MasterPair fromString(String value) {
-    // TODO: Further error handling necessary.
-    //  - What happens, when we don't find a ':'?
+  public static MasterPair fromString(String value) {
     String[] data = value.split(" : ", 2);
+    if (data.length != 2) {
+      throw new IllegalArgumentException("Illegal string passed to MasterPair");
+    }
     return new MasterPair(data[0], data[1]);
   }
-  public boolean compare(final MasterPair comp) {
-    return (comp.getIp() == ip && comp.getPort() == port);
+
+  @Override
+  public boolean equals(Object comp) {
+    if (comp == null || getClass() != comp.getClass())
+      return false;
+    MasterPair rhs = (MasterPair) comp;
+    return this.getIp() == rhs.getIp() && this.getPort() == rhs.getPort();
   }
 }
