@@ -582,22 +582,22 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   // TODO: Currently unused, but should be used
-  // public void updateModel(final JSONObject obj) {
-  // try {
-  // Objects.requireNonNull(obj, "JSON Object of msg null");
-  //} catch (Exception e) {
-  // System.err.println("updateModel: Error: " + e);
-  // return;
-  //}
+  public void updateModel(final JSONObject obj) {
+    try {
+      Objects.requireNonNull(obj, "JSON Object of msg null");
+    } catch (Exception e) {
+      System.err.println("updateModel: Error: " + e);
+      return;
+    }
 
-  // undoRedoManager.recordChanges(new UndoableChanges() {
-  //@Override
-  // public void executeChanges() {
-  // model.set(MSG_VALUE_KEY, obj.toString());
-  // System.out.println("Set MSG_VALUE to " + obj.toString());
-  //}
-  //});
-  //}
+    undoRedoManager.recordChanges(new UndoableChanges() {
+      @Override
+      public void executeChanges() {
+        model.set(MSG_VALUE_KEY, obj.toString());
+        System.out.println("Set MSG_VALUE to " + obj.toString());
+      }
+    });
+  }
 
   protected RosbridgeInstallationNodeContribution getInstallation() {
     return this.apiProvider.getProgramAPI().getInstallationNode(
