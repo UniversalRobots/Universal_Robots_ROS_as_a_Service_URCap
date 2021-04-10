@@ -84,6 +84,8 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
   public void updateView(C contribution) {
     setMasterComboBoxItems(contribution.getMastersList());
     setTopicComboBoxItems(contribution.getMsgList());
+    cleanPanel();
+
     setTopicComboBoxSelection(contribution.getMsg());
     setMasterComboBoxSelection(contribution.getMaster().toString());
   }
