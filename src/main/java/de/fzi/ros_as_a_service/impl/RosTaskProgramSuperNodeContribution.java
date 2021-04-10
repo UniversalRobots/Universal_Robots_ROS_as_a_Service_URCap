@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -125,7 +127,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     ////}
     ////}
     //}
-    //ID = getMsg().replaceAll("/", "_");
+    ID = getMsg().replaceAll("/", "_");
     System.out.println("---end constructor SuperNode---");
       }
 
@@ -273,18 +275,26 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   // methods used for building of json String from TreeModel created with user
-  public String buildJsonString(JTree tree) {
-    return buildJsonString(tree, false);
+  public String buildJsonString() {
+    return buildJsonString(false);
   }
 
-  public String buildJsonString(JTree tree, boolean readable_vars) {
+  public String buildJsonString(final boolean readable_vars) {
     System.out.println("# buildJsonString");
     try {
-      Objects.requireNonNull(tree, "Json string can not be build, as the tree is null.");
-      TreeModel treeModel = tree.getModel();
-      Object tmRoot = treeModel.getRoot();
-      //JSONObject root = getJsonLevel(treeModel, tmRoot, readable_vars);
-      //return root.toString();
+      JSONObject values = getMsgValue();
+      System.out.println(values.toString());
+
+      String output = values.toString();
+
+      if (readable_vars)
+      {
+        output = output.toString().replaceAll("\\{\\\"-\\+useVar\\+-\\\":\\\"([^\\\"]*)\\\"\\}", "\"-+useVar+- + to_str($1) + -+useVar+-\"");
+        output = output.toString().replaceAll("\\{\\\"-\\+useVarNum\\+-\\\":\\\"([^\\\"]*)\\\"\\}", "\"-+useVar+- + to_str($1) + -+useVar+-\"");
+      }
+      System.out.println(output);
+      return output;
+
     } catch (Exception e) {
       System.err.println("buildJsonString: Error: " + e);
     }
