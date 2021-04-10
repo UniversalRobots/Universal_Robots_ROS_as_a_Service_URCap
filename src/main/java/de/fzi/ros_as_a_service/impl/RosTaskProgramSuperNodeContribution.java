@@ -25,7 +25,6 @@
 
 package de.fzi.ros_as_a_service.impl;
 
-import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.ProgramNodeContribution;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
@@ -40,19 +39,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -68,8 +58,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected Object[] varList;
 
   protected final VariableFactory variableFactory;
-  // protected JTree tree;
-  //protected static final String SELECTED_VAR = "selectedVar";
   protected static final String MASTER_KEY = "MASTER";
   protected static final String PORT_KEY = "PORT";
   protected static final String MSG_KEY = "MSG";
@@ -81,7 +69,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected static final String DEFAULT_MSG = "";
   protected static final String DEFAULT_MSG_VALUE = "";
   protected static final String DEFAULT_MSG_LAYOUT = "";
-  protected static final String DEFAULT_VAR = "";
 
   public static enum TaskType {
     PUBLISHER,
@@ -106,32 +93,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     this.varList = varCollection.toArray();
     this.undoRedoManager = this.apiProvider.getProgramAPI().getUndoRedoManager();
 
-    //System.out.println("---constructor SuperNode---");
-
-    //master = new MasterPair(getMasterIP(), getPort());
-
-    //JSONObject typedefs = getMsgLayout();
-    //System.out.println("LAYOUT: " + typedefs);
-    //if (typedefs != null) {
-    //// tree = createMsgTreeLayout(typedefs.getJSONArray("layout"), tree_direction);
-
-    //JSONObject values = getMsgValue();
-    //System.out.println("VALUES: " + values);
-    //// if (!values.isEmpty()) {
-    //// LoadValueNode base_node = loadValuesToTree(null, values, "msg_base");
-    //// try {
-    //// System.out.println("detected values: " + base_node.toString());
-    //// setTreeValues(base_node, tree);
-    ////} catch (Exception e) {
-    //// System.err.println("Error: " + e);
-    ////}
-    ////}
-    //}
     ID = getMsg().replaceAll("/", "_");
-    System.out.println("---end constructor SuperNode---");
       }
 
-  // I think, this should go into the view component
   public void updateVariables() {
     System.out.println("### updateVariables");
     this.varCollection = apiProvider.getProgramAPI().getVariableModel().getAll();
@@ -145,16 +109,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   @Override
   public void openView() {
     System.out.println("# openView");
-
-    // updateVariables();
-
-    // LoadValueNode base_node = loadValuesToTree(null, getMsgValue(), "msg_base");
-    // try {
-    // System.out.println("detected values: " + base_node.toString());
-    // setTreeValues(base_node, tree);
-    //} catch (Exception e) {
-    // System.err.println("Error: " + e);
-    //}
   }
 
   @Override
@@ -192,29 +146,12 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   @Override
   public void closeView() {
     System.out.println("### onCloseView");
-    // undoRedoManager.recordChanges(new UndoableChanges() {
-    //@Override
-    // public void executeChanges() {
-    // model.set(MSG_VALUE_KEY, buildJsonString(tree));
-    // System.out.println("Set Model: " + buildJsonString(tree));
-    //}
-    //});
   }
 
   @Override
   public boolean isDefined() {
     // return tree != null;
     return true;
-  }
-
-  public void setVariable(final Variable variable) {
-    System.out.println("### setVariable");
-    //undoRedoManager.recordChanges(new UndoableChanges() {
-    //@Override
-    //public void executeChanges() {
-    //model.set(SELECTED_VAR, variable);
-    //}
-    //});
   }
 
   public void onMsgSelection( final String topic){ //, final String layout, final String msg_key, final String layout_key) {
