@@ -33,7 +33,7 @@ import javax.swing.JTree;
 import org.json.JSONArray;
 
 public class TopicPublisherProgramNodeView
-  extends RosTaskProgramSuperNodeView<TopicPublisherProgramNodeContribution> {
+    extends RosTaskProgramSuperNodeView<TopicPublisherProgramNodeContribution> {
   public TopicPublisherProgramNodeView(ViewAPIProvider apiProvider) {
     super(apiProvider, TaskType.PUBLISHER);
     this.description = "Select the Topic on that you want to publish to.";
@@ -47,7 +47,8 @@ public class TopicPublisherProgramNodeView
     };
     JPanel panel = createMsgPanel("Data:");
     System.out.println("#createTreeView");
-    JTree tree = createMsgTreeLayout(layout, provider.get().tree_direction, provider.get().getVarCollection());
+    JTree tree = createMsgTreeLayout(
+        layout, provider.get().tree_direction, provider.get().getVarCollection());
     addTreePanel(tree, panel);
     LoadValueNode base_node = loadValuesToTree(null, provider.get().getMsgValue(), "msg_base");
     try {

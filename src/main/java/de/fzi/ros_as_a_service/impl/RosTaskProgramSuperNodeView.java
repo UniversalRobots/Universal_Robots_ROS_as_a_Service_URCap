@@ -53,7 +53,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperNodeContribution>
-  implements SwingProgramNodeView<C> {
+    implements SwingProgramNodeView<C> {
   protected final ViewAPIProvider apiProvider;
   protected final TaskType task;
   protected String description = "";
@@ -114,7 +114,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     box.add(combo);
 
     return box;
-      }
+  }
 
   public void updateMsgList(final ContributionProvider<C> provider) {
     setTopicComboBoxItems(provider.get().getMsgList());
@@ -146,7 +146,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     box.add(combo);
 
     return box;
-      }
+  }
 
   protected abstract void createTreeView(JSONArray layout, final ContributionProvider<C> provider);
 
@@ -256,7 +256,8 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     return Box.createRigidArea(new Dimension(0, height));
   }
 
-  public JTree createMsgTreeLayout(JSONArray msg_layout, LeafDataDirection direction, Collection<Variable> varCollection) {
+  public JTree createMsgTreeLayout(
+      JSONArray msg_layout, LeafDataDirection direction, Collection<Variable> varCollection) {
     System.out.println("### createMsgTreeLayout");
     JTree tree = null;
     try {
@@ -277,7 +278,8 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     return tree;
   }
 
-  public TreeNodeVector<Object> getRoot(JSONArray typedefs, JSONObject obj, LeafDataDirection direction) {
+  public TreeNodeVector<Object> getRoot(
+      JSONArray typedefs, JSONObject obj, LeafDataDirection direction) {
     JSONObject obj_j = (JSONObject) typedefs.get(0);
     String type = obj_j.get("type").toString();
     TreeNodeVector<Object> root = new TreeNodeVector<Object>(type);
@@ -341,7 +343,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     if (type.equals("string") | type.equals("int32") | type.equals("int64") | type.equals("uint32")
         | type.equals("uint64") | type.equals("float64")) {
       return true;
-        }
+    }
     return false;
   }
 
@@ -398,7 +400,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       } else { // If Child is not a Leaf
         jObj.put(name,
             getJsonLevel(treeModel, child,
-              sendable_vars)); // put recursive call with child as parent
+                sendable_vars)); // put recursive call with child as parent
       }
     }
     return jObj; // return JSON Object
@@ -423,50 +425,53 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
   }
 
   // TODO rename e.g. getLoadValueNodeTreeFromJSON
-  protected LoadValueNode loadValuesToTree(LoadValueNode parent, JSONObject values, String name)
-  { JSONArray keys = null; try { keys = values.names(); } catch (Exception nptr) {
-                                                                                   System.out.println("loadValuesToTree: Error: " + nptr);
-                                                                                   return null;
-  }
-
-  LoadValueNode child = new LoadValueNode(parent, new ValueNode(name, ""));
-  if (parent != null) {
-    parent.addChild(child);
-  }
-
-  for (int i = 0; i < keys.length(); ++i) {
+  protected LoadValueNode loadValuesToTree(LoadValueNode parent, JSONObject values, String name) {
+    JSONArray keys = null;
     try {
-      JSONObject obj = values.getJSONObject(keys.get(i).toString());
-      if (obj.names().get(0).toString().equals("-+useVar+-")) {
-        System.out.println("detected use of variable in " + keys.get(i).toString());
-        LoadValueNode new_child = new LoadValueNode(
-            child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
-        new_child.setVariableUsed(true);
-        child.addChild(new_child);
+      keys = values.names();
+    } catch (Exception nptr) {
+      System.out.println("loadValuesToTree: Error: " + nptr);
+      return null;
+    }
+
+    LoadValueNode child = new LoadValueNode(parent, new ValueNode(name, ""));
+    if (parent != null) {
+      parent.addChild(child);
+    }
+
+    for (int i = 0; i < keys.length(); ++i) {
+      try {
+        JSONObject obj = values.getJSONObject(keys.get(i).toString());
+        if (obj.names().get(0).toString().equals("-+useVar+-")) {
+          System.out.println("detected use of variable in " + keys.get(i).toString());
+          LoadValueNode new_child = new LoadValueNode(
+              child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
+          new_child.setVariableUsed(true);
+          child.addChild(new_child);
+          continue;
+        } else if (obj.names().get(0).toString().equals("-+useVarNum+-")) {
+          System.out.println("detected use of numeric variable in " + keys.get(i).toString());
+          LoadValueNode new_child = new LoadValueNode(
+              child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
+          new_child.setVariableUsed(true);
+          new_child.setNumericType(true);
+          child.addChild(new_child);
+          continue;
+        }
+        loadValuesToTree(child, obj, keys.getString(i));
         continue;
-      } else if (obj.names().get(0).toString().equals("-+useVarNum+-")) {
-        System.out.println("detected use of numeric variable in " + keys.get(i).toString());
-        LoadValueNode new_child = new LoadValueNode(
-            child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
-        new_child.setVariableUsed(true);
-        new_child.setNumericType(true);
-        child.addChild(new_child);
-        continue;
+      } catch (Exception e) {
+        System.err.println("Error: " + e);
       }
-      loadValuesToTree(child, obj, keys.getString(i));
-      continue;
-    } catch (Exception e) {
-      System.err.println("Error: " + e);
+      try {
+        LoadValueNode new_child = new LoadValueNode(
+            child, new ValueNode(keys.getString(i), getJsonObjectValue(values, i)));
+        child.addChild(new_child);
+      } catch (Exception ex) {
+        System.err.println("Error: " + ex);
+      }
     }
-    try {
-      LoadValueNode new_child = new LoadValueNode(
-          child, new ValueNode(keys.getString(i), getJsonObjectValue(values, i)));
-      child.addChild(new_child);
-    } catch (Exception ex) {
-      System.err.println("Error: " + ex);
-    }
-  }
-  return child;
+    return child;
   }
 
   String getJsonObjectValue(JSONObject obj, int index) {
@@ -512,7 +517,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
               node.getChildren().get(j).setNumericType(((ValueInputNode) obj).isNumericType());
               if (obj instanceof ValueOutputNode) {
                 ((ValueOutputNode) obj)
-                  .setVariableUsed(node.getChildren().get(j).getVariableUsed());
+                    .setVariableUsed(node.getChildren().get(j).getVariableUsed());
               }
             }
           } else {
@@ -523,5 +528,4 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       }
     }
   }
-
 }

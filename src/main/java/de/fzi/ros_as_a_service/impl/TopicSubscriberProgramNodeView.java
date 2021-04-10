@@ -47,7 +47,8 @@ public class TopicSubscriberProgramNodeView
     };
     JPanel panel = createMsgPanel("Data:");
     System.out.println("#createTreeView");
-    JTree tree = createMsgTreeLayout(layout, provider.get().tree_direction, provider.get().getVarCollection());
+    JTree tree = createMsgTreeLayout(
+        layout, provider.get().tree_direction, provider.get().getVarCollection());
     addTreePanel(tree, panel);
   }
 }

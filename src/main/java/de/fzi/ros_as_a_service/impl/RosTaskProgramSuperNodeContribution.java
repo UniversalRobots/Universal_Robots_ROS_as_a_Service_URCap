@@ -94,7 +94,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     this.undoRedoManager = this.apiProvider.getProgramAPI().getUndoRedoManager();
 
     ID = getMsg().replaceAll("/", "_");
-      }
+  }
 
   public void updateVariables() {
     System.out.println("### updateVariables");
@@ -154,7 +154,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return true;
   }
 
-  public void onMsgSelection( final String topic){ //, final String layout, final String msg_key, final String layout_key) {
+  public void onMsgSelection(final String
+          topic) { //, final String layout, final String msg_key, final String layout_key) {
     System.out.println("### onMsgSelection");
     undoRedoManager.recordChanges(new UndoableChanges() {
       @Override
@@ -167,8 +168,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   public void updateTopicStructure(final String new_topic) {
     String topic = getMsg();
-    if (topic != new_topic)
-    {
+    if (topic != new_topic) {
       String topic_type = getTopicType(topic);
       final JSONArray typedefs = getTopicLayout(topic_type);
 
@@ -183,9 +183,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
           model.set(MSG_LAYOUT_KEY, layout.toString());
         }
       });
-    }
-    else
-    {
+    } else {
       // Nothing to do here?
     }
   }
@@ -203,10 +201,11 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
       String output = values.toString();
 
-      if (readable_vars)
-      {
-        output = output.toString().replaceAll("\\{\\\"-\\+useVar\\+-\\\":\\\"([^\\\"]*)\\\"\\}", "\"-+useVar+- + to_str($1) + -+useVar+-\"");
-        output = output.toString().replaceAll("\\{\\\"-\\+useVarNum\\+-\\\":\\\"([^\\\"]*)\\\"\\}", "\"-+useVar+- + to_str($1) + -+useVar+-\"");
+      if (readable_vars) {
+        output = output.toString().replaceAll("\\{\\\"-\\+useVar\\+-\\\":\\\"([^\\\"]*)\\\"\\}",
+            "\"-+useVar+- + to_str($1) + -+useVar+-\"");
+        output = output.toString().replaceAll("\\{\\\"-\\+useVarNum\\+-\\\":\\\"([^\\\"]*)\\\"\\}",
+            "\"-+useVar+- + to_str($1) + -+useVar+-\"");
       }
       System.out.println(output);
       return output;
@@ -469,8 +468,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     try {
       Objects.requireNonNull(service_name, "ServiceName null");
       String request_string =
-        "{\"op\": \"call_service\",\"service\":\"/rosapi/service_type\",\"args\":{\"service\":\""
-        + service_name + "\"}}";
+          "{\"op\": \"call_service\",\"service\":\"/rosapi/service_type\",\"args\":{\"service\":\""
+          + service_name + "\"}}";
       JSONObject json_response = rosbridgeRequest(request_string);
       Objects.requireNonNull(json_response, "Response null");
       return json_response.getJSONObject("values").getString("type");
@@ -486,8 +485,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     try {
       Objects.requireNonNull(service_type, "ServiceType null");
       String request_string =
-        "{\"op\": \"call_service\",\"service\": \"/rosapi/service_request_details\", \"args\":{\"type\":\""
-        + service_type + "\"}}";
+          "{\"op\": \"call_service\",\"service\": \"/rosapi/service_request_details\", \"args\":{\"type\":\""
+          + service_type + "\"}}";
       JSONObject json_response = rosbridgeRequest(request_string);
       Objects.requireNonNull(json_response, "Response null");
       return json_response.getJSONObject("values").getJSONArray("typedefs");
@@ -503,8 +502,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     try {
       Objects.requireNonNull(service_type, "ServiceType null");
       String request_string =
-        "{\"op\": \"call_service\",\"service\": \"/rosapi/service_response_details\", \"args\":{\"type\":\""
-        + service_type + "\"}}";
+          "{\"op\": \"call_service\",\"service\": \"/rosapi/service_response_details\", \"args\":{\"type\":\""
+          + service_type + "\"}}";
       JSONObject json_response = rosbridgeRequest(request_string);
       Objects.requireNonNull(json_response, "Response null");
       return json_response.getJSONObject("values").getJSONArray("typedefs");
@@ -528,13 +527,13 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         case ACTIONSTATUS:
         case ACTIONRESULT:
           request_string =
-            "{\"op\": \"call_service\",\"service\":\"/rosapi/topic_type\",\"args\":{\"topic\":\""
-            + topic_name + "\"}}";
+              "{\"op\": \"call_service\",\"service\":\"/rosapi/topic_type\",\"args\":{\"topic\":\""
+              + topic_name + "\"}}";
           break;
         case SERVICECALL:
           request_string =
-            "{\"op\": \"call_service\",\"service\":\"/rosapi/service_type\",\"args\":{\"service\":\""
-            + topic_name + "\"}}";
+              "{\"op\": \"call_service\",\"service\":\"/rosapi/service_type\",\"args\":{\"service\":\""
+              + topic_name + "\"}}";
           break;
         default:
           return null;
@@ -563,13 +562,13 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         case ACTIONSTATUS:
         case ACTIONRESULT:
           request_string =
-            "{\"op\": \"call_service\",\"service\":\"/rosapi/message_details\", \"args\":{\"type\":\""
-            + topic_type + "\"}}";
+              "{\"op\": \"call_service\",\"service\":\"/rosapi/message_details\", \"args\":{\"type\":\""
+              + topic_type + "\"}}";
           break;
         case SERVICECALL:
           request_string =
-            "{\"op\": \"call_service\",\"service\":\"/rosapi/service_request_details\", \"args\":{\"type\":\""
-            + topic_type + "\"}}";
+              "{\"op\": \"call_service\",\"service\":\"/rosapi/service_request_details\", \"args\":{\"type\":\""
+              + topic_type + "\"}}";
           break;
         default:
           return null;
@@ -650,4 +649,4 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       System.out.println("variable:  " + variable);
     }
   }
-  }
+}
