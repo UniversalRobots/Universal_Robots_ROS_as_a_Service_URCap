@@ -57,7 +57,7 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
     String urscriptified = json.replaceAll("\"", "\" + quote + \"");
 
     writer.appendLine(
-        "socket_open(\"" + getMaster() + "\", " + getPort() + ", \"" + sockname + "\")");
+        "socket_open(\"" + getMasterIP() + "\", " + getPort() + ", \"" + sockname + "\")");
     writer.appendLine("socket_send_line(\"" + urscriptified + "\", \"" + sockname + "\")");
     useVar = false;
 
