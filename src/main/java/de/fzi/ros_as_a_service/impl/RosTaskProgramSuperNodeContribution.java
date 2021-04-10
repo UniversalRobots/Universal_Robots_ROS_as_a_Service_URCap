@@ -150,8 +150,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   @Override
   public boolean isDefined() {
-    // return tree != null;
-    return true;
+    String layout = model.get(MSG_LAYOUT_KEY, DEFAULT_MSG_LAYOUT);
+    return (!getMsg().equals(DEFAULT_MSG) && !layout.equals(DEFAULT_MSG_LAYOUT));
   }
 
   public void onMsgSelection(final String
@@ -167,25 +167,22 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   public void updateTopicStructure(final String new_topic) {
+    System.out.println("#### updateTopicStructure");
     String topic = getMsg();
-    if (topic != new_topic) {
-      String topic_type = getTopicType(topic);
-      final JSONArray typedefs = getTopicLayout(topic_type);
+    String topic_type = getTopicType(topic);
+    final JSONArray typedefs = getTopicLayout(topic_type);
 
-      System.out.println("LAYOUT: " + typedefs);
+    System.out.println("LAYOUT: " + typedefs);
 
-      final JSONObject layout = new JSONObject();
-      layout.put("layout", typedefs);
-      ID = topic.replaceAll("/", "_");
-      undoRedoManager.recordChanges(new UndoableChanges() {
-        @Override
-        public void executeChanges() {
-          model.set(MSG_LAYOUT_KEY, layout.toString());
-        }
-      });
-    } else {
-      // Nothing to do here?
-    }
+    final JSONObject layout = new JSONObject();
+    layout.put("layout", typedefs);
+    ID = topic.replaceAll("/", "_");
+    undoRedoManager.recordChanges(new UndoableChanges() {
+      @Override
+      public void executeChanges() {
+        model.set(MSG_LAYOUT_KEY, layout.toString());
+      }
+    });
   }
 
   // methods used for building of json String from TreeModel created with user
