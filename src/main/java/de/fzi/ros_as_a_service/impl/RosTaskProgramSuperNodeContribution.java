@@ -157,30 +157,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     //}
   }
 
-  // TODO: This should to to the service. Let's use the power of polymorphism to handle this...
+  @Override
   public String getTitle() {
     String title = "";
-    switch (task) {
-      case PUBLISHER:
-        title += "Pub. ";
-        break;
-      case SUBSCRIBER:
-        title += "Sub. ";
-        break;
-      case SERVICECALL:
-        title += "Call ";
-        break;
-      case ACTIONCALL:
-        title += "Trig. ";
-        break;
-      case ACTIONSTATUS:
-        title += "Status ";
-        break;
-      case ACTIONRESULT:
-        title += "Get ";
-        break;
-      default:
-    }
     title += getMsg();
     return title;
   }

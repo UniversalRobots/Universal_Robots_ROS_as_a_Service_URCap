@@ -47,6 +47,11 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
   }
 
   @Override
+  public String getTitle() {
+    return "Pub. " + getMsg();
+  }
+
+  @Override
   public void generateScript(ScriptWriter writer) {
     System.out.println("# TopicPub generateScript");
     // TODO: Create unique ID here

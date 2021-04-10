@@ -42,6 +42,11 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
   }
 
   @Override
+  public String getTitle() {
+    return "Sub. " + getMsg();
+  }
+
+  @Override
   public void openView() {
     // TODO: If we parametrize RosTaskSuperNodeContribution with the view type, we get a cyclic
     // parametrization. So, for now we keep solving this here, but there might be a better solution.
