@@ -52,8 +52,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected final UndoRedoManager undoRedoManager;
   protected boolean useVar = false;
   protected int varCounter = 0;
-  protected final TaskType task;
-  protected final LeafDataDirection tree_direction;
   protected Collection<Variable> varCollection;
   protected Object[] varList;
 
@@ -70,25 +68,12 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected static final String DEFAULT_MSG_VALUE = "";
   protected static final String DEFAULT_MSG_LAYOUT = "";
 
-  public static enum TaskType {
-    PUBLISHER,
-    SUBSCRIBER,
-    SERVICECALL,
-    ACTIONCALL,
-    ACTIONSTATUS,
-    ACTIONRESULT
-  }
-  ;
-
   protected String ID; // identifier to reuse sockets
 
-  public RosTaskProgramSuperNodeContribution(
-      ProgramAPIProvider apiProvider, DataModel model, TaskType task, LeafDataDirection direction) {
+  public RosTaskProgramSuperNodeContribution(ProgramAPIProvider apiProvider, DataModel model) {
     this.apiProvider = apiProvider;
     this.variableFactory = apiProvider.getProgramAPI().getVariableModel().getVariableFactory();
     this.model = model;
-    this.task = task;
-    this.tree_direction = direction;
     this.varCollection = apiProvider.getProgramAPI().getVariableModel().getAll();
     this.varList = varCollection.toArray();
     this.undoRedoManager = this.apiProvider.getProgramAPI().getUndoRedoManager();
@@ -118,13 +103,36 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return title;
   }
 
+  protected abstract String[] getMsgLayoutKeys();
+  protected abstract String[] getMsgLayoutDirections();
+  protected abstract String getMsgTypeRequestString(final String topic_name);
+  protected abstract String getMsgListRequestString();
+  protected abstract String getMsgListResponsePlaceholder();
+  protected abstract String[] getMsgLayoutRequestStrings(final String msg_type);
+
   public JSONArray getTopicStructure(final String topic) {
-    JSONArray typedefs = null;
+    System.out.println("## getTopicStructure");
+    JSONArray structure = new JSONArray();
 
-    String topic_type = getTopicType(topic);
-    typedefs = getTopicLayout(topic_type);
+    JSONArray layout = getMsgLayout();
+    JSONArray values = getMsgValues();
 
-    return typedefs;
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    String[] msg_layout_directions = getMsgLayoutDirections();
+
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      JSONObject obj = null;
+      obj = new JSONObject();
+      obj.put("name", msg_layout_keys[i]);
+      obj.put("direction", msg_layout_directions[i]);
+      obj.put("layout", layout.get(i));
+      obj.put("values", values.get(i));
+      structure.put(obj);
+    }
+
+    System.out.println("Topic structure: " + structure.toString(2));
+
+    return structure;
   }
 
   public void onMasterSelection(final String selected_master) {
@@ -150,8 +158,14 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   @Override
   public boolean isDefined() {
-    String layout = model.get(MSG_LAYOUT_KEY, DEFAULT_MSG_LAYOUT);
-    return (!getMsg().equals(DEFAULT_MSG) && !layout.equals(DEFAULT_MSG_LAYOUT));
+    boolean result = true;
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      result &= !model.get(MSG_LAYOUT_KEY + "_" + msg_layout_keys[i], DEFAULT_MSG_LAYOUT)
+                     .equals(DEFAULT_MSG_LAYOUT);
+    }
+    result &= !getMsg().equals(DEFAULT_MSG);
+    return result;
   }
 
   public void onMsgSelection(final String
@@ -170,30 +184,44 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     System.out.println("#### updateTopicStructure");
     String topic = getMsg();
     String topic_type = getTopicType(topic);
+    ID = topic.replaceAll("/", "_");
     final JSONArray typedefs = getTopicLayout(topic_type);
 
     System.out.println("LAYOUT: " + typedefs);
 
-    final JSONObject layout = new JSONObject();
-    layout.put("layout", typedefs);
-    ID = topic.replaceAll("/", "_");
-    undoRedoManager.recordChanges(new UndoableChanges() {
-      @Override
-      public void executeChanges() {
-        model.set(MSG_LAYOUT_KEY, layout.toString());
-      }
-    });
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      final JSONArray layout = typedefs.getJSONArray(i);
+      final String model_key = MSG_LAYOUT_KEY + "_" + msg_layout_keys[i];
+      undoRedoManager.recordChanges(new UndoableChanges() {
+        @Override
+        public void executeChanges() {
+          // System.out.println("Saving layout for " + model_key + ":\n" + layout.toString(2) );
+          model.set(model_key, layout.toString());
+        }
+      });
+    }
   }
 
   // methods used for building of json String from TreeModel created with user
-  public String buildJsonString() {
-    return buildJsonString(false);
+  public String buildJsonString(final String identifier) {
+    return buildJsonString(false, identifier);
   }
 
-  public String buildJsonString(final boolean readable_vars) {
+  public String buildJsonString(final boolean readable_vars, final String identifier) {
     System.out.println("# buildJsonString");
     try {
-      JSONObject values = getMsgValue();
+      JSONArray values_all = getMsgValues();
+      JSONObject values = null;
+      String[] msg_layout_keys = getMsgLayoutKeys();
+      for (int i = 0; i < msg_layout_keys.length; i++) {
+        if (msg_layout_keys[i] == identifier) {
+          values = values_all.getJSONObject(i).getJSONObject("values");
+          break;
+        }
+      }
+
+      Objects.requireNonNull(values, "No values found for key " + identifier);
       System.out.println(values.toString());
 
       String output = values.toString();
@@ -225,34 +253,77 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return model.get(PORT_KEY, DEFAULT_PORT);
   }
 
-  protected JSONObject getMsgValue() {
-    JSONObject obj = null;
-    String value = model.get(MSG_VALUE_KEY, DEFAULT_MSG_VALUE);
-    try {
-      obj = new JSONObject(value);
-    } catch (org.json.JSONException e) {
-      System.err.println("getMsgValue: Error: " + e);
+  JSONObject getMsgValue(final String identifier) {
+    JSONArray values_all = getMsgValues();
+    System.out.println("All values: " + values_all);
+    JSONObject values = null;
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      if (msg_layout_keys[i] == identifier) {
+        try {
+          values = values_all.getJSONObject(i);
+        } catch (org.json.JSONException e) {
+          System.err.println("getMsgValue: Error: " + e);
+        }
+
+        break;
+      }
     }
-    return obj;
+    return values;
   }
 
   /*!
-   * \brief Creates a JSONObject representation of the message layout stored inside the model
+   * \brief Get all message values currently stored in the model.
    *
-   * \returns A valid JSONObject of the currently stored model.
+   * \returns The array will have as many entries, as the saved model has layout_keys. Each entry
+   * will contain the full value specifications for the underlying message structure (e.g. message,
+   * ServiceRequest, ...)
    */
-  protected JSONObject getMsgLayout() {
-    JSONObject obj = null;
-    String value = model.get(MSG_LAYOUT_KEY, DEFAULT_MSG_LAYOUT);
-    // If no model is set, simply return a null object.
-    if (value != "") {
-      try {
-        obj = new JSONObject(value);
-      } catch (org.json.JSONException e) {
-        System.err.println("getMsgLayout: Error: " + e);
+  protected JSONArray getMsgValues() {
+    JSONArray arr = new JSONArray();
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      JSONObject obj = null;
+      String value_str = model.get(MSG_VALUE_KEY + "_" + msg_layout_keys[i], DEFAULT_MSG_VALUE);
+      if (value_str != "") {
+        try {
+          obj = new JSONObject(value_str);
+          arr.put(obj);
+        } catch (org.json.JSONException e) {
+          System.err.println("getMsgValue: Error: " + e);
+        }
+      } else {
+        arr.put(new JSONObject());
       }
     }
-    return obj;
+    System.out.println("VALUES: " + arr);
+    return arr;
+  }
+
+  /*!
+   * \brief Creates a JSONArray representation of the message layout stored inside the model
+   *
+   * \returns A valid JSONArray of the currently stored model.
+   */
+  protected JSONArray getMsgLayout() {
+    System.out.println("# getMsgLayout");
+    JSONArray arr = new JSONArray();
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      JSONArray obj = null;
+      String layout_str = model.get(MSG_LAYOUT_KEY + "_" + msg_layout_keys[i], DEFAULT_MSG_LAYOUT);
+      System.out.println("Layout: " + layout_str);
+      // If no model is set, simply return a null object.
+      if (!layout_str.equals("")) {
+        try {
+          obj = new JSONArray(layout_str);
+          arr.put(obj);
+        } catch (org.json.JSONException e) {
+          System.err.println("getMsgLayout: Error: " + e);
+        }
+      }
+    }
+    return arr;
   }
 
   protected double getModelValueDouble(String key, String def_val) {
@@ -412,40 +483,19 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return json_response;
   }
 
-  // TODO:  At least for Topics we get also a list of Types with that call
   protected String[] getMsgList() {
     System.out.println("### getMsgList");
     String[] items = new String[1];
     items[0] = getMsg();
 
-    String request_string = "";
-    String response_placeholder = "";
-    switch (task) {
-      case PUBLISHER:
-      case SUBSCRIBER:
-        request_string = "{\"op\": \"call_service\",\"service\": \"/rosapi/topics\"}";
-        response_placeholder = "topics";
-        break;
-      case SERVICECALL:
-        request_string = "{\"op\": \"call_service\",\"service\": \"/rosapi/services\"}";
-        response_placeholder = "services";
-        break;
-      case ACTIONCALL:
-      case ACTIONSTATUS:
-      case ACTIONRESULT:
-        request_string = "{\"op\": \"call_service\",\"service\": \"/rosapi/action_servers\"}";
-        response_placeholder = "action_servers";
-        break;
-      default:
-        // TODO: Throw an exception here.
-        return items;
-    }
+    String request_string = getMsgListRequestString();
 
     try {
       // JSON parsing
       JSONObject json_response = rosbridgeRequest(request_string);
       Objects.requireNonNull(json_response, "Response null");
-      JSONArray msgs = json_response.getJSONObject("values").getJSONArray(response_placeholder);
+      JSONArray msgs =
+          json_response.getJSONObject("values").getJSONArray(getMsgListResponsePlaceholder());
       items = new String[msgs.length() + 1];
       items[0] = " ";
       for (int i = 0, l = msgs.length(); i < l; ++i) {
@@ -516,25 +566,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       Objects.requireNonNull(topic_name, "Topicname null");
       System.out.println("TopicName: " + topic_name);
 
-      String request_string = "";
-      switch (task) {
-        case PUBLISHER:
-        case SUBSCRIBER:
-        case ACTIONCALL:
-        case ACTIONSTATUS:
-        case ACTIONRESULT:
-          request_string =
-              "{\"op\": \"call_service\",\"service\":\"/rosapi/topic_type\",\"args\":{\"topic\":\""
-              + topic_name + "\"}}";
-          break;
-        case SERVICECALL:
-          request_string =
-              "{\"op\": \"call_service\",\"service\":\"/rosapi/service_type\",\"args\":{\"service\":\""
-              + topic_name + "\"}}";
-          break;
-        default:
-          return null;
-      }
+      String request_string = getMsgTypeRequestString(topic_name);
 
       JSONObject json_response = rosbridgeRequest(request_string);
       Objects.requireNonNull(json_response, "Response null");
@@ -547,32 +579,20 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return null;
   }
 
+  // protected abstract JSONArray getTopicLayout(String topic_type);
   protected JSONArray getTopicLayout(String topic_type) {
     try {
+      JSONArray resp = new JSONArray();
       Objects.requireNonNull(topic_type, "TopicType null");
 
-      String request_string = "";
-      switch (task) {
-        case PUBLISHER:
-        case SUBSCRIBER:
-        case ACTIONCALL:
-        case ACTIONSTATUS:
-        case ACTIONRESULT:
-          request_string =
-              "{\"op\": \"call_service\",\"service\":\"/rosapi/message_details\", \"args\":{\"type\":\""
-              + topic_type + "\"}}";
-          break;
-        case SERVICECALL:
-          request_string =
-              "{\"op\": \"call_service\",\"service\":\"/rosapi/service_request_details\", \"args\":{\"type\":\""
-              + topic_type + "\"}}";
-          break;
-        default:
-          return null;
+      String[] request_strings = getMsgLayoutRequestStrings(topic_type);
+
+      for (int i = 0; i < request_strings.length; i++) {
+        JSONObject json_response = rosbridgeRequest(request_strings[i]);
+        Objects.requireNonNull(json_response, "Response null");
+        resp.put(json_response.getJSONObject("values").getJSONArray("typedefs"));
       }
-      JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
-      return json_response.getJSONObject("values").getJSONArray("typedefs");
+      return resp;
     } catch (org.json.JSONException e) {
       System.err.println("getTopicLayout: JSON-Error: " + e);
     } catch (Exception e) {
@@ -582,7 +602,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   // TODO: Currently unused, but should be used
-  public void updateModel(final JSONObject obj) {
+  public void updateModel(final String name, final JSONObject obj) {
     try {
       Objects.requireNonNull(obj, "JSON Object of msg null");
     } catch (Exception e) {
@@ -593,8 +613,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     undoRedoManager.recordChanges(new UndoableChanges() {
       @Override
       public void executeChanges() {
-        model.set(MSG_VALUE_KEY, obj.toString());
-        System.out.println("Set MSG_VALUE to " + obj.toString());
+        model.set(MSG_VALUE_KEY + "_" + name, obj.toString());
+        System.out.println("Set MSG_VALUE of " + name + " to " + obj.toString());
       }
     });
   }

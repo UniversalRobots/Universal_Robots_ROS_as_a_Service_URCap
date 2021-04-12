@@ -27,7 +27,6 @@ import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.ViewAPIProvider;
 import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeView;
 import com.ur.urcap.api.domain.variable.Variable;
-import de.fzi.ros_as_a_service.impl.RosTaskProgramSuperNodeContribution.TaskType;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -38,6 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -47,6 +47,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import org.json.JSONArray;
@@ -55,12 +57,12 @@ import org.json.JSONObject;
 public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperNodeContribution>
     implements SwingProgramNodeView<C> {
   protected final ViewAPIProvider apiProvider;
-  protected final TaskType task;
   protected String description = "";
+  Vector<JTree> trees;
 
-  public RosTaskProgramSuperNodeView(ViewAPIProvider apiProvider, TaskType task) {
+  public RosTaskProgramSuperNodeView(ViewAPIProvider apiProvider) {
     this.apiProvider = apiProvider;
-    this.task = task;
+    this.trees = new Vector<JTree>();
   }
 
   protected JComboBox<String> masterComboBox = new JComboBox<String>();
@@ -148,7 +150,78 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     return box;
   }
 
-  protected abstract void createTreeView(JSONArray layout, final ContributionProvider<C> provider);
+  protected void createTreeView(JSONArray structure, final ContributionProvider<C> provider) {
+    if (structure == null) {
+      return;
+    };
+    System.out.println("#createTreeView");
+    for (int i = 0; i < structure.length(); i++) {
+      JSONObject current = (JSONObject) structure.get(i);
+      JSONArray layout = current.getJSONArray("layout");
+      System.out.println("Layout: " + layout);
+      final String name = current.getString("name");
+      JPanel panel = createMsgPanel(name);
+      final JSONObject values = current.getJSONObject("values");
+      LeafDataDirection direction;
+      switch (current.getString("direction")) {
+        case "out":
+          direction = LeafDataDirection.OUTPUT;
+          break;
+        case "in":
+          direction = LeafDataDirection.INPUT;
+          break;
+        default:
+          throw new IllegalArgumentException(
+              "Unknown direction: " + current.getString("direction"));
+      };
+      JTree tree = createMsgTreeLayout(layout, direction, provider.get().getVarCollection());
+      trees.add(tree);
+
+      final TreeModel treeModel = tree.getModel();
+
+      treeModel.addTreeModelListener(new TreeModelListener() {
+        @Override
+        public void treeStructureChanged(TreeModelEvent e) {
+          // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void treeNodesRemoved(TreeModelEvent e) {
+          // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void treeNodesInserted(TreeModelEvent e) {
+          // TODO Auto-generated method stub
+        }
+
+        @Override
+        public void treeNodesChanged(TreeModelEvent e) {
+          System.out.println("Tree node changed: " + e.toString());
+
+          Object tmRoot = treeModel.getRoot();
+          JSONObject root = getJsonLevel(treeModel, tmRoot, false);
+          provider.get().updateModel(name, root);
+        }
+      });
+
+      addTreePanel(tree, panel);
+      LoadValueNode base_node = null;
+      if (values == null || values.names() == null || values.names().isEmpty()) {
+        Object tmRoot = treeModel.getRoot();
+        JSONObject root = getJsonLevel(treeModel, tmRoot, false);
+        base_node = loadValuesToTree(null, root, "msg_base");
+      } else {
+        base_node = loadValuesToTree(null, values, "msg_base");
+      }
+      try {
+        System.out.println("detected values: " + base_node.toString());
+        setTreeValues(base_node, tree);
+      } catch (Exception e) {
+        System.err.println("Error: " + e);
+      }
+    }
+  }
 
   public void addTreePanel(JTree tree, JPanel panel) {
     JScrollPane treeView = new JScrollPane(tree);
@@ -162,15 +235,14 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
   }
 
   public void cleanPanel() {
+    trees.clear();
     msg_panel.removeAll();
   }
   public JPanel createMsgPanel() {
     return createMsgPanel("Data");
   }
   public JPanel createMsgPanel(final String titel) {
-    // msg_panel.removeAll();
     msg_panel.setLayout(new BoxLayout(msg_panel, BoxLayout.Y_AXIS));
-    // TODO make Label Task specific
     addLabel(titel, 20, msg_panel);
     return msg_panel;
   }
@@ -439,36 +511,38 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       parent.addChild(child);
     }
 
-    for (int i = 0; i < keys.length(); ++i) {
-      try {
-        JSONObject obj = values.getJSONObject(keys.get(i).toString());
-        if (obj.names().get(0).toString().equals("-+useVar+-")) {
-          System.out.println("detected use of variable in " + keys.get(i).toString());
-          LoadValueNode new_child = new LoadValueNode(
-              child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
-          new_child.setVariableUsed(true);
-          child.addChild(new_child);
+    if (keys != null && !keys.isEmpty()) {
+      for (int i = 0; i < keys.length(); ++i) {
+        try {
+          JSONObject obj = values.getJSONObject(keys.get(i).toString());
+          if (obj.names().get(0).toString().equals("-+useVar+-")) {
+            System.out.println("detected use of variable in " + keys.get(i).toString());
+            LoadValueNode new_child = new LoadValueNode(
+                child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
+            new_child.setVariableUsed(true);
+            child.addChild(new_child);
+            continue;
+          } else if (obj.names().get(0).toString().equals("-+useVarNum+-")) {
+            System.out.println("detected use of numeric variable in " + keys.get(i).toString());
+            LoadValueNode new_child = new LoadValueNode(
+                child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
+            new_child.setVariableUsed(true);
+            new_child.setNumericType(true);
+            child.addChild(new_child);
+            continue;
+          }
+          loadValuesToTree(child, obj, keys.getString(i));
           continue;
-        } else if (obj.names().get(0).toString().equals("-+useVarNum+-")) {
-          System.out.println("detected use of numeric variable in " + keys.get(i).toString());
-          LoadValueNode new_child = new LoadValueNode(
-              child, new ValueNode(keys.getString(i), getJsonObjectValue(obj, 0)));
-          new_child.setVariableUsed(true);
-          new_child.setNumericType(true);
-          child.addChild(new_child);
-          continue;
+        } catch (Exception e) {
+          System.err.println("Error: " + e);
         }
-        loadValuesToTree(child, obj, keys.getString(i));
-        continue;
-      } catch (Exception e) {
-        System.err.println("Error: " + e);
-      }
-      try {
-        LoadValueNode new_child = new LoadValueNode(
-            child, new ValueNode(keys.getString(i), getJsonObjectValue(values, i)));
-        child.addChild(new_child);
-      } catch (Exception ex) {
-        System.err.println("Error: " + ex);
+        try {
+          LoadValueNode new_child = new LoadValueNode(
+              child, new ValueNode(keys.getString(i), getJsonObjectValue(values, i)));
+          child.addChild(new_child);
+        } catch (Exception ex) {
+          System.err.println("Error: " + ex);
+        }
       }
     }
     return child;

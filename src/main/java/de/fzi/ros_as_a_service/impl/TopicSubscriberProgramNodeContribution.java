@@ -30,20 +30,52 @@ import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
 import java.util.List;
 import java.util.ListIterator;
-import org.json.JSONObject;
 
 public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
   private final TopicSubscriberProgramNodeView view;
 
   public TopicSubscriberProgramNodeContribution(
       ProgramAPIProvider apiProvider, TopicSubscriberProgramNodeView view, DataModel model) {
-    super(apiProvider, model, TaskType.SUBSCRIBER, LeafDataDirection.INPUT);
+    super(apiProvider, model);
     this.view = view;
   }
 
   @Override
   public String getTitle() {
     return "Sub. " + getMsg();
+  }
+
+  @Override
+  protected String[] getMsgLayoutKeys() {
+    return new String[] {"Data"};
+  }
+
+  @Override
+  protected String[] getMsgLayoutDirections() {
+    return new String[] {"in"};
+  }
+
+  @Override
+  protected String getMsgTypeRequestString(final String topic_name) {
+    return "{\"op\": \"call_service\",\"service\":\"/rosapi/topic_type\",\"args\":{\"topic\":\""
+        + topic_name + "\"}}";
+  }
+
+  @Override
+  protected String getMsgListRequestString() {
+    return "{\"op\": \"call_service\",\"service\": \"/rosapi/topics\"}";
+  }
+
+  @Override
+  protected String getMsgListResponsePlaceholder() {
+    return "topics";
+  }
+
+  @Override
+  protected String[] getMsgLayoutRequestStrings(final String msg_type) {
+    return new String[] {
+        "{\"op\": \"call_service\",\"service\":\"/rosapi/message_details\", \"args\":{\"type\":\""
+        + msg_type + "\"}}"};
   }
 
   @Override

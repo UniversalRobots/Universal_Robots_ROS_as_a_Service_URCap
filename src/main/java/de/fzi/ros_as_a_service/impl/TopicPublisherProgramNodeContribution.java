@@ -34,7 +34,7 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
 
   public TopicPublisherProgramNodeContribution(
       ProgramAPIProvider apiProvider, TopicPublisherProgramNodeView view, DataModel model) {
-    super(apiProvider, model, TaskType.PUBLISHER, LeafDataDirection.OUTPUT);
+    super(apiProvider, model);
     this.view = view;
   }
 
@@ -49,6 +49,39 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
   @Override
   public String getTitle() {
     return "Pub. " + getMsg();
+  }
+
+  @Override
+  protected String[] getMsgLayoutKeys() {
+    return new String[] {"Data"};
+  }
+
+  @Override
+  protected String[] getMsgLayoutDirections() {
+    return new String[] {"out"};
+  }
+
+  @Override
+  protected String getMsgTypeRequestString(final String topic_name) {
+    return "{\"op\": \"call_service\",\"service\":\"/rosapi/topic_type\",\"args\":{\"topic\":\""
+        + topic_name + "\"}}";
+  }
+
+  @Override
+  protected String getMsgListRequestString() {
+    return "{\"op\": \"call_service\",\"service\": \"/rosapi/topics\"}";
+  }
+
+  @Override
+  protected String getMsgListResponsePlaceholder() {
+    return "topics";
+  }
+
+  @Override
+  protected String[] getMsgLayoutRequestStrings(final String msg_type) {
+    return new String[] {
+        "{\"op\": \"call_service\",\"service\":\"/rosapi/message_details\", \"args\":{\"type\":\""
+        + msg_type + "\"}}"};
   }
 
   @Override
@@ -68,7 +101,7 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
 
     System.out.println("Building json string");
     json = "{\"op\": \"publish\", \"topic\": \"" + getMsg()
-        + "\", \"msg\": " + buildJsonString(true) + "}";
+        + "\", \"msg\": " + buildJsonString(true, "Data") + "}";
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
   }
