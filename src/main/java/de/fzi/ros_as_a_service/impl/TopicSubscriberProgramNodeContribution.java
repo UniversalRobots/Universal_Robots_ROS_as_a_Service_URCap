@@ -169,7 +169,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
 
     String json = "{\"op\": \"subscribe\", \"topic\": \"" + getMsg() + "\"}";
     writer.appendLine(
-        "socket_open(\"" + getMasterIP() + "\", " + getPort() + ", \"" + sockname + "\")");
+        "socket_open(\"" + getMasterIP() + "\", " + getMasterPort() + ", \"" + sockname + "\")");
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
 
     writer.appendLine("local msg = \" \"");

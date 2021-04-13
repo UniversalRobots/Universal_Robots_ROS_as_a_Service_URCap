@@ -85,7 +85,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
 
   public void updateView(C contribution) {
     setMasterComboBoxItems(contribution.getMastersList());
-    setTopicComboBoxItems(contribution.getMsgList());
+    setTopicComboBoxItems(contribution.queryMsgList());
     cleanPanel();
 
     setTopicComboBoxSelection(contribution.getMsg());
@@ -119,7 +119,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
   }
 
   public void updateMsgList(final ContributionProvider<C> provider) {
-    setTopicComboBoxItems(provider.get().getMsgList());
+    setTopicComboBoxItems(provider.get().queryMsgList());
   }
 
   private Box createTopicComboBox(
@@ -136,7 +136,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       public void itemStateChanged(ItemEvent e) {
         if (e.getStateChange() == ItemEvent.SELECTED) {
           provider.get().onMsgSelection(getTopicComboBoxSelectedItem());
-          JSONArray typedefs = provider.get().getTopicStructure((String) e.getItem());
+          JSONArray typedefs = provider.get().getTopicStructure();
           cleanPanel();
           createTreeView(typedefs, provider);
         }

@@ -88,7 +88,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   public MasterPair getMaster() {
-    return new MasterPair(getMasterIP(), getPort());
+    return new MasterPair(getMasterIP(), getMasterPort());
   }
 
   @Override
@@ -110,7 +110,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected abstract String getMsgListResponsePlaceholder();
   protected abstract String[] getMsgLayoutRequestStrings(final String msg_type);
 
-  public JSONArray getTopicStructure(final String topic) {
+  public JSONArray getTopicStructure() {
     System.out.println("## getTopicStructure");
     JSONArray structure = new JSONArray();
 
@@ -138,7 +138,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   public void onMasterSelection(final String selected_master) {
     System.out.println("### onMasterSelection");
     final MasterPair master = MasterPair.fromString(selected_master);
-    if (getMasterIP().equals(master.getIp()) && getPort().equals(master.getPort())) { // no changes
+    if (getMasterIP().equals(master.getIp())
+        && getMasterPort().equals(master.getPort())) { // no changes
       return;
     }
     System.out.println("Set model master to " + master.toString());
@@ -183,9 +184,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   public void updateTopicStructure(final String new_topic) {
     System.out.println("#### updateTopicStructure");
     String topic = getMsg();
-    String topic_type = getTopicType(topic);
+    String topic_type = queryTopicType(topic);
     ID = topic.replaceAll("/", "_");
-    final JSONArray typedefs = getTopicLayout(topic_type);
+    final JSONArray typedefs = queryTopicLayout(topic_type);
 
     System.out.println("LAYOUT: " + typedefs);
 
@@ -249,7 +250,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return model.get(MSG_KEY, DEFAULT_MSG);
   }
 
-  protected String getPort() {
+  protected String getMasterPort() {
     return model.get(PORT_KEY, DEFAULT_PORT);
   }
 
@@ -429,7 +430,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   protected void rosbridgeSendOnly(String msg) {
     String hostIp = getMasterIP();
-    int portNr = Integer.parseInt(getPort());
+    int portNr = Integer.parseInt(getMasterPort());
 
     try {
       Socket socket = new Socket();
@@ -451,7 +452,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   protected JSONObject rosbridgeRequest(String topic_string) {
     String hostIp = getMasterIP();
-    int portNr = Integer.parseInt(getPort());
+    int portNr = Integer.parseInt(getMasterPort());
 
     JSONObject json_response = null;
     try {
@@ -483,7 +484,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return json_response;
   }
 
-  protected String[] getMsgList() {
+  protected String[] queryMsgList() {
     System.out.println("### getMsgList");
     String[] items = new String[1];
     items[0] = getMsg();
@@ -510,7 +511,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return items;
   }
 
-  protected String getTopicType(String topic_name) {
+  protected String queryTopicType(String topic_name) {
     try {
       Objects.requireNonNull(topic_name, "Topicname null");
       System.out.println("TopicName: " + topic_name);
@@ -528,8 +529,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return null;
   }
 
-  // protected abstract JSONArray getTopicLayout(String topic_type);
-  protected JSONArray getTopicLayout(String topic_type) {
+  protected JSONArray queryTopicLayout(String topic_type) {
     try {
       JSONArray resp = new JSONArray();
       Objects.requireNonNull(topic_type, "TopicType null");

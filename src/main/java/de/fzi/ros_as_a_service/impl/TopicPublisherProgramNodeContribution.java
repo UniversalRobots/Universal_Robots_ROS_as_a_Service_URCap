@@ -90,11 +90,11 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
     final String sockname = "publisher_" + ID;
 
     String json = "{\"op\": \"advertise\", \"topic\": \"" + getMsg() + "\", \"type\": \""
-        + getTopicType(getMsg()) + "\"}";
+        + queryTopicType(getMsg()) + "\"}";
     String urscriptified = json.replaceAll("\"", "\" + quote + \"");
 
     writer.appendLine(
-        "socket_open(\"" + getMasterIP() + "\", " + getPort() + ", \"" + sockname + "\")");
+        "socket_open(\"" + getMasterIP() + "\", " + getMasterPort() + ", \"" + sockname + "\")");
     writer.appendLine("socket_send_line(\"" + urscriptified + "\", \"" + sockname + "\")");
     useVar = false;
 
