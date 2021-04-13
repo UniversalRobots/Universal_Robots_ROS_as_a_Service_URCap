@@ -129,7 +129,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   public void onMasterSelection(final String selected_master) {
     System.out.println("### onMasterSelection");
-    final MasterPair master = new MasterPair().fromString(selected_master);
+    final MasterPair master = MasterPair.fromString(selected_master);
     if (getMasterIP().equals(master.getIp()) && getPort().equals(master.getPort())) { // no changes
       return;
     }
