@@ -326,17 +326,17 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return arr;
   }
 
-  protected double getModelValueDouble(String key, String def_val) {
-    return Double.parseDouble(model.get(key, def_val));
-  }
-
-  protected int getModelValueInt(String key, String def_val) {
-    return Integer.parseInt(model.get(key, def_val));
-  }
-
-  protected String getModelValueString(String key, String def_val) {
-    return model.get(key, def_val);
-  }
+  //  protected double getModelValueDouble(String key, String def_val) {
+  //    return Double.parseDouble(model.get(key, def_val));
+  //  }
+  //
+  //  protected int getModelValueInt(String key, String def_val) {
+  //    return Integer.parseInt(model.get(key, def_val));
+  //  }
+  //
+  //  protected String getModelValueString(String key, String def_val) {
+  //    return model.get(key, def_val);
+  //  }
 
   protected String[] getMastersList() {
     System.out.println("### getMastersList");
@@ -510,57 +510,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return items;
   }
 
-  // TODO: Is this needed anymore? I would assume, that getTopicType does the trick, as well.
-  protected String getServiceType(String service_name) {
-    try {
-      Objects.requireNonNull(service_name, "ServiceName null");
-      String request_string =
-          "{\"op\": \"call_service\",\"service\":\"/rosapi/service_type\",\"args\":{\"service\":\""
-          + service_name + "\"}}";
-      JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
-      return json_response.getJSONObject("values").getString("type");
-    } catch (org.json.JSONException e) {
-      System.err.println("getServiceType: JSON-Error: " + e);
-    } catch (Exception e) {
-      System.err.println("getServiceType: Error: " + e);
-    }
-    return null;
-  }
-
-  protected JSONArray getServiceRequestLayout(String service_type) {
-    try {
-      Objects.requireNonNull(service_type, "ServiceType null");
-      String request_string =
-          "{\"op\": \"call_service\",\"service\": \"/rosapi/service_request_details\", \"args\":{\"type\":\""
-          + service_type + "\"}}";
-      JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
-      return json_response.getJSONObject("values").getJSONArray("typedefs");
-    } catch (org.json.JSONException e) {
-      System.err.println("getServiceRequestLayout: JSON-Error: " + e);
-    } catch (Exception e) {
-      System.err.println("getServiceRequestLayout: Error: " + e);
-    }
-    return null;
-  }
-
-  protected JSONArray getServiceResponseLayout(String service_type) {
-    try {
-      Objects.requireNonNull(service_type, "ServiceType null");
-      String request_string =
-          "{\"op\": \"call_service\",\"service\": \"/rosapi/service_response_details\", \"args\":{\"type\":\""
-          + service_type + "\"}}";
-      JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
-      return json_response.getJSONObject("values").getJSONArray("typedefs");
-    } catch (org.json.JSONException e) {
-      System.err.println("getServiceResponseLayout: JSON-Error: " + e);
-    } catch (Exception e) {
-      System.err.println("getServiceResponseLayout: Error: " + e);
-    }
-    return null;
-  }
   protected String getTopicType(String topic_name) {
     try {
       Objects.requireNonNull(topic_name, "Topicname null");
@@ -601,7 +550,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return null;
   }
 
-  // TODO: Currently unused, but should be used
   public void updateModel(final String name, final JSONObject obj) {
     try {
       Objects.requireNonNull(obj, "JSON Object of msg null");

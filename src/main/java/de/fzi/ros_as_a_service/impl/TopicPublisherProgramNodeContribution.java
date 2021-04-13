@@ -87,7 +87,6 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
   @Override
   public void generateScript(ScriptWriter writer) {
     System.out.println("# TopicPub generateScript");
-    // TODO: Create unique ID here
     final String sockname = "publisher_" + ID;
 
     String json = "{\"op\": \"advertise\", \"topic\": \"" + getMsg() + "\", \"type\": \""
