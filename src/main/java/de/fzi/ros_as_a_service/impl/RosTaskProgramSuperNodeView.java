@@ -26,6 +26,7 @@ package de.fzi.ros_as_a_service.impl;
 import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.ViewAPIProvider;
 import com.ur.urcap.api.contribution.program.swing.SwingProgramNodeView;
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
 import com.ur.urcap.api.domain.variable.Variable;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -59,10 +60,13 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
   protected final ViewAPIProvider apiProvider;
   protected String description = "";
   Vector<JTree> trees;
+  private final KeyboardInputFactory keyboardFactory;
 
   public RosTaskProgramSuperNodeView(ViewAPIProvider apiProvider) {
     this.apiProvider = apiProvider;
     this.trees = new Vector<JTree>();
+    this.keyboardFactory =
+        apiProvider.getUserInterfaceAPI().getUserInteraction().getKeyboardInputFactory();
   }
 
   protected JComboBox<String> masterComboBox = new JComboBox<String>();
@@ -329,7 +333,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       ValueNodeRenderer renderer = new ValueNodeRenderer(varCollection, direction);
       tree.setCellRenderer(renderer);
       // tree.setCellEditor(new TextFieldNodeEditor(tree, renderer));
-      tree.setCellEditor(new ValueNodeEditor(tree, varCollection, direction));
+      tree.setCellEditor(new ValueNodeEditor(tree, varCollection, direction, keyboardFactory));
       tree.setEditable(true);
     } catch (org.json.JSONException e) {
       System.err.println("createMsgTreeLayout: JSON-Error: " + e);

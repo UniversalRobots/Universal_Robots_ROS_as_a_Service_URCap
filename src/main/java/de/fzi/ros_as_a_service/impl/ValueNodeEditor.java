@@ -25,53 +25,114 @@
 
 package de.fzi.ros_as_a_service.impl;
 
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
 import com.ur.urcap.api.domain.variable.Variable;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.EventObject;
+import java.util.Iterator;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
 @SuppressWarnings("serial")
 class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
-  private Collection<Variable> variable_collection;
   private LeafDataDirection datadirection;
-  private ValueNodeRenderer renderer;
+  private DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
   private JTree tree;
+  private JPanel p = new JPanel();
+  private JLabel label = new JLabel();
+  private JTextField textfield = null;
+  private JCheckBox variableCheckbox = null;
+  private JComboBox<String> variableCombobox = new JComboBox<String>();
+  private final KeyboardInputFactory keyboardFactory;
 
-  public ValueNodeEditor(
-      JTree tree, Collection<Variable> variableCollection, LeafDataDirection direction) {
+  public ValueNodeEditor(JTree tree, Collection<Variable> variableCollection,
+      LeafDataDirection direction, KeyboardInputFactory keyboard_factory) {
     this.tree = tree;
-    this.variable_collection = variableCollection;
     this.datadirection = direction;
-    this.renderer = new ValueNodeRenderer(variable_collection, direction);
+    this.keyboardFactory = keyboard_factory;
+
+    Iterator<Variable> variableIterator = variableCollection.iterator();
+    textfield = new JTextField();
+    textfield.setPreferredSize(new Dimension(150, 30));
+    textfield.setMaximumSize(textfield.getPreferredSize());
+    label.setLabelFor(textfield);
+    variableCheckbox = new JCheckBox();
+    variableCheckbox.setText("Use variable");
+    variableCombobox.setPreferredSize(new Dimension(100, 30));
+    variableCombobox.addItem("");
+    while (variableIterator.hasNext()) {
+      variableCombobox.addItem(variableIterator.next().getDisplayName());
+    }
+
+    textfield.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        stopCellEditing();
+      }
+    });
+    textfield.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        if (!textfield.isEnabled())
+        {
+          // Editing can be disabled when use_var is checked. This doesn't disable the mouse events,
+          // though.
+          return;
+        }
+        KeyboardTextInput keyboardInput = keyboardFactory.createStringKeyboardInput();
+        keyboardInput.setInitialValue(textfield.getText());
+        keyboardInput.show(textfield, new KeyboardInputCallback<String>() {
+          @Override
+          public void onOk(String value) {
+            textfield.setText(value);
+            stopCellEditing();
+          }
+        });
+      }
+    });
+    variableCombobox.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if (textfield != null) {
+          textfield.setText(variableCombobox.getSelectedItem().toString());
+        }
+        stopCellEditing();
+      }
+    });
   }
 
   @Override
   public Object getCellEditorValue() {
-    String info = renderer.getLabel().getText(); // format: "description (type)"
+    String info = label.getText(); // format: "description (type)"
     String[] descr = info.split("[\\s\\(\\)]+");
     if (datadirection == LeafDataDirection.INPUT) {
-      return new ValueInputNode(
-          descr[0], descr[1], renderer.getComboBox().getSelectedItem().toString());
+      return new ValueInputNode(descr[0], descr[1], variableCombobox.getSelectedItem().toString());
     }
     // otherwise it's an Output...
     return new ValueOutputNode(
-        descr[0], descr[1], renderer.getCheckbox().isSelected(), renderer.getTextField().getText());
+        descr[0], descr[1], variableCheckbox.isSelected(), textfield.getText());
   }
 
+  @Override
   public boolean isCellEditable(EventObject event) {
     if (event instanceof MouseEvent) {
       MouseEvent mouseEvent = (MouseEvent) event;
@@ -93,43 +154,52 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
   @Override
   public Component getTreeCellEditorComponent(
       JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row) {
-    Component editor =
-        renderer.getTreeCellRendererComponent(tree, value, true, expanded, leaf, row, true);
-    if (editor instanceof JPanel) {
-      final JTextField textfield = renderer.getTextField();
-      final JCheckBox checkbox = renderer.getCheckbox();
-      final JComboBox<String> combobox = renderer.getComboBox();
+    System.out.println("--- getTreeCellEditorComponent: " + value);
+    JLabel l = (JLabel) renderer.getTreeCellRendererComponent(
+        tree, value, true, expanded, leaf, row, true);
 
-      if (textfield != null) {
-        textfield.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            stopCellEditing();
-          }
-        });
+    if (value instanceof DefaultMutableTreeNode) {
+      Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
+      if (userObject instanceof ValueInputNode) {
+        final ValueInputNode node = (ValueInputNode) userObject;
+        System.out.println(node.getLabelText() + " is an InputNode");
+        l.setText(node.getLabelText());
+        label.setText(node.getLabelText());
+        p.add(label);
       }
-      if (combobox != null) {
-        combobox.addActionListener(new ActionListener() {
+      if (userObject instanceof ValueOutputNode) {
+        final ValueOutputNode node = (ValueOutputNode) userObject;
+        System.out.println(node.getLabelText() + " is an OutputNode");
+        l.setText(node.getLabelText());
+        textfield.setText(node.getValue());
+        label.setText(node.getLabelText());
+        boolean var_used = node.getUseVariable();
+        variableCheckbox.setSelected(var_used);
+        variableCombobox.setVisible(var_used);
+        System.out.println("Node: " + node);
+        if (var_used) {
+          variableCombobox.setSelectedItem(node.getValue());
+        }
+        variableCheckbox.addItemListener(new ItemListener() {
           @Override
-          public void actionPerformed(ActionEvent e) {
-            if (textfield != null) {
-              textfield.setText(combobox.getSelectedItem().toString());
+          public void itemStateChanged(ItemEvent e) {
+            variableCombobox.setVisible(e.getStateChange() == ItemEvent.SELECTED);
+            textfield.setEnabled(e.getStateChange() != ItemEvent.SELECTED);
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+              textfield.setText(variableCombobox.getSelectedItem().toString());
+            } else {
+              textfield.setText(node.getDefaultValue());
             }
             stopCellEditing();
           }
         });
+        p.add(label);
+        p.add(textfield);
+        p.add(variableCheckbox);
       }
-      if (checkbox != null) {
-        checkbox.addItemListener(new ItemListener() {
-          @Override
-          public void itemStateChanged(ItemEvent e) {
-            // combobox.setVisible(e.getStateChange() == ItemEvent.SELECTED);
-            textfield.setEditable(e.getStateChange() != ItemEvent.SELECTED);
-            stopCellEditing();
-          }
-        });
-      }
+      p.add(variableCombobox);
+      return p;
     }
-    return editor;
+    return l;
   }
 }

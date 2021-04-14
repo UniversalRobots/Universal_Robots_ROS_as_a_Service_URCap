@@ -79,7 +79,6 @@ class ValueNodeRenderer implements TreeCellRenderer {
         variableCheckbox = new JCheckBox();
         variableCheckbox.setText("Use variable");
         variableCombobox.setPreferredSize(new Dimension(100, 30));
-        // variableCombobox.setVisible(variableCheckbox.isSelected());
         variableCombobox.addItem("");
         while (variableIterator.hasNext()) {
           variableCombobox.addItem(variableIterator.next().getDisplayName());
@@ -123,6 +122,8 @@ class ValueNodeRenderer implements TreeCellRenderer {
           label.setText(node.getLabelText());
           boolean var_used = node.getUseVariable();
           variableCheckbox.setSelected(var_used);
+          variableCombobox.setVisible(var_used);
+          textfield.setEnabled(!var_used);
           if (var_used) {
             variableCombobox.setSelectedItem(node.getValue());
           }

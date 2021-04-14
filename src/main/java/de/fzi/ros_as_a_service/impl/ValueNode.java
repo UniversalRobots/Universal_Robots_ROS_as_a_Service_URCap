@@ -131,6 +131,16 @@ class ValueOutputNode extends ValueInputNode {
     this.variable_used = use_variable;
   }
 
+  public String getDefaultValue() {
+    if (type.equals(ValueType.INTEGER) || type.equals(ValueType.UINTEGER)) {
+      return "0";
+    } else if (type.equals(ValueType.FLOAT)) {
+      return "0.0";
+    }
+    // default for String
+    return "default";
+  }
+
   public void setVariableUsed(boolean use_variable) {
     this.variable_used = use_variable;
   }
