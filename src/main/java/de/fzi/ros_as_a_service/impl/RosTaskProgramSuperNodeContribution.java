@@ -217,7 +217,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       String[] msg_layout_keys = getMsgLayoutKeys();
       for (int i = 0; i < msg_layout_keys.length; i++) {
         if (msg_layout_keys[i] == identifier) {
-          values = values_all.getJSONObject(i).getJSONObject("values");
+          values = values_all.getJSONObject(i);
           break;
         }
       }
