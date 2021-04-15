@@ -92,8 +92,7 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
     textfield.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
-        if (!textfield.isEnabled())
-        {
+        if (!textfield.isEnabled()) {
           // Editing can be disabled when use_var is checked. This doesn't disable the mouse events,
           // though.
           return;

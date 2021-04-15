@@ -411,7 +411,8 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
 
   private String getDefaultType(String type_str) {
     ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(type_str);
-    if (type.equals(ValueInputNode.ValueType.INTEGER) | type.equals(ValueInputNode.ValueType.UINTEGER)) {
+    if (type.equals(ValueInputNode.ValueType.INTEGER)
+        | type.equals(ValueInputNode.ValueType.UINTEGER)) {
       return "0";
     } else if (type.equals(ValueInputNode.ValueType.FLOAT)) {
       return "0.0";
@@ -426,7 +427,8 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     for (int i = 0; i < childCount; i++) { // for each Child
       Object child = treeModel.getChild(parent, i); // get Object of Child
       String name = getChildName(child.toString()); // get Name of this Child
-      ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(getChildType(child.toString())); // get Type of this Child
+      ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(
+          getChildType(child.toString())); // get Type of this Child
       if (treeModel.isLeaf(child)) { // if Child is Leaf
         String val = " ";
         boolean usevar = false;
@@ -448,7 +450,8 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
             jObj.put(name, "");
           } else if (type.equals(ValueInputNode.ValueType.STRING)) {
             jObj.put(name, val);
-          } else if (type.equals(ValueInputNode.ValueType.INTEGER) | type.equals(ValueInputNode.ValueType.UINTEGER)) {
+          } else if (type.equals(ValueInputNode.ValueType.INTEGER)
+              | type.equals(ValueInputNode.ValueType.UINTEGER)) {
             jObj.put(name, Integer.parseInt(val));
           } else if (type.equals(ValueInputNode.ValueType.FLOAT)) {
             jObj.put(name, Double.parseDouble(val));

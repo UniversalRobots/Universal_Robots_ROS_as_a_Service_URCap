@@ -73,7 +73,7 @@ class ValueInputNode extends ValueNode {
   }
 
   static public ValueType getTypeFromString(String type_str) {
-    switch(type_str) {
+    switch (type_str) {
       case "string":
         return ValueType.STRING;
       case "int8":
@@ -92,7 +92,7 @@ class ValueInputNode extends ValueNode {
       case "bool":
         return ValueType.UINTEGER;
       default:
-      return ValueType.UNKNOWN;
+        return ValueType.UNKNOWN;
     }
   }
 
