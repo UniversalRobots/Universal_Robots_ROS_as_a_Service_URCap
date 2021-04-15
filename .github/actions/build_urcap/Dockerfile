@@ -5,6 +5,7 @@ FROM ubuntu:bionic
 COPY entrypoint.sh /entrypoint.sh
 
 RUN apt-get update && apt-get install -y \
+ ant\
  default-jdk\
  maven\
  unzip\
