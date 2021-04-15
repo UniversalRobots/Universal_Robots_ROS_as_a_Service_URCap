@@ -107,7 +107,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     writer.assign(l_val, r_val);
     // writer.appendLine("textmsg(\"" + l_val + "\", " + l_val + ")");
     writer.assign(
-        source_var, "ri_reduceString(" + source_var + ", bounds[0], bounds[3]-bounds[0]+1)");
+        source_var, "json_reduceString(" + source_var + ", bounds[0], bounds[3]-bounds[0]+1)");
   }
 
   private boolean isMapping(final JSONObject obj) {

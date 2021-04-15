@@ -213,50 +213,14 @@
     return [element_begin, element_begin + name_length + 1, value_begin, element_end]
   end
   
-  ### string ri_reduceString(inp_string="", start=0, length=0)
+  ### string json_reduceString(inp_string="", start=0, length=0)
   ### get the string without a substring defined by start and length
   ### inp_string: string that shall be reduced
   ### start: index of first character of substring to be removed
   ### length: length of substring to be removed
   ### return: catenated string of residual strings before and behind substring
-  def ri_reduceString(inp_string="", start=0, length=0):
+  def json_reduceString(inp_string="", start=0, length=0):
     local prefix = str_sub(inp_string, 0, start)
     local postfix = str_sub(inp_string, start + length)
     return str_cat(prefix, postfix)
   end
-  
-  ### int[4] ri_getValues(inp_string)
-  ### get the Element with identifier "values". results in [0, 0, 0, 0] on error
-  ### inp_string: string to search for element
-  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
-  def ri_getValues(inp_string):
-    return json_getElement(inp_string, "values")
-  end
-  
-  ### int[4] ri_getOperation(inp_string)
-  ### get the Element with identifier "op". results in [0, 0, 0, 0] on error
-  ### this element is a short description of request
-  ### inp_string: string to search for element
-  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
-  def ri_getOperation(inp_string):
-    return json_getElement(inp_string, "op")
-  end
-  
-  ### int[4] ri_getResult(inp_string)
-  ### get the Element with identifier "result". results in [0, 0, 0, 0] on error
-  ### typically used to determine the valid execution of a request
-  ### inp_string: string to search for element
-  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
-  def ri_getResult(inp_string):
-    return json_getElement(inp_string, "result")
-  end
-  
-  ### int[4] ri_getService(inp_string)
-  ### get the Element with identifier "service". results in [0, 0, 0, 0] on error
-  ### this element typically is the name of the requested service
-  ### inp_string: string to search for element
-  ### return: [pos of quote befor identifier, pos of quote after identifier, begin of value, end of value]
-  def ri_getService(inp_string):
-    return json_getElement(inp_string, "service")
-  end
-  
