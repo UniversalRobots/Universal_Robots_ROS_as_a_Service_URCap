@@ -59,7 +59,7 @@ class ValueNode {
 }
 
 class ValueInputNode extends ValueNode {
-  public enum ValueType { STRING, INTEGER, UINTEGER, FLOAT }
+  public enum ValueType { UNKNOWN, STRING, INTEGER, UINTEGER, FLOAT }
   ;
 
   protected ValueType type;
@@ -72,21 +72,28 @@ class ValueInputNode extends ValueNode {
     this.value = value;
   }
 
-  protected ValueType getTypeFromString(String type) {
-    if (type.equals("string")) {
-      return ValueType.STRING;
+  static public ValueType getTypeFromString(String type_str) {
+    switch(type_str) {
+      case "string":
+        return ValueType.STRING;
+      case "int8":
+      case "int16":
+      case "int32":
+      case "int64":
+        return ValueType.INTEGER;
+      case "uint8":
+      case "uint16":
+      case "uint32":
+      case "uint64":
+        return ValueType.UINTEGER;
+      case "float32":
+      case "float64":
+        return ValueType.UINTEGER;
+      case "bool":
+        return ValueType.UINTEGER;
+      default:
+      return ValueType.UNKNOWN;
     }
-    if (type.equals("int32") | type.equals("int64")) {
-      return ValueType.INTEGER;
-    }
-    if (type.equals("uint32") | type.equals("uint64")) {
-      return ValueType.UINTEGER;
-    }
-    if (type.equals("float64")) {
-      return ValueType.FLOAT;
-    }
-    // default
-    return ValueType.STRING;
   }
 
   public String getLabelText() {

@@ -309,17 +309,6 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     return new Font("Serif", Font.BOLD, n);
   }
 
-  protected String getDefault(String type) {
-    if (type.equals("float64")) {
-      return "0.0";
-    } else if (type.equals("int32") | type.equals("int64") | type.equals("uint32")
-        | type.equals("uint64")) {
-      return "0";
-    } else {
-      return "";
-    }
-  }
-
   protected Component createHorSpacer(int width) {
     return Box.createRigidArea(new Dimension(width, 0));
   }
@@ -411,19 +400,16 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     }
   }
 
-  protected boolean isSimpleType(String type) {
-    if (type.equals("string") | type.equals("int32") | type.equals("int64") | type.equals("uint32")
-        | type.equals("uint64") | type.equals("float64")) {
-      return true;
-    }
-    return false;
+  protected boolean isSimpleType(String type_str) {
+    ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(type_str);
+    return !type.equals(ValueInputNode.ValueType.UNKNOWN);
   }
 
-  private String getDefaultType(String type) {
-    if (type.equals("int32") | type.equals("int64") | type.equals("uint32")
-        | type.equals("uint64")) {
+  private String getDefaultType(String type_str) {
+    ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(type_str);
+    if (type.equals(ValueInputNode.ValueType.INTEGER) | type.equals(ValueInputNode.ValueType.UINTEGER)) {
       return "0";
-    } else if (type.equals("float64") | type.equals("float32")) {
+    } else if (type.equals(ValueInputNode.ValueType.FLOAT)) {
       return "0.0";
     }
     // default for String
@@ -436,7 +422,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     for (int i = 0; i < childCount; i++) { // for each Child
       Object child = treeModel.getChild(parent, i); // get Object of Child
       String name = getChildName(child.toString()); // get Name of this Child
-      String type = getChildType(child.toString()); // get Type of this Child
+      ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(getChildType(child.toString())); // get Type of this Child
       if (treeModel.isLeaf(child)) { // if Child is Leaf
         String val = " ";
         boolean usevar = false;
@@ -456,12 +442,11 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
             }
           } else if (!(node instanceof ValueInputNode)) { // ValueInputNode not using a variable
             jObj.put(name, "");
-          } else if (type.equals("string")) {
+          } else if (type.equals(ValueInputNode.ValueType.STRING)) {
             jObj.put(name, val);
-          } else if (type.equals("int32") | type.equals("int64") | type.equals("uint32")
-              | type.equals("uint64")) {
+          } else if (type.equals(ValueInputNode.ValueType.INTEGER) | type.equals(ValueInputNode.ValueType.UINTEGER)) {
             jObj.put(name, Integer.parseInt(val));
-          } else if (type.equals("float64")) {
+          } else if (type.equals(ValueInputNode.ValueType.FLOAT)) {
             jObj.put(name, Double.parseDouble(val));
           }
         } catch (Exception e) {
