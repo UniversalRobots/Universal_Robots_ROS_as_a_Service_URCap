@@ -1,6 +1,5 @@
   # buffer for char quote as we can not put this explicitly in UR Script
-  # TODO: is there a way to make it a const?
-  global quote = " "
+  quote = " "
   
   ### bool json_checkKeywordMatch(src="", target="", index=1)
   ### check if a given name in src is a valid identifier
