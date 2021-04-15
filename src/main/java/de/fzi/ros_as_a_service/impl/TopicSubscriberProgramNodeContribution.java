@@ -34,11 +34,13 @@ import org.json.JSONObject;
 
 public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
   private final TopicSubscriberProgramNodeView view;
+  static int num_contributions;
 
   public TopicSubscriberProgramNodeContribution(
       ProgramAPIProvider apiProvider, TopicSubscriberProgramNodeView view, DataModel model) {
     super(apiProvider, model);
     this.view = view;
+    this.num_contributions = 0;
   }
 
   @Override
@@ -102,7 +104,14 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     JSONObject values = getMsgValue(getMsgLayoutKeys()[0]);
     // System.out.println("Subscription values:\n" + values.toString(2));
 
-    writer.defineFunction("parseSubscript" + ID); // add function definition
+
+    final String parser_function_name = "parseSubscript" + ID + "_" + num_contributions;
+    // Increment the subscription counter. This way we can make sure that the parser function IDs
+    // are unique
+    num_contributions += 1;
+
+    writer.defineFunction(parser_function_name); // add function definition
+
     writer.assign("local l_msg", globalvar);
     writer.assign("local bounds", "[0, 0, 0, 0]");
 
@@ -139,7 +148,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     writer.end(); // while loop
     writer.appendLine("textmsg(\"subscription is: \", " + globalvar + ")");
 
-    writer.appendLine("parseSubscript" + ID + "()");
+    writer.appendLine(parser_function_name + "()");
 
     json = "{\"op\": \"unsubscribe\", \"topic\": \"" + getMsg() + "\"}";
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
