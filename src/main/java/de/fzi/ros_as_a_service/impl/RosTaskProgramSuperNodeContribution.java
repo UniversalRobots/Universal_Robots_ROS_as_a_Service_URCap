@@ -174,13 +174,16 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   public void onMsgSelection(final String
           topic) { //, final String layout, final String msg_key, final String layout_key) {
     System.out.println("### onMsgSelection");
-    undoRedoManager.recordChanges(new UndoableChanges() {
-      @Override
-      public void executeChanges() {
-        model.set(MSG_KEY, topic);
-      }
-    });
-    updateTopicStructure();
+    // Otherwise this will get triggered upon opening the view when the combobox is first filled.
+    if (model.get(MSG_KEY, "") != topic) {
+      undoRedoManager.recordChanges(new UndoableChanges() {
+        @Override
+        public void executeChanges() {
+          model.set(MSG_KEY, topic);
+        }
+      });
+      updateTopicStructure();
+    }
   }
 
   public void updateTopicStructure() {
@@ -217,6 +220,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         });
       }
     }
+    // TODO: Fill values with default message. Otherwise the previous value will hang around until
+    // the tree has been changed once.
   }
 
   // methods used for building of json String from TreeModel created with user
