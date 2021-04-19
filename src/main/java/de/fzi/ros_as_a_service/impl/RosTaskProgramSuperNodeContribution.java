@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -628,5 +629,92 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       System.out.println("resolved variable:  " + resolvedVariableName);
       System.out.println("variable:  " + variable);
     }
+  }
+
+  protected void generateElementParser(String element_name, String source_var, String target_var,
+      boolean numericTarget, ScriptWriter writer) {
+    writer.assign("bounds", "json_getElement(" + source_var + ", \"" + element_name + "\")");
+    String l_val = new String();
+    String r_val = new String();
+
+    l_val += target_var;
+
+    if (numericTarget) {
+      r_val = "to_num(";
+    }
+    r_val += "str_sub(" + source_var + ", bounds[2], bounds[3]-bounds[2]+1)";
+    if (numericTarget) {
+      r_val += ")";
+    }
+    writer.assign(l_val, r_val);
+    // writer.appendLine("textmsg(\"" + l_val + "\", " + l_val + ")");
+    writer.assign(
+        source_var, "json_reduceString(" + source_var + ", bounds[0], bounds[3]-bounds[0]+1)");
+  }
+
+  private boolean isMapping(final JSONObject obj) {
+    if (obj.names().length() != 1) {
+      return false;
+    }
+
+    String[] field_names = JSONObject.getNames(obj);
+
+    Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+    Matcher m = p.matcher(field_names[0]);
+    return m.matches();
+  }
+
+  protected List<ValueInputNode> getNodesWithVariables(final JSONObject root, ScriptWriter writer) {
+    return getNodesWithVariables(root, "l_msg", writer);
+  }
+
+  protected List<ValueInputNode> getNodesWithVariables(
+      final JSONObject root, String name, ScriptWriter writer) {
+    System.out.println("# getNodesWithVariables called with\n" + root.toString(2));
+    List<ValueInputNode> out_list = new ArrayList<ValueInputNode>();
+    List<ValueInputNode> children = new ArrayList<ValueInputNode>();
+
+    System.out.println("Fields to check: " + root.names());
+    Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+    for (int i = 0; i < root.names().length(); i++) {
+      System.out.println("Checking entry " + root.names().getString(i));
+
+      Object child = root.get(root.names().getString(i));
+      if (child instanceof JSONObject) {
+        JSONObject obj = (JSONObject) child;
+
+        if (isMapping(obj)) {
+          // Get the key and match it
+          System.out.println("Found variable " + obj.getString(obj.names().getString(0)));
+          System.out.println("Key: " + obj.names().getString(0));
+          Matcher m = p.matcher(obj.names().getString(0));
+          if (m.matches()) {
+            String value = obj.getString(obj.names().getString(0));
+            String type = "string";
+            if (m.group("num") != null) {
+              // At this stage we don't know what kind of number it is but for further processing
+              // this might not be of any concern.
+              type = "float64";
+            }
+            String path = name + "/" + root.names().getString(i);
+            ValueInputNode new_node = new ValueInputNode(path, type, value);
+            System.out.println("Adding new node " + new_node);
+            children.add(new_node);
+          } else {
+            System.out.println("Did not match");
+          }
+        } else {
+          children.addAll(getNodesWithVariables(
+              (JSONObject) child, name + "/" + root.names().getString(i), writer));
+        }
+      }
+    }
+    if (!children.isEmpty()) {
+      ValueInputNode new_node = new ValueInputNode(name, "string", name.replaceAll("/", "_"));
+      System.out.println("Adding new node " + new_node);
+      out_list.add(new_node);
+      out_list.addAll(children);
+    }
+    return out_list;
   }
 }
