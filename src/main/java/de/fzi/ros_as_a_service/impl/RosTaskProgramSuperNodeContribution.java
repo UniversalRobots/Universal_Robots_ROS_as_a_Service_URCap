@@ -125,9 +125,11 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       obj = new JSONObject();
       obj.put("name", msg_layout_keys[i]);
       obj.put("direction", msg_layout_directions[i]);
-      obj.put("layout", layout.get(i));
-      obj.put("values", values.get(i));
-      structure.put(obj);
+      if (layout.length() > i && values.length() > i) {
+        obj.put("layout", layout.get(i));
+        obj.put("values", values.get(i));
+        structure.put(obj);
+      }
     }
 
     System.out.println("Topic structure: " + structure.toString(2));
@@ -178,29 +180,42 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         model.set(MSG_KEY, topic);
       }
     });
-    updateTopicStructure(topic);
+    updateTopicStructure();
   }
 
-  public void updateTopicStructure(final String new_topic) {
+  public void updateTopicStructure() {
     System.out.println("#### updateTopicStructure");
     String topic = getMsg();
-    String topic_type = queryTopicType(topic);
-    ID = topic.replaceAll("/", "_");
-    final JSONArray typedefs = queryTopicLayout(topic_type);
-
-    System.out.println("LAYOUT: " + typedefs);
-
     String[] msg_layout_keys = getMsgLayoutKeys();
-    for (int i = 0; i < msg_layout_keys.length; i++) {
-      final JSONArray layout = typedefs.getJSONArray(i);
-      final String model_key = MSG_LAYOUT_KEY + "_" + msg_layout_keys[i];
-      undoRedoManager.recordChanges(new UndoableChanges() {
-        @Override
-        public void executeChanges() {
-          // System.out.println("Saving layout for " + model_key + ":\n" + layout.toString(2) );
-          model.set(model_key, layout.toString());
-        }
-      });
+    if (topic.isEmpty()) {
+      for (int i = 0; i < msg_layout_keys.length; i++) {
+        final String model_key = MSG_LAYOUT_KEY + "_" + msg_layout_keys[i];
+        undoRedoManager.recordChanges(new UndoableChanges() {
+          @Override
+          public void executeChanges() {
+            // System.out.println("Saving layout for " + model_key + ":\n" + layout.toString(2) );
+            model.set(model_key, "");
+          }
+        });
+      }
+    } else {
+      String topic_type = queryTopicType(topic);
+      ID = topic.replaceAll("/", "_");
+      final JSONArray typedefs = queryTopicLayout(topic_type);
+
+      System.out.println("LAYOUT: " + typedefs);
+
+      for (int i = 0; i < msg_layout_keys.length; i++) {
+        final JSONArray layout = typedefs.getJSONArray(i);
+        final String model_key = MSG_LAYOUT_KEY + "_" + msg_layout_keys[i];
+        undoRedoManager.recordChanges(new UndoableChanges() {
+          @Override
+          public void executeChanges() {
+            // System.out.println("Saving layout for " + model_key + ":\n" + layout.toString(2) );
+            model.set(model_key, layout.toString());
+          }
+        });
+      }
     }
   }
 
