@@ -160,13 +160,37 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     System.out.println("### onCloseView");
   }
 
+  private boolean hasArrayType(final JSONArray arr) {
+    for (int i = 0; i < arr.length(); i++) {
+      JSONArray fieldarraylen = arr.getJSONObject(i).getJSONArray("fieldarraylen");
+      for (int j = 0; j < fieldarraylen.length(); j++) {
+        if (fieldarraylen.getInt(j) >= 0) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   @Override
   public boolean isDefined() {
     boolean result = true;
     String[] msg_layout_keys = getMsgLayoutKeys();
     for (int i = 0; i < msg_layout_keys.length; i++) {
-      result &= !model.get(MSG_LAYOUT_KEY + "_" + msg_layout_keys[i], DEFAULT_MSG_LAYOUT)
-                     .equals(DEFAULT_MSG_LAYOUT);
+      String layout = model.get(MSG_LAYOUT_KEY + "_" + msg_layout_keys[i], DEFAULT_MSG_LAYOUT);
+
+      // TODO: Workaround to notify users of unsupported array types
+      try {
+        if (hasArrayType(new JSONArray(layout))) {
+          System.out.println("Has unsupported array type");
+          return false;
+        }
+      } catch (Exception e) {
+        // e.printStackTrace();
+      }
+
+      result &= !layout.equals(DEFAULT_MSG_LAYOUT);
     }
     result &= !getMsg().equals(DEFAULT_MSG);
     return result;
