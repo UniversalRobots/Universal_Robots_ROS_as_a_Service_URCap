@@ -64,12 +64,14 @@ class ValueInputNode extends ValueNode {
 
   protected ValueType type;
   protected String type_str;
+  protected boolean is_array;
 
-  public ValueInputNode(String label, String type, String value) {
+  public ValueInputNode(String label, String type, String value, boolean is_array) {
     this.label = label;
     this.type_str = type;
     this.type = getTypeFromString(type);
     this.value = value;
+    this.is_array = is_array;
   }
 
   static public ValueType getTypeFromString(String type_str) {
@@ -97,7 +99,11 @@ class ValueInputNode extends ValueNode {
   }
 
   public String getLabelText() {
-    return label + " (" + type_str + ")";
+    String out_label = label + " (" + type_str + ")";
+    if (is_array) {
+      out_label = label + " (" + type_str + "[])";
+    }
+    return out_label;
   }
   public boolean getUseVariable() {
     return !value.trim().isEmpty();
@@ -121,13 +127,17 @@ class ValueInputNode extends ValueNode {
   public boolean isNumericType() {
     return (type != ValueType.STRING);
   }
+
+  public boolean isArrayType() {
+    return is_array;
+  }
 }
 
 class ValueOutputNode extends ValueInputNode {
   protected boolean variable_used;
 
-  ValueOutputNode(String label, String type, boolean use_variable, String value) {
-    super(label, type, value);
+  ValueOutputNode(String label, String type, boolean use_variable, String value, boolean is_array) {
+    super(label, type, value, is_array);
     this.variable_used = use_variable;
   }
 

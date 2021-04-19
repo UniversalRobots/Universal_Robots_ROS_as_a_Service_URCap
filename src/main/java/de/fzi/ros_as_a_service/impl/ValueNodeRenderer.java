@@ -118,20 +118,37 @@ class ValueNodeRenderer implements TreeCellRenderer {
         Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
         if (userObject instanceof ValueOutputNode) {
           ValueOutputNode node = (ValueOutputNode) userObject;
-          textfield.setText(node.getValue());
           label.setText(node.getLabelText());
-          boolean var_used = node.getUseVariable();
-          variableCheckbox.setSelected(var_used);
-          variableCombobox.setVisible(var_used);
-          textfield.setEnabled(!var_used);
-          if (var_used) {
-            variableCombobox.setSelectedItem(node.getValue());
+          if (node.isArrayType()) {
+            label.setText(node.getLabelText() + " "
+                + "Array types are currently unsupported!");
+            textfield.setVisible(false);
+            variableCheckbox.setVisible(false);
+            variableCombobox.setVisible(false);
+          } else {
+            textfield.setText(node.getValue());
+            textfield.setVisible(true);
+            variableCheckbox.setVisible(true);
+            boolean var_used = node.getUseVariable();
+            variableCheckbox.setSelected(var_used);
+            variableCombobox.setVisible(var_used);
+            textfield.setEnabled(!var_used);
+            if (var_used) {
+              variableCombobox.setSelectedItem(node.getValue());
+            }
           }
         } else if (userObject instanceof ValueInputNode) {
           ValueInputNode node = (ValueInputNode) userObject;
           label.setText(node.getLabelText());
           System.out.println("try to select item " + node.getValue());
-          variableCombobox.setSelectedIndex(getComboIndex(variableCombobox, node.getValue()));
+          if (node.isArrayType()) {
+            label.setText(node.getLabelText() + " "
+                + "Array types are currently unsupported!");
+            variableCombobox.setVisible(false);
+          } else {
+            variableCombobox.setVisible(true);
+            variableCombobox.setSelectedIndex(getComboIndex(variableCombobox, node.getValue()));
+          }
         }
       }
       return leafRender;

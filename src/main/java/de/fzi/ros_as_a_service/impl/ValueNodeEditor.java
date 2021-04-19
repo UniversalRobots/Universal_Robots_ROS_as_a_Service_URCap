@@ -124,11 +124,14 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
     String info = label.getText(); // format: "description (type)"
     String[] descr = info.split("[\\s\\(\\)]+");
     if (datadirection == LeafDataDirection.INPUT) {
-      return new ValueInputNode(descr[0], descr[1], variableCombobox.getSelectedItem().toString());
+      // TODO: Correctly infer array type
+      return new ValueInputNode(
+          descr[0], descr[1], variableCombobox.getSelectedItem().toString(), false);
     }
     // otherwise it's an Output...
+    // TODO: Correctly infer array type
     return new ValueOutputNode(
-        descr[0], descr[1], variableCheckbox.isSelected(), textfield.getText());
+        descr[0], descr[1], variableCheckbox.isSelected(), textfield.getText(), false);
   }
 
   @Override
@@ -163,35 +166,52 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
         final ValueInputNode node = (ValueInputNode) userObject;
         System.out.println(node.getLabelText() + " is an InputNode");
         l.setText(node.getLabelText());
-        label.setText(node.getLabelText());
+        if (node.isArrayType()) {
+          label.setText(node.getLabelText() + " "
+              + "Array types are currently unsupported!");
+          variableCombobox.setVisible(false);
+        } else {
+          variableCombobox.setVisible(true);
+          label.setText(node.getLabelText());
+        }
         p.add(label);
       }
       if (userObject instanceof ValueOutputNode) {
         final ValueOutputNode node = (ValueOutputNode) userObject;
         System.out.println(node.getLabelText() + " is an OutputNode");
         l.setText(node.getLabelText());
-        textfield.setText(node.getValue());
-        label.setText(node.getLabelText());
-        boolean var_used = node.getUseVariable();
-        variableCheckbox.setSelected(var_used);
-        variableCombobox.setVisible(var_used);
-        System.out.println("Node: " + node);
-        if (var_used) {
-          variableCombobox.setSelectedItem(node.getValue());
-        }
-        variableCheckbox.addItemListener(new ItemListener() {
-          @Override
-          public void itemStateChanged(ItemEvent e) {
-            variableCombobox.setVisible(e.getStateChange() == ItemEvent.SELECTED);
-            textfield.setEnabled(e.getStateChange() != ItemEvent.SELECTED);
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-              textfield.setText(variableCombobox.getSelectedItem().toString());
-            } else {
-              textfield.setText(node.getDefaultValue());
-            }
-            stopCellEditing();
+        if (node.isArrayType()) {
+          label.setText(node.getLabelText() + " "
+              + "Array types are currently unsupported!");
+          textfield.setVisible(false);
+          variableCheckbox.setVisible(false);
+          variableCombobox.setVisible(false);
+        } else {
+          textfield.setText(node.getValue());
+          label.setText(node.getLabelText());
+          boolean var_used = node.getUseVariable();
+          variableCheckbox.setSelected(var_used);
+          textfield.setVisible(true);
+          variableCheckbox.setVisible(true);
+          variableCombobox.setVisible(var_used);
+          System.out.println("Node: " + node);
+          if (var_used) {
+            variableCombobox.setSelectedItem(node.getValue());
           }
-        });
+          variableCheckbox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+              variableCombobox.setVisible(e.getStateChange() == ItemEvent.SELECTED);
+              textfield.setEnabled(e.getStateChange() != ItemEvent.SELECTED);
+              if (e.getStateChange() == ItemEvent.SELECTED) {
+                textfield.setText(variableCombobox.getSelectedItem().toString());
+              } else {
+                textfield.setText(node.getDefaultValue());
+              }
+              stopCellEditing();
+            }
+          });
+        }
         p.add(label);
         p.add(textfield);
         p.add(variableCheckbox);
