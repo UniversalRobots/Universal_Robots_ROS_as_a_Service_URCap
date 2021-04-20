@@ -33,6 +33,7 @@ import com.ur.urcap.api.domain.undoredo.UndoRedoManager;
 import com.ur.urcap.api.domain.undoredo.UndoableChanges;
 import com.ur.urcap.api.domain.variable.Variable;
 import com.ur.urcap.api.domain.variable.VariableFactory;
+import de.fzi.ros_as_a_service.impl.ValueInputNode.ValueType;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -221,8 +222,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         });
       }
     }
-    // TODO: Fill values with default message. Otherwise the previous value will hang around until
-    // the tree has been changed once.
+    setValues(getDefaultValues());
   }
 
   // methods used for building of json String from TreeModel created with user
@@ -571,6 +571,21 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return null;
   }
 
+  private void setValues(final JSONArray values) {
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      final String name = msg_layout_keys[i];
+      final String value = values.getJSONObject(i).toString();
+      undoRedoManager.recordChanges(new UndoableChanges() {
+        @Override
+        public void executeChanges() {
+          model.set(MSG_VALUE_KEY + "_" + name, value);
+          System.out.println("Set MSG_VALUE of " + name + " to " + value);
+        }
+      });
+    }
+  }
+
   public void updateModel(final String name, final JSONObject obj) {
     try {
       Objects.requireNonNull(obj, "JSON Object of msg null");
@@ -723,5 +738,65 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       }
     }
     return out_list;
+  }
+
+  private JSONObject extractLayoutObject(final JSONArray layout, final String type_str) {
+    System.out.println("Extracting " + type_str);
+    JSONObject out = null;
+    for (int i = 0; i < layout.length(); i++) {
+      if (layout.getJSONObject(i).getString("type").equals(type_str)) {
+        out = layout.getJSONObject(i);
+        break;
+      }
+    }
+    return out;
+  }
+
+  private Object asFieldType(final String str, final String type_str) {
+    if (ValueInputNode.isNumericType(ValueInputNode.getTypeFromString(type_str))) {
+      ValueInputNode.ValueType type = ValueInputNode.getTypeFromString(type_str);
+      if (type.equals(ValueInputNode.ValueType.UINTEGER)) {
+        return Integer.valueOf(str);
+      }
+      if (type.equals(ValueInputNode.ValueType.INTEGER)) {
+        return Integer.valueOf(str);
+      }
+      if (type.equals(ValueInputNode.ValueType.FLOAT)) {
+        return Float.valueOf(str);
+      }
+    }
+    return str;
+  }
+
+  private JSONObject getDefaultValueLevel(final JSONArray layout, final String type_str) {
+    JSONObject current_layout = extractLayoutObject(layout, type_str);
+
+    JSONArray fieldnames = current_layout.getJSONArray("fieldnames");
+    JSONArray fieldtypes = current_layout.getJSONArray("fieldtypes");
+    JSONArray examples = current_layout.getJSONArray("examples");
+    JSONObject out = new JSONObject();
+
+    for (int j = 0; j < fieldnames.length(); j++) {
+      String example = examples.getString(j);
+      if (example.equals("{}")) {
+        out.put(fieldnames.getString(j), getDefaultValueLevel(layout, fieldtypes.getString(j)));
+      } else {
+        out.put(
+            fieldnames.getString(j), asFieldType(examples.getString(j), fieldtypes.getString(j)));
+      }
+    }
+
+    return out;
+  }
+
+  private JSONArray getDefaultValues() {
+    JSONArray values = new JSONArray();
+    String[] msg_layout_keys = getMsgLayoutKeys();
+    JSONArray layout = getMsgLayout();
+    for (int i = 0; i < msg_layout_keys.length; i++) {
+      values.put(getDefaultValueLevel(
+          layout.getJSONArray(i), layout.getJSONArray(i).getJSONObject(0).getString("type")));
+    }
+    return values;
   }
 }
