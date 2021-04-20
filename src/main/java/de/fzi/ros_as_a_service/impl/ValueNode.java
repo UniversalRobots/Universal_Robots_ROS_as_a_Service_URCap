@@ -88,7 +88,7 @@ class ValueInputNode extends ValueNode {
         return ValueType.UINTEGER;
       case "float32":
       case "float64":
-        return ValueType.UINTEGER;
+        return ValueType.FLOAT;
       case "bool":
         return ValueType.UINTEGER;
       default:
