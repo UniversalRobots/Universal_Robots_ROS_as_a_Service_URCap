@@ -177,7 +177,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
           topic) { //, final String layout, final String msg_key, final String layout_key) {
     System.out.println("### onMsgSelection");
     // Otherwise this will get triggered upon opening the view when the combobox is first filled.
-    if (model.get(MSG_KEY, "") != topic) {
+    if (!getMsg().equals(topic)) {
       undoRedoManager.recordChanges(new UndoableChanges() {
         @Override
         public void executeChanges() {
