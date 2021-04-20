@@ -104,7 +104,6 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     JSONObject values = getMsgValue(getMsgLayoutKeys()[0]);
     // System.out.println("Subscription values:\n" + values.toString(2));
 
-
     final String parser_function_name = "parseSubscript" + ID + "_" + num_contributions;
     // Increment the subscription counter. This way we can make sure that the parser function IDs
     // are unique
