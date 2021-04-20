@@ -104,7 +104,7 @@ class ValueInputNode extends ValueNode {
   }
 
   public String getJson() {
-    if (isNumericType()) {
+    if (ValueInputNode.isNumericType(type)) {
       return "{\"-+useVarNum+-\":\"" + value + "\"}";
     }
     return "{\"-+useVar+-\":\"" + value + "\"}";
@@ -119,7 +119,12 @@ class ValueInputNode extends ValueNode {
   }
 
   public boolean isNumericType() {
-    return (type != ValueType.STRING);
+    return ValueInputNode.isNumericType(type);
+  }
+
+  static public boolean isNumericType(final ValueType type) {
+    return (type.equals(ValueType.INTEGER) | type.equals(ValueType.UINTEGER)
+        | type.equals(ValueType.FLOAT));
   }
 }
 
