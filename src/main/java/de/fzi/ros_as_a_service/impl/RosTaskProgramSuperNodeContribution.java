@@ -679,46 +679,48 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     List<ValueInputNode> out_list = new ArrayList<ValueInputNode>();
     List<ValueInputNode> children = new ArrayList<ValueInputNode>();
 
-    System.out.println("Fields to check: " + root.names());
-    Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
-    for (int i = 0; i < root.names().length(); i++) {
-      System.out.println("Checking entry " + root.names().getString(i));
+    if (root.names() != null) {
+      System.out.println("Fields to check: " + root.names());
+      Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+      for (int i = 0; i < root.names().length(); i++) {
+        System.out.println("Checking entry " + root.names().getString(i));
 
-      Object child = root.get(root.names().getString(i));
-      if (child instanceof JSONObject) {
-        JSONObject obj = (JSONObject) child;
+        Object child = root.get(root.names().getString(i));
+        if (child instanceof JSONObject) {
+          JSONObject obj = (JSONObject) child;
 
-        if (isMapping(obj)) {
-          // Get the key and match it
-          System.out.println("Found variable " + obj.getString(obj.names().getString(0)));
-          System.out.println("Key: " + obj.names().getString(0));
-          Matcher m = p.matcher(obj.names().getString(0));
-          if (m.matches()) {
-            String value = obj.getString(obj.names().getString(0));
-            String type = "string";
-            if (m.group("num") != null) {
-              // At this stage we don't know what kind of number it is but for further processing
-              // this might not be of any concern.
-              type = "float64";
+          if (isMapping(obj)) {
+            // Get the key and match it
+            System.out.println("Found variable " + obj.getString(obj.names().getString(0)));
+            System.out.println("Key: " + obj.names().getString(0));
+            Matcher m = p.matcher(obj.names().getString(0));
+            if (m.matches()) {
+              String value = obj.getString(obj.names().getString(0));
+              String type = "string";
+              if (m.group("num") != null) {
+                // At this stage we don't know what kind of number it is but for further processing
+                // this might not be of any concern.
+                type = "float64";
+              }
+              String path = name + "/" + root.names().getString(i);
+              ValueInputNode new_node = new ValueInputNode(path, type, value);
+              System.out.println("Adding new node " + new_node);
+              children.add(new_node);
+            } else {
+              System.out.println("Did not match");
             }
-            String path = name + "/" + root.names().getString(i);
-            ValueInputNode new_node = new ValueInputNode(path, type, value);
-            System.out.println("Adding new node " + new_node);
-            children.add(new_node);
           } else {
-            System.out.println("Did not match");
+            children.addAll(getNodesWithVariables(
+                (JSONObject) child, name + "/" + root.names().getString(i), writer));
           }
-        } else {
-          children.addAll(getNodesWithVariables(
-              (JSONObject) child, name + "/" + root.names().getString(i), writer));
         }
       }
-    }
-    if (!children.isEmpty()) {
-      ValueInputNode new_node = new ValueInputNode(name, "string", name.replaceAll("/", "_"));
-      System.out.println("Adding new node " + new_node);
-      out_list.add(new_node);
-      out_list.addAll(children);
+      if (!children.isEmpty()) {
+        ValueInputNode new_node = new ValueInputNode(name, "string", name.replaceAll("/", "_"));
+        System.out.println("Adding new node " + new_node);
+        out_list.add(new_node);
+        out_list.addAll(children);
+      }
     }
     return out_list;
   }
