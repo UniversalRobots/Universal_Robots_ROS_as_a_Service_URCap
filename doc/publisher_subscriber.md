@@ -1,15 +1,50 @@
-# Publisher and Subscriber
+# How to use the ros_as_a_service URCap
 
-This tutorial explains the usage of ROS publishers and subscribers with the turtlesim.
+This tutorial explains the usage of the _ros_as_a_service_ URCap with a running ROS system.
 
 ## Setup
-First, start the rosbridge as described [here](./../README.md) and run the turtlesim as described [here](./turtlebot.md).
+### ROS PC
+1. Prepare your _ROS side_ by launching the Rosbridge server:
+   ```bash
+   roslaunch rosbridge_server rosbridge_tcp.launch
+   ```
+   Rosbridge uses port `9090` by default. There should be an output similar to `[INFO] [1617114029.525786]: Rosbridge TCP server started on port 9090`.
+   You'll need that port later in PolyScope.
+   
+2. This tutorial uses the [turtlesim](http://wiki.ros.org/turtlesim) package to have some functionality to test with.
+   If you want to follow along, make sure that you have the package installed on your ROS machine. Of course, you can use any other ROS node and use it similarly.
+
+   In another terminal, run
+
+    ```bash
+    rosrun turtlesim turtlesim_node
+    ```
+    to bring up a graphical window of the turtle simulation.
+
+3. Find your ROS machine's IP address by using `ip addr`. The output should look similar as below with multiple interfaces. Find the interface your robot is connected to. Its IP address should be similar to the IP address setup on your robot, as they are in the same subnet.
+   
+   ```
+   $ ip addr
+   1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+   2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+    link/ether 08:00:27:8d:1c:01 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.4/24 brd 192.168.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fe8d:1c01/64 scope link
+       valid_lft forever preferred_lft forever
+
+In this particular case out interface would be `eth0` with the IP address `192.168.1.4`.
+
+### Polyscope
 
 Next, set-up the network in the _Installation_ tab of Polyscope:
 
-* Under _URCaps_ on the left, select the _Rosbridge adapter_ and adjust the remote host's (The PC running your ROS system) IP address and port (If you didn't change it, it should be 9090).
-
-* Use `ip addr` on your ROS PC in a terminal if you are unsure about your PC's IP address in the network. Pick the IP address of the interface that is connected to the robot. Your robot's IP address should be similar, as they are in the same subnet.
+Under _URCaps_ on the left, select the _Rosbridge adapter_ and adjust the remote host's (The PC running your ROS system) IP address and port (If you didn't change it, it should be 9090).
 
 
 
