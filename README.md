@@ -1,4 +1,5 @@
 # ROS as a Service
+<img height="100" alt="Universal Robots logo" src="doc/resources/ur_logo.jpg">  &nbsp;  <img height="100" alt="FZI logo" src="doc/resources/fzi-logo_transparenz.png">
 
 ---
 ## Beta version
@@ -19,6 +20,40 @@ For instance, a computational intense AI application in the ROS
 framework could provide the poses of work pieces, which are then used by the
 main program running on the robot.
 
+## Prerequisites
+This URCap uses Swing to implement the user interface and requires
+PolyScope versions 3.7 (UR3, UR5, UR10) or 5.1 (E-series) or higher.
+
+
+## Quick start
+This URCap implements a client for the [Rosbridge server](http://wiki.ros.org/rosbridge_server) to
+connect to a running ROS ecosystem.
+Every part of the bi-directional communication goes over that bridge and uses
+the common ROS messaging mechanisms as abstraction.
+Note that your _ROS side_ must be all set and running when you compose your program in
+PolyScope. Available ROS interfaces are parsed and can then be chosen in drop-down menus on the teach panel.
+
+Follow the instructions below to use ROS functionality directly from within
+your Polyscope programs. For more detailed instructions see the separate
+[tutorial](doc/tutorial.md).
+
+
+1. Prepare your _ROS side_ by launching the Rosbridge server:
+    ```bash
+    roslaunch rosbridge_server rosbridge_tcp.launch
+    ```
+ 
+1. In the _Installation_ tab of Polyscope:
+
+   Under _URCaps_ on the left, select the _Rosbridge adapter_ and adjust the remote host's IP address and port (If you didn't change it, it should be 9090).
+   Use `ip addr` on your ROS PC in a terminal if you are unsure about your PC's IP address in the network. Pick the IP address
+   of the interface that is connected to the robot. (Your robot's IP address should be similar, as they are in the same subnet.)
+
+1. In the _Program_ tab of Polyscope:
+
+   Add program nodes to publish or read data from topics or calling a ROS service to your program.
+   Setup variable mapping where desired.
+
 ## Acknowledgments
 <!--
     ROSIN acknowledgement from the ROSIN press kit
@@ -38,67 +73,3 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This project has received funding from the European Union’s Horizon 2020
 research and innovation programme under grant agreement no. 732287.
-
-
-## Prerequisites
-This URCap uses Swing to implement the user interface and requires
-PolyScope versions 3.7 (UR3, UR5, UR10) or 5.1 (E-series) or higher.
-
-
-## Getting started
-This URCap implements a client for the [Rosbridge server](http://wiki.ros.org/rosbridge_server) to
-connect to a running ROS ecosystem.
-Every part of the bi-directional communication goes over that bridge and uses
-the common ROS messaging mechanisms as abstraction.
-Note that your _ROS side_ must be all set and running when you compose your program in
-PolyScope. Available ROS interfaces are parsed and can then be chosen in drop-down menus on the teach panel.
-
-
-### ROS PC
-1. Prepare your _ROS side_ by launching the Rosbridge server:
-    ```bash
-    roslaunch rosbridge_server rosbridge_tcp.launch
-    ```
-    Rosbridge uses port `9090` by default. There should be an output similar to `[INFO] [1617114029.525786]: Rosbridge TCP server started on port 9090`.
-    You'll need that port later in PolyScope.
-    This is all that is required from ROS side.
-    For your specific application, you would now directly interact with whatever is available by your ROS nodes.
-
-2. This _getting started_ uses the turtle simulation to have some functionality to test with.
-If you want to follow along, make sure that you have the package [turtlesim](http://wiki.ros.org/turtlesim)
-installed on your ROS machine. Of course, you can use any other ROS node and use it similarly.
-In another terminal, run
-
-    ```bash
-    rosrun turtlesim turtlesim_node
-    ```
-    to bring up a graphical window of the turtle simulation.
-
-
-### PolyScope
-The next steps will explain the workflow with publishing to a ROS topic.
-
-1. In the _Installation_ tab of Polyscope:
-
-	* Under _URCaps_ on the left, select the _Rosbridge adapter_ and adjust the remote host's IP address and port (If you didn't change it, it should be 9090).
-        Use `ip addr` on your ROS PC in a terminal if you are unsure about your PC's IP address in the network. Pick the IP address
-        of the interface that is connected to the robot. (Your robot's IP address should be similar, as they are in the same subnet.)
-
-
-1. In the _Program_ tab of Polyscope:
-
-	* Under URCaps on the left, chose _Publish topic_. Under _Command_ on the right, select the Remote master in the drop-down menu.
-        The drop-down menue for the topic holds every topic that can be published to.
-        Select `/turtle1/cmd_vel` to steer the turtle simulation.
-
-	* A _Message_ tree should appear. You can open it by clicking on the icons left to the
-          folders and fill the data types.
-
-        **Note: The current input method isn't final, yet. Tick the "Use variable" checkbox,
-          and select a variable that should be used to fill the field's data. Manual data entry is
-          currently not supported.**
-
-        Turtle sim only uses the `linear x` and `angular z` fields.
-
-	* Press the play button to control the turtle.
-
