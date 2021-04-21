@@ -37,6 +37,7 @@ This tutorial explains the usage of the _ros_as_a_service_ URCap with a running 
        valid_lft forever preferred_lft forever
     inet6 fe80::a00:27ff:fe8d:1c01/64 scope link
        valid_lft forever preferred_lft forever
+   ```
 
 In this particular case out interface would be `eth0` with the IP address `192.168.1.4`.
 
@@ -133,3 +134,33 @@ If you used the values from this tutorial, your turtlesim window should look som
 You can inspect the result of our first ROS Subscriber by clicking on the _Variables_ tab. Note that these values _do not_ correspond to the turtlebot's final position! Instead, the result was read from ROS exactly when executing _Sub. /turtle1/pose_ in the robot program tree on the left.
 
 ![](./resources/tutorial/16.png)
+
+## Call a service
+
+The _Service Call_ node will call a ROS service with configurable request data, while the service's
+response can be mapped to existing variables similar to reading data from topics.
+
+We'll use the turtlesim's _spawn_ service to spawn another turtle and store the response's _name_
+field into a variable.
+
+Create a new variable to store the response's name field into.
+Make sure that the intial value is of type string.
+
+![](./resources/tutorial/17.png)
+
+Add a _Service Call_ node to your robot program. Select the Remote master as before and
+ _/spawn_ as _Topic_.
+
+Fill in the request data similar to the publisher explained above and select your new variable for
+storing the response's name field.
+
+![](./resources/tutorial/18.png)
+
+After you played the program from the beginning, your turtlesim window should look something like this.
+
+![](./resources/tutorial/19.png)
+
+In your variables tab you should see the name you just entered into the request data.
+
+![](./resources/tutorial/20.png)
+
