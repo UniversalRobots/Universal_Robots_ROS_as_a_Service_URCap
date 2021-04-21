@@ -793,7 +793,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return str;
   }
 
-  private JSONObject getDefaultValueLevel(final JSONArray layout, final String type_str) {
+  private JSONObject getDefaultValueLevel(
+      final JSONArray layout, final String type_str, final String direction) {
     JSONObject current_layout = extractLayoutObject(layout, type_str);
 
     JSONArray fieldnames = current_layout.getJSONArray("fieldnames");
@@ -804,10 +805,15 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     for (int j = 0; j < fieldnames.length(); j++) {
       String example = examples.getString(j);
       if (example.equals("{}")) {
-        out.put(fieldnames.getString(j), getDefaultValueLevel(layout, fieldtypes.getString(j)));
+        out.put(fieldnames.getString(j),
+            getDefaultValueLevel(layout, fieldtypes.getString(j), direction));
       } else {
-        out.put(
-            fieldnames.getString(j), asFieldType(examples.getString(j), fieldtypes.getString(j)));
+        if (direction.equals("out")) {
+          out.put(
+              fieldnames.getString(j), asFieldType(examples.getString(j), fieldtypes.getString(j)));
+        } else {
+          out.put(fieldnames.getString(j), "");
+        }
       }
     }
 
@@ -817,10 +823,11 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   private JSONArray getDefaultValues() {
     JSONArray values = new JSONArray();
     String[] msg_layout_keys = getMsgLayoutKeys();
+    String[] msg_layout_directions = getMsgLayoutDirections();
     JSONArray layout = getMsgLayout();
     for (int i = 0; i < msg_layout_keys.length; i++) {
-      values.put(getDefaultValueLevel(
-          layout.getJSONArray(i), layout.getJSONArray(i).getJSONObject(0).getString("type")));
+      values.put(getDefaultValueLevel(layout.getJSONArray(i),
+          layout.getJSONArray(i).getJSONObject(0).getString("type"), msg_layout_directions[i]));
     }
     return values;
   }
