@@ -76,8 +76,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
     // generate quote here!
     writer.appendLine("# get quote for json parsing");
-    // TODO: Couldn't we hardcode this? I mean, it's a fixed character, anyway, right?
-    writer.defineFunction("get_quote");
+    writer.defineFunction("rosbridge_get_quote");
     writer.appendLine(
         "socket_open(\"" + getHostIP() + "\", " + getCustomPort() + ", \"quotesocket\")");
     String call_time = "{\"op\":\"call_service\", \"service\":\"/rosapi/get_time\"}";
@@ -92,7 +91,6 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     writer.assign("quote", "str_at(response, 1)");
     writer.appendLine("socket_close(\"quotesocket\")");
     writer.end();
-    writer.appendLine("get_quote()");
   }
 
   // IP helper functions

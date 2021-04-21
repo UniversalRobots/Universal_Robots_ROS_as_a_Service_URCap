@@ -72,6 +72,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   protected String ID; // identifier to reuse sockets
 
+  static private boolean quote_queried = false;
+
   public RosTaskProgramSuperNodeContribution(ProgramAPIProvider apiProvider, DataModel model) {
     this.apiProvider = apiProvider;
     this.variableFactory = apiProvider.getProgramAPI().getVariableModel().getVariableFactory();
@@ -79,6 +81,13 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     this.varCollection = apiProvider.getProgramAPI().getVariableModel().getAll();
     this.varList = varCollection.toArray();
     this.undoRedoManager = this.apiProvider.getProgramAPI().getUndoRedoManager();
+
+    // WORKAROUND:
+    // Reset this once a new Program node is created. Otherwise, if we create a program, save it,
+    // create another program the static variable will still be true, although the quote string was
+    // never queried in this particular program. If we had a proper way to check whether this
+    // particular program contains a node of this type, this could be implemented in a cleaner way.
+    RosTaskProgramSuperNodeContribution.quote_queried = false;
 
     ID = getMsg().replaceAll("/", "_");
   }
@@ -830,5 +839,13 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
           layout.getJSONArray(i).getJSONObject(0).getString("type"), msg_layout_directions[i]));
     }
     return values;
+  }
+
+  @Override
+  public void generateScript(ScriptWriter writer) {
+    if (!quote_queried) {
+      writer.appendLine("rosbridge_get_quote()");
+      quote_queried = true;
+    }
   }
 }

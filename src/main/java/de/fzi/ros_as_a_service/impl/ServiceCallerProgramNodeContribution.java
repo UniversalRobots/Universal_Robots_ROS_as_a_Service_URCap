@@ -91,6 +91,7 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
 
   @Override
   public void generateScript(ScriptWriter writer) {
+    super.generateScript(writer);
     final String sockname = "servicecall" + ID;
     final String globalvar = "serviceResponse" + ID;
 

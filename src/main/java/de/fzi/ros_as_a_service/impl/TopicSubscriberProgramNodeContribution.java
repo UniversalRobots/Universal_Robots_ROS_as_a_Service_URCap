@@ -91,6 +91,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
 
   @Override
   public void generateScript(ScriptWriter writer) {
+    super.generateScript(writer);
     final String globalvar = "subscriptMsg" + ID;
     final String sockname = "subscriber" + ID;
 
