@@ -104,7 +104,8 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     // check for a complete json received
     writer.ifCondition("json_findCorrespondingDelimiter(l_msg) == -1");
     writer.appendLine(
-        "popup(\"Received String exceeds maximum length (1023 Bytes).\", \"JSON Error\", error=True, blocking=True)");
+        "popup(\"Received String exceeds maximum length (1023 Bytes).\", \"JSON Error\"");
+    writer.appendLine("halt");
     writer.end(); // if-clause
 
     List<ValueInputNode> nodes_with_variables = getNodesWithVariables(values, writer);
