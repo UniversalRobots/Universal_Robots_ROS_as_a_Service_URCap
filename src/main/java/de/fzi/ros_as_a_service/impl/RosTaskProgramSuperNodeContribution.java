@@ -742,7 +742,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
                 type = "float64";
               }
               String path = name + "/" + root.names().getString(i);
-              ValueInputNode new_node = new ValueInputNode(path, type, value);
+              ValueInputNode new_node = new ValueInputNode(path, type, value, false);
               System.out.println("Adding new node " + new_node);
               children.add(new_node);
             } else {
@@ -755,7 +755,8 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         }
       }
       if (!children.isEmpty()) {
-        ValueInputNode new_node = new ValueInputNode(name, "string", name.replaceAll("/", "_"));
+        ValueInputNode new_node =
+            new ValueInputNode(name, "string", name.replaceAll("/", "_"), false);
         System.out.println("Adding new node " + new_node);
         out_list.add(new_node);
         out_list.addAll(children);
