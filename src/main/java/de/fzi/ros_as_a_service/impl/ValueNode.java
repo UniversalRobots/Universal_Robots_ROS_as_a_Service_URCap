@@ -110,10 +110,13 @@ class ValueInputNode extends ValueNode {
   }
 
   public String getJson() {
-    if (ValueInputNode.isNumericType(type)) {
-      return "{\"-+useVarNum+-\":\"" + value + "\"}";
+    if (getUseVariable()) {
+      if (ValueInputNode.isNumericType(type)) {
+        return "{\"-+useVarNum+-\":\"" + value + "\"}";
+      }
+      return "{\"-+useVar+-\":\"" + value + "\"}";
     }
-    return "{\"-+useVar+-\":\"" + value + "\"}";
+    return getValue();
   }
 
   public void setValue(String value) {
@@ -158,14 +161,6 @@ class ValueOutputNode extends ValueInputNode {
 
   public void setVariableUsed(boolean use_variable) {
     this.variable_used = use_variable;
-  }
-
-  @Override
-  public String getJson() {
-    if (variable_used) {
-      return super.getJson();
-    }
-    return getValue();
   }
 
   @Override
