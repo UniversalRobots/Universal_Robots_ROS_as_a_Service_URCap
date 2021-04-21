@@ -44,6 +44,9 @@ public class Activator implements BundleActivator {
     System.out.println("Registering TopicSubscriber!");
     bundleContext.registerService(
         SwingProgramNodeService.class, new TopicSubscriberProgramNodeService(), null);
+    System.out.println("Registering ActionCaller!");
+    bundleContext.registerService(
+        SwingProgramNodeService.class, new ActionCallerProgramNodeService(), null);
   }
 
   @Override
