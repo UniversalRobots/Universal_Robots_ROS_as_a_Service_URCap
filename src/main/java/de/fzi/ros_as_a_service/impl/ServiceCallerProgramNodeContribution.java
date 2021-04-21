@@ -140,7 +140,6 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
 
     writer.appendLine("parseServiceResponse" + ID + "()");
 
-    writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
     writer.appendLine("socket_close(\"" + sockname + "\")");
   }
 }
