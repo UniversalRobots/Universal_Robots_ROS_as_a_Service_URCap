@@ -123,7 +123,7 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     writer.assign(globalvar, "\"\"");
 
     String json = "{\"op\":\"call_service\", \"service\": \"" + getMsg()
-        + "\",\"args\":" + buildJsonString(true, "Request") + "}";
+        + "\",\"args\":" + buildJsonString(false, "Request") + "}";
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
 

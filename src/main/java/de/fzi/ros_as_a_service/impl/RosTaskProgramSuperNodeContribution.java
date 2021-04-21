@@ -268,17 +268,17 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       }
 
       Objects.requireNonNull(values, "No values found for key " + identifier);
-      System.out.println(values.toString());
+      // System.out.println(values.toString());
 
       String output = values.toString();
 
       if (readable_vars) {
-        output = output.toString().replaceAll("\\{\\\"-\\+useVar\\+-\\\":\\\"([^\\\"]*)\\\"\\}",
-            "\"-+useVar+- + to_str($1) + -+useVar+-\"");
+        output =
+            output.toString().replaceAll("\\{\\\"-\\+useVar\\+-\\\":\\\"([^\\\"]*)\\\"\\}", "$1");
         output = output.toString().replaceAll("\\{\\\"-\\+useVarNum\\+-\\\":\\\"([^\\\"]*)\\\"\\}",
             "\"-+useVar+- + to_str($1) + -+useVar+-\"");
       }
-      System.out.println(output);
+      // System.out.println(output);
       return output;
 
     } catch (Exception e) {
@@ -653,13 +653,26 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   protected String urscriptifyJson(String json) {
+    // System.out.println("# urscriptifyJson");
+    // System.out.println("Original : " + json);
+    String result = json;
+
     // replace quotes
-    String tmp1 = json.replaceAll("\"", "\" + quote + \"");
-    // add variable handling
-    String tmp2 = tmp1.replaceAll("\" \\+ quote \\+ \"-\\+useVar\\+-", "\"");
-    String tmp3 = tmp2.replaceAll("-\\+useVar\\+-\" \\+ quote \\+ \"", "\"");
-    String urscriptified = tmp3.replaceAll("-\\+useVarNum\\+-\" \\+ quote \\+ \"", "\"");
-    return urscriptified;
+    result = result.replaceAll("\"", "\" + quote + \"");
+    // System.out.println("with quote : " + result);
+
+    // replace string variables
+    result = result.replaceAll(
+        "\\{\\\" \\+ quote \\+ \\\"-\\+useVar\\+-\\\" \\+ quote \\+ \\\":\\\" \\+ quote \\+ \\\"([^\\\"]*)\\\" \\+ quote \\+ \\\"\\}",
+        "\\\" + quote + $1 + quote + \\\"");
+    // System.out.println("without useVar : " + result);
+
+    // replace numeric variables
+    result = result.replaceAll(
+        "\\{\\\" \\+ quote \\+ \\\"-\\+useVarNum\\+-\\\" \\+ quote \\+ \\\":\\\" \\+ quote \\+ \\\"([^\\\"]*)\\\" \\+ quote \\+ \\\"\\}",
+        "\\\" + to_str($1) + \\\"");
+
+    return result;
   }
 
   // variable setting via UR script (maybe in superclass)

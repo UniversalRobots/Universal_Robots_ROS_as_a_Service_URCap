@@ -97,12 +97,12 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
     writer.appendLine(
         "socket_open(\"" + getMasterIP() + "\", " + getMasterPort() + ", \"" + sockname + "\")");
     writer.appendLine("socket_send_line(\"" + urscriptified + "\", \"" + sockname + "\")");
-    useVar = false;
 
     System.out.println("Building json string");
     json = "{\"op\": \"publish\", \"topic\": \"" + getMsg()
-        + "\", \"msg\": " + buildJsonString(true, "Data") + "}";
+        + "\", \"msg\": " + buildJsonString(false, "Data") + "}";
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
+    writer.appendLine("textmsg(\"sending: " + urscriptifyJson(json) + "\")");
   }
 }
