@@ -1,4 +1,5 @@
 # ROS as a Service
+<img height="100" alt="Universal Robots logo" src="doc/resources/ur_logo.jpg">  &nbsp;  <img height="100" alt="FZI logo" src="doc/resources/fzi-logo_transparenz.png">
 
 ---
 ## Beta version
@@ -18,8 +19,6 @@ The idea is to combine the _best of both worlds_.
 For instance, a computational intense AI application in the ROS
 framework could provide the poses of work pieces, which are then used by the
 main program running on the robot.
-
-
 
 ## Prerequisites
 This URCap uses Swing to implement the user interface and requires
