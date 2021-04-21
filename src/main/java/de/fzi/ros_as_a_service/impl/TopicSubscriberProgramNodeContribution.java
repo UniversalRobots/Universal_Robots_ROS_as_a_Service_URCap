@@ -114,13 +114,6 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     writer.assign("local l_msg", globalvar);
     writer.assign("local bounds", "[0, 0, 0, 0]");
 
-    // check for a complete json received
-    writer.ifCondition("json_findCorrespondingDelimiter(l_msg) == -1");
-    writer.appendLine(
-        "popup(\"Received String exceeds maximum length (1023 Bytes).\", \"JSON Error\"");
-    writer.appendLine("halt");
-    writer.end(); // if-clause
-
     List<ValueInputNode> nodes_with_variables = getNodesWithVariables(values, writer);
     System.out.println("Found tree: " + nodes_with_variables);
     String l_msg = "l_msg";
