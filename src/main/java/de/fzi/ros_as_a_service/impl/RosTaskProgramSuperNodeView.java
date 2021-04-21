@@ -356,6 +356,7 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       TreeNodeVector<Object> parentVector, LeafDataDirection direction) {
     JSONArray fieldtypes = obj.getJSONArray("fieldtypes");
     JSONArray fieldnames = obj.getJSONArray("fieldnames");
+    JSONArray fieldarraylen = obj.getJSONArray("fieldarraylen");
 
     for (int j = 0; j < typedefs.length(); j++) {
       Map<String, String> subTypes = new HashMap<String, String>();
@@ -365,7 +366,13 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       for (int i = 0; i < fieldtypes.length(); i++) {
         String ft = fieldtypes.get(i).toString();
         String fn = fieldnames.get(i).toString();
-        TreeNodeVector<Object> branchVector = new TreeNodeVector<Object>(fn + " (" + ft + ")");
+        int fal = fieldarraylen.getInt(i);
+        String array_t = "";
+        if (fal >= 0) {
+          array_t = "[]";
+        }
+        TreeNodeVector<Object> branchVector =
+            new TreeNodeVector<Object>(fn + " (" + ft + array_t + ")");
         String[] superSplit = supertype.split("-");
         if (!isSimpleType(ft)) {
           if (ft.equals(type)) {
@@ -376,31 +383,41 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
             getNextLevel(typedefs, obj_j, ft, branchVector, direction);
           }
         } else if (type.equals(superSplit[superSplit.length - 1])) {
-          subTypes.put(fieldnames.getString(i), fieldtypes.getString(i));
+          // subTypes.put(fieldnames.getString(i), fieldtypes.getString(i) + array_t);
+          if (direction == LeafDataDirection.INPUT) {
+            ValueInputNode leafNode = new ValueInputNode(fn, ft, " ", fal >= 0);
+            parentVector.add(leafNode);
+          } else if (direction == LeafDataDirection.OUTPUT) {
+            ValueOutputNode leafNode =
+                new ValueOutputNode(fn, ft, false, getDefaultType(ft), fal >= 0);
+            parentVector.add(leafNode);
+          }
         }
       }
-      if (!subTypes.isEmpty()) {
-        if (direction == LeafDataDirection.INPUT) {
-          ValueInputNode[] nodes = new ValueInputNode[subTypes.size()];
-          int cnt = 0;
-          for (Entry<String, String> st : subTypes.entrySet()) {
-            ValueInputNode leafNode = new ValueInputNode(st.getKey(), st.getValue(), " ");
-            nodes[cnt] = leafNode;
-            ++cnt;
-          }
-          parentVector.addElements(nodes);
-        } else if (direction == LeafDataDirection.OUTPUT) {
-          ValueOutputNode[] nodes = new ValueOutputNode[subTypes.size()];
-          int cnt = 0;
-          for (Entry<String, String> st : subTypes.entrySet()) {
-            ValueOutputNode leafNode = new ValueOutputNode(
-                st.getKey(), st.getValue(), false, getDefaultType(st.getValue()));
-            nodes[cnt] = leafNode;
-            ++cnt;
-          }
-          parentVector.addElements(nodes);
-        }
-      }
+      //      if (!subTypes.isEmpty()) {
+      //        if (direction == LeafDataDirection.INPUT) {
+      //          ValueInputNode[] nodes = new ValueInputNode[subTypes.size()];
+      //          int cnt = 0;
+      //          for (Entry<String, String> st : subTypes.entrySet()) {
+      //            // TODO: Correctly get array flag from st
+      //            ValueInputNode leafNode = new ValueInputNode(st.getKey(), st.getValue(), " ",
+      //            false); nodes[cnt] = leafNode;
+      //            ++cnt;
+      //          }
+      //          parentVector.addElements(nodes);
+      //        } else if (direction == LeafDataDirection.OUTPUT) {
+      //          ValueOutputNode[] nodes = new ValueOutputNode[subTypes.size()];
+      //          int cnt = 0;
+      //          for (Entry<String, String> st : subTypes.entrySet()) {
+      //            // TODO: Correctly get array flag from st
+      //            ValueOutputNode leafNode = new ValueOutputNode(
+      //                st.getKey(), st.getValue(), false, getDefaultType(st.getValue()), false);
+      //            nodes[cnt] = leafNode;
+      //            ++cnt;
+      //          }
+      //          parentVector.addElements(nodes);
+      //        }
+      //      }
     }
   }
 
