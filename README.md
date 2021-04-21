@@ -1,5 +1,7 @@
+# ROS as a Service
+
 ---
-# Beta version
+## Beta version
 
 This project is currently in its beta phase. If you find an error, please open an issue in the
 [issue tracker](https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/issues)
@@ -8,7 +10,6 @@ to help tracking down any issues existing with this URCap.
 Not all features are implemented, yet, see the [missing features](doc/missing_features.md) list.
 
 ---
-# ROS as a Service
 
 This URCaps allows you to call ROS `services`, `actions` and use `topics`
 from within your Universal Robots application setup on the Teach panel. The main program will stay on the robot while
