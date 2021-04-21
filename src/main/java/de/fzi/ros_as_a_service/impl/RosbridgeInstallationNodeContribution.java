@@ -45,6 +45,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   private DataModel model;
   private final RosbridgeInstallationNodeView view;
   private final KeyboardInputFactory keyboardFactory;
+  private boolean quote_queried = false;
 
   public RosbridgeInstallationNodeContribution(
       InstallationAPIProvider apiProvider, RosbridgeInstallationNodeView view, DataModel model) {
@@ -64,12 +65,26 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     return !getHostIP().isEmpty();
   }
 
+  public void generateQuoteQueryScript(ScriptWriter writer) {
+    if (!quote_queried) {
+      writer.appendLine("rosbridge_get_quote()");
+      quote_queried = true;
+    }
+  }
+
   @Override
   public void generateScript(ScriptWriter writer) {
     // writer.appendLine("MASTER1_IP = \"" + getHostIP() + "\"");
     // writer.appendLine("MASTER1_PORT = " + getCustomPort());
     // writer.appendLine("socket_open(MASTER1_IP, MASTER1_PORT,
     // \"testserver\")");
+
+    // WORKAROUND:
+    // Reset this once a new Program is compiled. Otherwise, if we create a program, save it,
+    // create another program the static variable will still be true, although the quote string was
+    // never queried in this particular program. If we had a proper way to check whether this
+    // particular program contains a node of this type, this could be implemented in a cleaner way.
+    quote_queried = false;
 
     // Append JSON Parser
     writer.appendRaw(LoadResourceFile("json_parser.script"));
