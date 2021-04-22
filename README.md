@@ -1,5 +1,4 @@
 # ROS as a Service
-<img height="100" alt="Universal Robots logo" src="doc/resources/ur_logo.jpg">  &nbsp;  <img height="100" alt="FZI logo" src="doc/resources/fzi-logo_transparenz.png">
 
 ---
 ## Beta version
@@ -73,3 +72,8 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This project has received funding from the European Union’s Horizon 2020
 research and innovation programme under grant agreement no. 732287.
+
+It was developed in collaboration between [Universal Robots](https://www.universal-robots.com/) and
+the [FZI Research Center for Information Technology](https://www.fzi.de).
+
+<img height="100" alt="Universal Robots logo" src="doc/resources/ur_logo.jpg">  &nbsp;  <img height="100" alt="FZI logo" src="doc/resources/fzi-logo_transparenz.png">
