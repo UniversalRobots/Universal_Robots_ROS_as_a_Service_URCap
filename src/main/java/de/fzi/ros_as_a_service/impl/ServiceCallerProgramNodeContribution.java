@@ -99,6 +99,7 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     // System.out.println("Subscription values:\n" + values.toString(2));
 
     writer.defineFunction("parseServiceResponse" + ID); // add function definition
+    writer.appendLine("textmsg(\"Service response is: \", " + globalvar + ")");
     writer.assign("local l_msg", globalvar);
     writer.assign("local bounds", "[0, 0, 0, 0]");
 
@@ -143,7 +144,6 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     writer.sync();
     writer.end(); // while loop
 
-    writer.appendLine("textmsg(\"Service response is: \", " + globalvar + ")");
 
     writer.appendLine("parseServiceResponse" + ID + "()");
 

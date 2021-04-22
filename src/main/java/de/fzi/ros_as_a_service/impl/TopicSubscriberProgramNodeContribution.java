@@ -111,7 +111,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     num_contributions += 1;
 
     writer.defineFunction(parser_function_name); // add function definition
-
+    writer.appendLine("textmsg(\"Subscription is: \", " + globalvar + ")");
     writer.assign("local l_msg", globalvar);
     writer.assign("local bounds", "[0, 0, 0, 0]");
 
@@ -152,7 +152,6 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
     writer.end(); // if-clause
     writer.sync();
     writer.end(); // while loop
-    writer.appendLine("textmsg(\"subscription is: \", " + globalvar + ")");
 
     writer.appendLine(parser_function_name + "()");
 
