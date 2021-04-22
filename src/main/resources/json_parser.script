@@ -88,14 +88,24 @@
     brace_count = 0
     
     while position < str_len(src):
-      if str_at(src, position) == open_sign and str_at(src, position -1) != "\":
-        # textmsg("found an opening at ", position)
-        brace_count = brace_count + 1
+      if (str_at(src, position) == open_sign):
+        if(position == 0):
+          # textmsg("found an opening at ", position)
+          brace_count = brace_count + 1
+        elif (str_at(src, position -1) != "\"):
+          # textmsg("found an opening at ", position)
+          brace_count = brace_count + 1
+        end
       end
       
-      if (str_at(src, position) == closing_sign and str_at(src, position -1) != "\"):
-        brace_count = brace_count - 1
-        # textmsg("found a closing at ", position)
+      if (str_at(src, position) == closing_sign):
+        if (position == 0):
+          textmsg("start is closing delimiter!")
+          return 0
+        elif (str_at(src, position -1) != "\"):
+          # textmsg("found a closing at ", position)
+          brace_count = brace_count - 1
+        end
         if (brace_count == 0):
           # textmsg("found closing for the container at ", position)
           return position
