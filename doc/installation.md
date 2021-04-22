@@ -2,7 +2,9 @@
 
 For installing, follow those steps:
 
-1. Download the [latest release](TODO)
+1. Download the [latest
+   release](https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/releases/latest)
+   (Download the _ros_as_a_service-x.y.urcap_ file under "Assets")
 2. Copy the downloaded file to a USB flash drive
 3. Insert the USB stick into the USB port on the robot's teach pendant
 4. On the welcome screen click on the hamburger menu in the top-right corner and select _Settings_
