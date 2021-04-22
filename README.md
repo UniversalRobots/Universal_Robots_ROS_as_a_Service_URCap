@@ -24,6 +24,9 @@ main program running on the robot.
 This URCap uses Swing to implement the user interface and requires
 PolyScope versions 3.7 (UR3, UR5, UR10) or 5.1 (E-series) or higher.
 
+## Installation
+The installation is described in a [separate guide](doc/installation.md)
+
 
 ## Quick start
 This URCap implements a client for the [Rosbridge server](http://wiki.ros.org/rosbridge_server) to
