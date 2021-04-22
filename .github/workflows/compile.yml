@@ -18,4 +18,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           path: target
-          name: external_control_sdk-${{ matrix.SDK_VERSION }}.urcap
+          name: ROS_as_a_Service_sdk-${{ matrix.SDK_VERSION }}.urcap
