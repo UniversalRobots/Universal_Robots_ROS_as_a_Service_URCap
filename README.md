@@ -1,5 +1,4 @@
 # ROS as a Service
-<img height="100" alt="Universal Robots logo" src="doc/resources/ur_logo.jpg">  &nbsp;  <img height="100" alt="FZI logo" src="doc/resources/fzi-logo_transparenz.png">
 
 ---
 ## Beta version
@@ -55,6 +54,12 @@ your Polyscope programs. For more detailed instructions see the separate
    Setup variable mapping where desired.
 
 ## Acknowledgments
+
+Developed in collaboration between:
+
+[<img height="60" alt="Universal Robots A/S" src="doc/resources/ur_logo.jpg">](https://www.universal-robots.com/) &nbsp; and &nbsp;
+[<img height="60" alt="FZI Research Center for Information Technology" src="doc/resources/fzi-logo_transparenz.png">](https://www.fzi.de).
+
 <!--
     ROSIN acknowledgement from the ROSIN press kit
     @ https://github.com/rosin-project/press_kit
@@ -73,3 +78,4 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This project has received funding from the European Union’s Horizon 2020
 research and innovation programme under grant agreement no. 732287.
+
