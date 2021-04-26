@@ -57,6 +57,7 @@ public class RosbridgeInstallationNodeView
     implements SwingInstallationNodeView<RosbridgeInstallationNodeContribution> {
   private JPanel mastersPanel;
   private final KeyboardInputFactory keyboardFactory;
+  private JTable table;
 
   public RosbridgeInstallationNodeView(ViewAPIProvider apiProvider) {
     this.keyboardFactory =
@@ -75,14 +76,14 @@ public class RosbridgeInstallationNodeView
     panel.add(new JSeparator());
 
     panel.add(createAddButton(contribution));
-    // panel.add(createDeleteButton(contribution));
+    panel.add(createDeleteButton(contribution));
   }
 
   private JPanel createMastersPanel(final RosbridgeInstallationNodeContribution contribution) {
     JPanel p = new JPanel();
 
     final MasterPairTableModel tableModel = new MasterPairTableModel(contribution.getMastersList());
-    JTable table = new JTable(tableModel);
+    table = new JTable(tableModel);
     JScrollPane scrollPane = new JScrollPane(table);
     table.setFillsViewportHeight(false);
     table.setRowHeight(40);
@@ -107,7 +108,6 @@ public class RosbridgeInstallationNodeView
 
   private void addNewMaster(final RosbridgeInstallationNodeContribution contribution,
       final JPanel panel, final MasterPair master) {
-    System.out.println("Adding new master configuration.");
     panel.add(new JLabel("Name"));
     panel.add(createIPBox(contribution, master.getIp()));
     panel.add(createPortBox(contribution, master.getPort()));
@@ -153,8 +153,9 @@ public class RosbridgeInstallationNodeView
     JButton button = new JButton("Add new rosbridge remote");
     button.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        //        mastersList.add(createNewMaster(contribution));
-        //        mastersList.revalidate();
+        MasterPair new_master = new MasterPair();
+        MasterPairTableModel table_model = (MasterPairTableModel) table.getModel();
+        table_model.addRow(new_master);
       }
     });
 
@@ -162,11 +163,12 @@ public class RosbridgeInstallationNodeView
   }
 
   private JButton createDeleteButton(final RosbridgeInstallationNodeContribution contribution) {
-    JButton button = new JButton("Add new rosbridge remote");
+    JButton button = new JButton("Delete selected remote");
     button.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        //        mastersList.add(createNewMaster(contribution));
-        //        mastersList.revalidate();
+        MasterPairTableModel table_model = (MasterPairTableModel) table.getModel();
+        int row = table.getSelectedRow();
+        table_model.removeRow(row);
       }
     });
 

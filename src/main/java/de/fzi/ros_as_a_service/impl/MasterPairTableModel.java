@@ -60,6 +60,7 @@ class MasterPairTableModel extends AbstractTableModel {
         data[rowIndex].set(data[rowIndex].getIp(), (String) aValue);
         break;
     }
+    fireTableDataChanged();
   }
 
   @Override
@@ -67,7 +68,27 @@ class MasterPairTableModel extends AbstractTableModel {
     return true;
   }
 
+  public void addRow(MasterPair row_data) {
+    System.out.println("Adding new master: " + row_data);
+    MasterPair[] new_data = new MasterPair[data.length + 1];
+    System.arraycopy(data, 0, new_data, 0, data.length);
+    new_data[new_data.length - 1] = row_data;
+    data = new_data;
+    fireTableDataChanged();
+  }
+
   public MasterPair[] getData() {
     return data;
+  }
+
+  public void removeRow(int row) {
+    MasterPair[] new_data = new MasterPair[data.length - 1];
+    for (int i = 0, j = 0; i < data.length; i++) {
+      if (i != row) {
+        new_data[j++] = data[i];
+      }
+    }
+    data = new_data;
+    fireTableDataChanged();
   }
 }
