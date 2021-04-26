@@ -850,6 +850,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   @Override
   public void generateScript(ScriptWriter writer) {
-    getInstallation().generateQuoteQueryScript(writer);
+    getInstallation().generateQuoteQueryScript(writer, getMasterIP(), getMasterPort());
   }
 }

@@ -69,9 +69,11 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     return masters.length > 0;
   }
 
-  public void generateQuoteQueryScript(ScriptWriter writer) {
+  // We query the quote string from the first master that is setup inside this program
+  public void generateQuoteQueryScript(
+      ScriptWriter writer, final String remoteIP, final String remotePort) {
     if (!quote_queried) {
-      writer.appendLine("rosbridge_get_quote()");
+      writer.appendLine("rosbridge_get_quote(\"" + remoteIP + "\", " + remotePort + ")");
       quote_queried = true;
     }
   }
@@ -95,9 +97,8 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
     // generate quote here!
     writer.appendLine("# get quote for json parsing");
-    writer.defineFunction("rosbridge_get_quote");
-    writer.appendLine(
-        "socket_open(\"" + getHostIP() + "\", " + getCustomPort() + ", \"quotesocket\")");
+    writer.appendLine("def rosbridge_get_quote(remoteIP, remotePort):");
+    writer.appendLine("socket_open(remoteIP, remotePort, \"quotesocket\")");
     String call_time = "{\"op\":\"call_service\", \"service\":\"/rosapi/get_time\"}";
     byte[] bytes = call_time.getBytes();
     char a;
