@@ -96,6 +96,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   @Override
   public void openView() {
     System.out.println("# openView");
+    updateVariables();
   }
 
   @Override
