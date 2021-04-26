@@ -25,91 +25,151 @@
 
 package de.fzi.ros_as_a_service.impl;
 
+import com.ur.urcap.api.contribution.ViewAPIProvider;
 import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeView;
+import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.tree.TreeModel;
 
 public class RosbridgeInstallationNodeView
     implements SwingInstallationNodeView<RosbridgeInstallationNodeContribution> {
-  private JTextField textFieldIP;
-  private JTextField textFieldPort;
+  private JPanel mastersPanel;
+  private final KeyboardInputFactory keyboardFactory;
+
+  public RosbridgeInstallationNodeView(ViewAPIProvider apiProvider) {
+    this.keyboardFactory =
+        apiProvider.getUserInterfaceAPI().getUserInteraction().getKeyboardInputFactory();
+  }
 
   @Override
   public void buildUI(JPanel panel, RosbridgeInstallationNodeContribution contribution) {
-    panel.add(createDescription("This will be the configuration"));
-    panel.add(createIPBox(contribution));
-    panel.add(createSpacer(60));
-    panel.add(createPortBox(contribution));
+    mastersPanel = createMastersPanel(contribution);
+
+    //    panel.setLayout(new BorderLayout());
+    //    panel.add(mastersPanel, BorderLayout.CENTER);
+    //    panel.add(createAddButton(contribution), BorderLayout.PAGE_END);
+    panel.add(mastersPanel);
+
+    panel.add(new JSeparator());
+
+    panel.add(createAddButton(contribution));
+    // panel.add(createDeleteButton(contribution));
   }
 
-  private Box createDescription(String desc) {
-    Box box = Box.createHorizontalBox();
-    box.setAlignmentX(Component.LEFT_ALIGNMENT);
+  private JPanel createMastersPanel(final RosbridgeInstallationNodeContribution contribution) {
+    JPanel p = new JPanel();
 
-    JLabel label = new JLabel(desc);
-    box.add(label);
+    final MasterPairTableModel tableModel = new MasterPairTableModel(contribution.getMastersList());
+    JTable table = new JTable(tableModel);
+    JScrollPane scrollPane = new JScrollPane(table);
+    table.setFillsViewportHeight(false);
+    table.setRowHeight(40);
 
-    return box;
+    TableColumn nameColumn = table.getColumnModel().getColumn(0);
+    nameColumn.setCellEditor(new MasterPairCellEditor(keyboardFactory.createStringKeyboardInput()));
+    TableColumn ipColumn = table.getColumnModel().getColumn(1);
+    ipColumn.setCellEditor(
+        new MasterPairCellEditor(keyboardFactory.createIPAddressKeyboardInput()));
+    TableColumn portColumn = table.getColumnModel().getColumn(2);
+    portColumn.setCellEditor(new MasterPairCellEditor(keyboardFactory.createStringKeyboardInput()));
+
+    tableModel.addTableModelListener(new TableModelListener() {
+      @Override
+      public void tableChanged(TableModelEvent e) {
+        contribution.setMasterList(tableModel.getData());
+      }
+    });
+    p.add(scrollPane);
+    return p;
   }
 
-  public void UpdateIPTextField(String value) {
-    textFieldIP.setText(value);
+  private void addNewMaster(final RosbridgeInstallationNodeContribution contribution,
+      final JPanel panel, final MasterPair master) {
+    System.out.println("Adding new master configuration.");
+    panel.add(new JLabel("Name"));
+    panel.add(createIPBox(contribution, master.getIp()));
+    panel.add(createPortBox(contribution, master.getPort()));
   }
 
-  public void UpdatePortTextField(String value) {
-    textFieldPort.setText(value);
-  }
-
-  private Box createIPBox(final RosbridgeInstallationNodeContribution contribution) {
-    Box box = Box.createVerticalBox();
-    // create IP Label
-    JLabel label = new JLabel("Please setup the remote host's IP: ");
-    box.add(label);
-    // create IP Textfield
-    textFieldIP = new JTextField(15);
-    textFieldIP.setText(contribution.getHostIP());
+  private JTextField createIPBox(
+      final RosbridgeInstallationNodeContribution contribution, final String default_value) {
+    JTextField textFieldIP = new JTextField();
+    textFieldIP.setText(default_value);
     textFieldIP.setFocusable(false);
-    textFieldIP.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mousePressed(MouseEvent e) {
-        // TODO: Use IPAddress keyboard here
-        KeyboardTextInput keyboardInput = contribution.getInputForIPTextField();
-        keyboardInput.show(textFieldIP, contribution.getCallbackForIPTextField());
-      }
-    });
-    box.add(textFieldIP);
-    return box;
+    return textFieldIP;
   }
 
-  private Box createPortBox(final RosbridgeInstallationNodeContribution contribution) {
-    Box box = Box.createVerticalBox();
-    // create port Label
-    JLabel label = new JLabel("Please setup the custom port: ");
-    box.add(label);
-    // create port Textfield
-    textFieldPort = new JTextField(15);
-    textFieldPort.setText(contribution.getCustomPort());
-    textFieldPort.setFocusable(false);
-    textFieldPort.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mousePressed(MouseEvent e) {
-        // TODO: Use Integer keyboard here
-        KeyboardTextInput keyboardInput = contribution.getInputForPortTextField();
-        keyboardInput.show(textFieldPort, contribution.getCallbackForPortTextField());
-      }
-    });
-    box.add(textFieldPort);
-    return box;
+  private JTextField createPortBox(
+      final RosbridgeInstallationNodeContribution contribution, final String default_value) {
+    JTextField textFieldPort = new JTextField();
+    return textFieldPort;
+    //    Box box = Box.createVerticalBox();
+    //    // create port Label
+    //    JLabel label = new JLabel("Please setup the custom port: ");
+    //    box.add(label);
+    //    // create port Textfield
+    //    textFieldPort = new JTextField(15);
+    //    textFieldPort.setText(contribution.getCustomPort());
+    //    textFieldPort.setFocusable(false);
+    //    textFieldPort.addMouseListener(new MouseAdapter() {
+    //      @Override
+    //      public void mousePressed(MouseEvent e) {
+    //        // TODO: Use Integer keyboard here
+    //        KeyboardTextInput keyboardInput = contribution.getInputForPortTextField();
+    //        keyboardInput.show(textFieldPort, contribution.getCallbackForPortTextField());
+    //      }
+    //    });
+    //    box.add(textFieldPort);
+    //    return box;
   }
 
   private Component createSpacer(int height) {
     return Box.createRigidArea(new Dimension(0, height));
+  }
+
+  private JButton createAddButton(final RosbridgeInstallationNodeContribution contribution) {
+    JButton button = new JButton("Add new rosbridge remote");
+    button.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        //        mastersList.add(createNewMaster(contribution));
+        //        mastersList.revalidate();
+      }
+    });
+
+    return button;
+  }
+
+  private JButton createDeleteButton(final RosbridgeInstallationNodeContribution contribution) {
+    JButton button = new JButton("Add new rosbridge remote");
+    button.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        //        mastersList.add(createNewMaster(contribution));
+        //        mastersList.revalidate();
+      }
+    });
+
+    return button;
   }
 }

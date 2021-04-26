@@ -42,10 +42,13 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   private static final String PORT_NR = "port_nr";
   private static final String DEFAULT_IP = "192.168.56.1";
   private static final String DEFAULT_PORT = "9090";
+  private static final String MASTERS_KEY = "rosbridge_masters";
+  private static final String[] DEFAULT_MASTERS = {"192.168.56.1 : 9090", "192.168.0.1 : 9090"};
   private DataModel model;
   private final RosbridgeInstallationNodeView view;
   private final KeyboardInputFactory keyboardFactory;
   private boolean quote_queried = false;
+  private MasterPair[] masters;
 
   public RosbridgeInstallationNodeContribution(
       InstallationAPIProvider apiProvider, RosbridgeInstallationNodeView view, DataModel model) {
@@ -53,6 +56,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
         apiProvider.getUserInterfaceAPI().getUserInteraction().getKeyboardInputFactory();
     this.model = model;
     this.view = view;
+    this.masters = loadMastersFromModel();
   }
 
   @Override
@@ -62,7 +66,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   public void closeView() {}
 
   public boolean isDefined() {
-    return !getHostIP().isEmpty();
+    return masters.length > 0;
   }
 
   public void generateQuoteQueryScript(ScriptWriter writer) {
@@ -117,24 +121,31 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     }
   }
 
-  public String getHostIP() {
+  public String getHostIP(final int index) {
     return model.get(HOST_IP, DEFAULT_IP);
   }
 
-  // TODO Receive masters list from model
-  public MasterPair[] getMastersList() {
-    MasterPair[] items = new MasterPair[1];
-    items[0] = new MasterPair(getHostIP(), getCustomPort());
+  public MasterPair[] loadMastersFromModel() {
+    String[] masters = model.get(MASTERS_KEY, DEFAULT_MASTERS);
+    MasterPair[] items = new MasterPair[masters.length];
+    for (int i = 0; i < masters.length; i++) {
+      System.out.println("Found master in model: " + masters[i]);
+      items[i] = MasterPair.fromString(masters[i]);
+    }
     return items;
+  }
+
+  public MasterPair[] getMastersList() {
+    return masters;
   }
 
   private void resetToDefaultIP() {
     model.set(HOST_IP, DEFAULT_IP);
   }
 
-  public KeyboardTextInput getInputForIPTextField() {
+  public KeyboardTextInput getInputForIPTextField(final String current_text) {
     KeyboardTextInput keyboInput = keyboardFactory.createStringKeyboardInput();
-    keyboInput.setInitialValue(getHostIP());
+    keyboInput.setInitialValue(current_text);
     return keyboInput;
   }
 
@@ -143,7 +154,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
       @Override
       public void onOk(String value) {
         setHostIP(value);
-        view.UpdateIPTextField(value);
+        //        view.UpdateIPTextField(value);
       }
     };
   }
@@ -157,7 +168,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     }
   }
 
-  public String getCustomPort() {
+  public String getCustomPort(final int index) {
     return model.get(PORT_NR, DEFAULT_PORT);
   }
 
@@ -167,7 +178,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
   public KeyboardTextInput getInputForPortTextField() {
     KeyboardTextInput keyboInput = keyboardFactory.createIPAddressKeyboardInput();
-    keyboInput.setInitialValue(getCustomPort());
+    keyboInput.setInitialValue(getCustomPort(0));
     return keyboInput;
   }
 
@@ -176,7 +187,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
       @Override
       public void onOk(String value) {
         setHostPort(value);
-        view.UpdatePortTextField(value);
+        //        view.UpdatePortTextField(value);
       }
     };
   }
@@ -197,5 +208,15 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     String line = reader.lines().collect(Collectors.joining("\n"));
 
     return line;
+  }
+
+  public void setMasterList(MasterPair[] data) {
+    masters = data;
+
+    String[] mastersStrings = new String[masters.length];
+    for (int i = 0; i < mastersStrings.length; i++) {
+      mastersStrings[i] = data[i].toString();
+    }
+    model.set(MASTERS_KEY, mastersStrings);
   }
 }
