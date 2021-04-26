@@ -40,7 +40,7 @@ public class TopicSubscriberProgramNodeContribution extends RosTaskProgramSuperN
       ProgramAPIProvider apiProvider, TopicSubscriberProgramNodeView view, DataModel model) {
     super(apiProvider, model);
     this.view = view;
-    this.num_contributions = 0;
+    TopicSubscriberProgramNodeContribution.num_contributions = 0;
   }
 
   @Override

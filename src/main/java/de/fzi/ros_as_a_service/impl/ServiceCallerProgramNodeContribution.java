@@ -34,11 +34,13 @@ import org.json.JSONObject;
 
 public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
   private final ServiceCallerProgramNodeView view;
+  static int num_contributions;
 
   public ServiceCallerProgramNodeContribution(
       ProgramAPIProvider apiProvider, ServiceCallerProgramNodeView view, DataModel model) {
     super(apiProvider, model);
     this.view = view;
+    ServiceCallerProgramNodeContribution.num_contributions = 0;
   }
 
   @Override
@@ -98,7 +100,12 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     JSONObject values = getMsgValue(getMsgLayoutKeys()[1]);
     // System.out.println("Subscription values:\n" + values.toString(2));
 
-    writer.defineFunction("parseServiceResponse" + ID); // add function definition
+    final String parser_function_name = "parseServiceResponse" + ID + "_" + num_contributions;
+    // Increment the subscription counter. This way we can make sure that the parser function IDs
+    // are unique
+    num_contributions += 1;
+
+    writer.defineFunction(parser_function_name); // add function definition
     writer.appendLine("textmsg(\"Service response is: \", " + globalvar + ")");
     writer.assign("local l_msg", globalvar);
     writer.assign("local bounds", "[0, 0, 0, 0]");
@@ -133,6 +140,7 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
         + "\",\"args\":" + buildJsonString(false, "Request") + "}";
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
+    writer.appendLine("textmsg(\"sending: " + urscriptifyJson(json) + "\")");
 
     writer.whileCondition(globalvar + " == \"\"");
     writer.assign("tmp", "socket_read_string(\"" + sockname + "\")");
@@ -145,7 +153,7 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     writer.end(); // while loop
 
 
-    writer.appendLine("parseServiceResponse" + ID + "()");
+    writer.appendLine(parser_function_name + "()");
 
     writer.appendLine("socket_close(\"" + sockname + "\")");
   }
