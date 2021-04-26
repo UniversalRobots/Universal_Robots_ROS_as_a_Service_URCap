@@ -231,3 +231,21 @@
     local postfix = str_sub(inp_string, start + length)
     return str_cat(prefix, postfix)
   end
+
+  ### string json_removeSurroundingQuotes(inp_string)
+  ### Remove surrounding " signs if present
+  ### return: input string if not the first and last characters are the quote character
+  def json_removeSurroundingQuotes(inp_string=""):
+    local len = str_len(inp_string)
+    if len < 1:
+      textmsg("json_removeSurroundingQuotes: Passed string is empty!")
+      return inp_string
+    end
+    if str_at(inp_string, 0) == quote:
+      if (str_at(inp_string, len - 1)) == quote:
+        return str_sub(inp_string, 1, len - 2)
+      end
+    end
+    return inp_string
+  end
+

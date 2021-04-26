@@ -693,18 +693,20 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     writer.assign("bounds", "json_getElement(" + source_var + ", \"" + element_name + "\")");
     String l_val = new String();
     String r_val = new String();
+    // writer.appendLine("textmsg(\"" + source_var + ": \", " + source_var + ")");
+    // writer.appendLine("textmsg(\"bounds: \", bounds)");
 
     l_val += target_var;
 
     if (numericTarget) {
       r_val = "to_num(";
+    } else {
+      r_val = "json_removeSurroundingQuotes(";
     }
     r_val += "str_sub(" + source_var + ", bounds[2], bounds[3]-bounds[2]+1)";
-    if (numericTarget) {
-      r_val += ")";
-    }
+    r_val += ")"; // close to_num or json_removeSurroundingQuotes
     writer.assign(l_val, r_val);
-    // writer.appendLine("textmsg(\"" + l_val + "\", " + l_val + ")");
+    // writer.appendLine("textmsg(\"" + l_val + ": \", " + l_val + ")");
     writer.assign(
         source_var, "json_reduceString(" + source_var + ", bounds[0], bounds[3]-bounds[0]+1)");
   }
