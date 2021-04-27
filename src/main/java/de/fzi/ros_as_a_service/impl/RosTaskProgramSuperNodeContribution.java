@@ -264,7 +264,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       JSONObject values = null;
       String[] msg_layout_keys = getMsgLayoutKeys();
       for (int i = 0; i < msg_layout_keys.length; i++) {
-        if (msg_layout_keys[i] == identifier) {
+        if (msg_layout_keys[i].equals(identifier)) {
           values = values_all.getJSONObject(i);
           break;
         }
@@ -312,7 +312,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     JSONObject values = null;
     String[] msg_layout_keys = getMsgLayoutKeys();
     for (int i = 0; i < msg_layout_keys.length; i++) {
-      if (msg_layout_keys[i] == identifier) {
+      if (msg_layout_keys[i].equals(identifier)) {
         try {
           values = values_all.getJSONObject(i);
         } catch (org.json.JSONException e) {

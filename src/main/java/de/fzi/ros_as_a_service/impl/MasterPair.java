@@ -88,9 +88,13 @@ public class MasterPair {
 
   @Override
   public boolean equals(Object comp) {
-    if (comp == null || getClass() != comp.getClass())
+    if (comp == null || !getClass().equals(comp.getClass()))
       return false;
     MasterPair rhs = (MasterPair) comp;
-    return this.getIp() == rhs.getIp() && this.getPort() == rhs.getPort();
+    if (!rhs.getIp().equals(this.getIp())) {
+    }
+    if (!rhs.getPort().equals(this.getPort())) {
+    }
+    return this.getIp().equals(rhs.getIp()) && this.getPort().equals(rhs.getPort());
   }
 }
