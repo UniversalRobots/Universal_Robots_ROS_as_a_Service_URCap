@@ -69,7 +69,6 @@ class MasterPairTableModel extends AbstractTableModel {
   }
 
   public void addRow(MasterPair row_data) {
-    System.out.println("Adding new master: " + row_data);
     MasterPair[] new_data = new MasterPair[data.length + 1];
     System.arraycopy(data, 0, new_data, 0, data.length);
     new_data[new_data.length - 1] = row_data;

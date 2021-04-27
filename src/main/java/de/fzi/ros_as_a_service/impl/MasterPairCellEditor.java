@@ -1,7 +1,6 @@
 package de.fzi.ros_as_a_service.impl;
 
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;

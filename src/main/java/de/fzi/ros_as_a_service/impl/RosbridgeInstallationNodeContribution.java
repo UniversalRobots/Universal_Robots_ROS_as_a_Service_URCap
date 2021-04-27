@@ -29,31 +29,21 @@ import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.InstallationAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.stream.Collectors;
 
 public class RosbridgeInstallationNodeContribution implements InstallationNodeContribution {
-  private static final String HOST_IP = "host_ip";
-  private static final String PORT_NR = "port_nr";
-  private static final String DEFAULT_IP = "192.168.56.1";
-  private static final String DEFAULT_PORT = "9090";
-  private static final String MASTERS_KEY = "rosbridge_masters";
+    private static final String MASTERS_KEY = "rosbridge_masters";
   private static final String[] DEFAULT_MASTERS = {"default : 192.168.56.1 : 9090"};
   private DataModel model;
   private final RosbridgeInstallationNodeView view;
-  private final KeyboardInputFactory keyboardFactory;
   private boolean quote_queried = false;
   private MasterPair[] masters;
 
   public RosbridgeInstallationNodeContribution(
       InstallationAPIProvider apiProvider, RosbridgeInstallationNodeView view, DataModel model) {
-    this.keyboardFactory =
-        apiProvider.getUserInterfaceAPI().getUserInteraction().getKeyboardInputFactory();
     this.model = model;
     this.view = view;
     this.masters = loadMastersFromModel();
@@ -80,11 +70,6 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
   @Override
   public void generateScript(ScriptWriter writer) {
-    // writer.appendLine("MASTER1_IP = \"" + getHostIP() + "\"");
-    // writer.appendLine("MASTER1_PORT = " + getCustomPort());
-    // writer.appendLine("socket_open(MASTER1_IP, MASTER1_PORT,
-    // \"testserver\")");
-
     // WORKAROUND:
     // Reset this once a new Program is compiled. Otherwise, if we create a program, save it,
     // create another program the static variable will still be true, although the quote string was
@@ -113,19 +98,6 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     writer.end();
   }
 
-  // IP helper functions
-  public void setHostIP(String ip) {
-    if ("".equals(ip)) {
-      resetToDefaultIP();
-    } else {
-      model.set(HOST_IP, ip);
-    }
-  }
-
-  public String getHostIP(final int index) {
-    return model.get(HOST_IP, DEFAULT_IP);
-  }
-
   public MasterPair[] loadMastersFromModel() {
     String[] masters = model.get(MASTERS_KEY, DEFAULT_MASTERS);
     MasterPair[] items = new MasterPair[masters.length];
@@ -138,59 +110,6 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
   public MasterPair[] getMastersList() {
     return masters;
-  }
-
-  private void resetToDefaultIP() {
-    model.set(HOST_IP, DEFAULT_IP);
-  }
-
-  public KeyboardTextInput getInputForIPTextField(final String current_text) {
-    KeyboardTextInput keyboInput = keyboardFactory.createStringKeyboardInput();
-    keyboInput.setInitialValue(current_text);
-    return keyboInput;
-  }
-
-  public KeyboardInputCallback<String> getCallbackForIPTextField() {
-    return new KeyboardInputCallback<String>() {
-      @Override
-      public void onOk(String value) {
-        setHostIP(value);
-        //        view.UpdateIPTextField(value);
-      }
-    };
-  }
-
-  // port helper functions
-  public void setHostPort(String port) {
-    if ("".equals(port)) {
-      resetToDefaultPort();
-    } else {
-      model.set(PORT_NR, port);
-    }
-  }
-
-  public String getCustomPort(final int index) {
-    return model.get(PORT_NR, DEFAULT_PORT);
-  }
-
-  private void resetToDefaultPort() {
-    model.set(PORT_NR, DEFAULT_PORT);
-  }
-
-  public KeyboardTextInput getInputForPortTextField() {
-    KeyboardTextInput keyboInput = keyboardFactory.createIPAddressKeyboardInput();
-    keyboInput.setInitialValue(getCustomPort(0));
-    return keyboInput;
-  }
-
-  public KeyboardInputCallback<String> getCallbackForPortTextField() {
-    return new KeyboardInputCallback<String>() {
-      @Override
-      public void onOk(String value) {
-        setHostPort(value);
-        //        view.UpdatePortTextField(value);
-      }
-    };
   }
 
   public String LoadResourceFile(String fileName) {
