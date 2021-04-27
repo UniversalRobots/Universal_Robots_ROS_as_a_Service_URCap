@@ -3,10 +3,6 @@
 ## Missing features
 The following features are planned to come soon
 
-### Support multiple ROS remotes in the Installation
-While it is possible to select different masters in the program nodes, only one can be configured
-inside the Installation, currently.
-
 ### Calling ROS actions
 Actions are not implemented, yet.
 
