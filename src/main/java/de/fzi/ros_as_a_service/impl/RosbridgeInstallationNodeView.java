@@ -55,15 +55,14 @@ public class RosbridgeInstallationNodeView
   public void buildUI(JPanel panel, RosbridgeInstallationNodeContribution contribution) {
     mastersPanel = createMastersPanel(contribution);
 
-    //    panel.setLayout(new BorderLayout());
-    //    panel.add(mastersPanel, BorderLayout.CENTER);
-    //    panel.add(createAddButton(contribution), BorderLayout.PAGE_END);
-    panel.add(mastersPanel);
+    panel.setLayout(new BorderLayout());
+    panel.add(mastersPanel, BorderLayout.CENTER);
+    panel.add(createAddButton(contribution), BorderLayout.PAGE_END);
 
-    panel.add(new JSeparator());
-
-    panel.add(createAddButton(contribution));
-    panel.add(createDeleteButton(contribution));
+    Box button_box = Box.createHorizontalBox();
+    button_box.add(createAddButton(contribution));
+    button_box.add(createDeleteButton(contribution));
+    panel.add(button_box, BorderLayout.PAGE_END);
   }
 
   private JPanel createMastersPanel(final RosbridgeInstallationNodeContribution contribution) {
