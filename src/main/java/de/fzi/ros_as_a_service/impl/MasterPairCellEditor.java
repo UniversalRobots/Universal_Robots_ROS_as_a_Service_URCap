@@ -10,6 +10,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
+@SuppressWarnings("serial")
 public class MasterPairCellEditor extends AbstractCellEditor implements TableCellEditor {
   final private KeyboardTextInput keyboardInput;
   JTextField textField;

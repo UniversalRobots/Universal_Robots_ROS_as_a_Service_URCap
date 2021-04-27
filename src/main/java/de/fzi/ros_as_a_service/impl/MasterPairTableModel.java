@@ -2,6 +2,7 @@ package de.fzi.ros_as_a_service.impl;
 
 import javax.swing.table.AbstractTableModel;
 
+@SuppressWarnings("serial")
 class MasterPairTableModel extends AbstractTableModel {
   private String[] columnNames = {"Name", "IP Address", "Port"};
   private MasterPair[] data;
