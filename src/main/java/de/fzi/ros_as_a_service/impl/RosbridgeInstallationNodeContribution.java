@@ -43,7 +43,7 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   private static final String DEFAULT_IP = "192.168.56.1";
   private static final String DEFAULT_PORT = "9090";
   private static final String MASTERS_KEY = "rosbridge_masters";
-  private static final String[] DEFAULT_MASTERS = {"192.168.56.1 : 9090", "192.168.0.1 : 9090"};
+  private static final String[] DEFAULT_MASTERS = {"default : 192.168.56.1 : 9090"};
   private DataModel model;
   private final RosbridgeInstallationNodeView view;
   private final KeyboardInputFactory keyboardFactory;

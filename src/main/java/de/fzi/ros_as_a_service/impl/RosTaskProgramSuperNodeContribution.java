@@ -33,7 +33,6 @@ import com.ur.urcap.api.domain.undoredo.UndoRedoManager;
 import com.ur.urcap.api.domain.undoredo.UndoableChanges;
 import com.ur.urcap.api.domain.variable.Variable;
 import com.ur.urcap.api.domain.variable.VariableFactory;
-import de.fzi.ros_as_a_service.impl.ValueInputNode.ValueType;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -59,13 +58,15 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   protected final VariableFactory variableFactory;
   protected static final String MASTER_KEY = "MASTER";
+  protected static final String MASTER_NAME_KEY = "MASTER_NAME";
   protected static final String PORT_KEY = "PORT";
   protected static final String MSG_KEY = "MSG";
   protected static final String MSG_VALUE_KEY = "MSG_VALUE";
   protected static final String MSG_LAYOUT_KEY = "MSG_LAYOUT";
 
-  protected static final String DEFAULT_MASTER = "192.168.56.1";
-  protected static final String DEFAULT_PORT = "9090";
+  protected static final String DEFAULT_MASTER = "";
+  protected static final String DEFAULT_MASTER_NAME = "";
+  protected static final String DEFAULT_PORT = "";
   protected static final String DEFAULT_MSG = "";
   protected static final String DEFAULT_MSG_VALUE = "";
   protected static final String DEFAULT_MSG_LAYOUT = "";
@@ -90,7 +91,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   public MasterPair getMaster() {
-    return new MasterPair(getMasterIP(), getMasterPort());
+    return new MasterPair(getMasterName(), getMasterIP(), getMasterPort());
   }
 
   @Override
@@ -151,6 +152,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     undoRedoManager.recordChanges(new UndoableChanges() {
       @Override
       public void executeChanges() {
+        model.set(MASTER_NAME_KEY, master.getName());
         model.set(MASTER_KEY, master.getIp());
         model.set(PORT_KEY, master.getPort());
       }
@@ -288,6 +290,10 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return "{}";
   }
 
+  protected String getMasterName() {
+    return model.get(MASTER_NAME_KEY, DEFAULT_MASTER_NAME);
+  }
+
   protected String getMasterIP() {
     return model.get(MASTER_KEY, DEFAULT_MASTER);
   }
@@ -389,8 +395,12 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     System.out.println("### getMastersList");
     List<String> items = new ArrayList<String>();
     // Add the master currently stored
-    System.out.println("Adding stored master: <" + getMaster().toString() + ">");
-    items.add(getMaster().toString());
+    MasterPair stored_mp = getMaster();
+    if (!stored_mp.getIp().equals(DEFAULT_MASTER))
+    {
+      System.out.println("Adding stored master: <" + getMaster().toString() + ">");
+      items.add(getMaster().toString());
+    }
     try {
       Objects.requireNonNull(getInstallation(), "InstallationNode not found");
       MasterPair[] pairs = getInstallation().getMastersList();

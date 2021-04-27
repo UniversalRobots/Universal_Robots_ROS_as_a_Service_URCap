@@ -35,7 +35,7 @@ class MasterPairTableModel extends AbstractTableModel {
     Object value = null;
     switch (col) {
       case 0:
-        value = "define name";
+        value = mp.getName();
         break;
       case 1:
         value = mp.getIp();
@@ -51,13 +51,13 @@ class MasterPairTableModel extends AbstractTableModel {
   public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     switch (columnIndex) {
       case 0:
-        //            data[rowIndex].setName(aValue);
+        data[rowIndex].setName((String) aValue);
         break;
       case 1:
-        data[rowIndex].set((String) aValue, data[rowIndex].getPort());
+        data[rowIndex].setIp((String) aValue);
         break;
       case 2:
-        data[rowIndex].set(data[rowIndex].getIp(), (String) aValue);
+        data[rowIndex].setPort((String) aValue);
         break;
     }
     fireTableDataChanged();
