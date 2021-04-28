@@ -38,11 +38,11 @@ public class MasterPairTest extends TestCase {
 
   public void testToString() {
     MasterPair m1 = new MasterPair("192.168.0.1", "9090");
-    assertEquals(m1.toString(), "192.168.0.1 : 9090");
+    assertEquals(m1.toString(), "no_name : 192.168.0.1 : 9090");
   }
 
   public void testFromString() {
-    String master_str = "192.168.0.1 : 9090";
+    String master_str = "my_pair : 192.168.0.1 : 9090";
     MasterPair m1 = MasterPair.fromString(master_str);
     assertEquals(m1.toString(), master_str);
 

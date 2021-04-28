@@ -47,7 +47,7 @@ public class RosbridgeInstallationNodeService
 
   @Override
   public RosbridgeInstallationNodeView createView(ViewAPIProvider apiProvider) {
-    return new RosbridgeInstallationNodeView();
+    return new RosbridgeInstallationNodeView(apiProvider);
   }
 
   @Override

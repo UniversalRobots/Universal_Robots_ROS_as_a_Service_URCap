@@ -29,30 +29,24 @@ import com.ur.urcap.api.contribution.InstallationNodeContribution;
 import com.ur.urcap.api.contribution.installation.InstallationAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.stream.Collectors;
 
 public class RosbridgeInstallationNodeContribution implements InstallationNodeContribution {
-  private static final String HOST_IP = "host_ip";
-  private static final String PORT_NR = "port_nr";
-  private static final String DEFAULT_IP = "192.168.56.1";
-  private static final String DEFAULT_PORT = "9090";
+    private static final String MASTERS_KEY = "rosbridge_masters";
+  private static final String[] DEFAULT_MASTERS = {"default : 192.168.56.1 : 9090"};
   private DataModel model;
   private final RosbridgeInstallationNodeView view;
-  private final KeyboardInputFactory keyboardFactory;
   private boolean quote_queried = false;
+  private MasterPair[] masters;
 
   public RosbridgeInstallationNodeContribution(
       InstallationAPIProvider apiProvider, RosbridgeInstallationNodeView view, DataModel model) {
-    this.keyboardFactory =
-        apiProvider.getUserInterfaceAPI().getUserInteraction().getKeyboardInputFactory();
     this.model = model;
     this.view = view;
+    this.masters = loadMastersFromModel();
   }
 
   @Override
@@ -62,23 +56,20 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
   public void closeView() {}
 
   public boolean isDefined() {
-    return !getHostIP().isEmpty();
+    return masters.length > 0;
   }
 
-  public void generateQuoteQueryScript(ScriptWriter writer) {
+  // We query the quote string from the first master that is setup inside this program
+  public void generateQuoteQueryScript(
+      ScriptWriter writer, final String remoteIP, final String remotePort) {
     if (!quote_queried) {
-      writer.appendLine("rosbridge_get_quote()");
+      writer.appendLine("rosbridge_get_quote(\"" + remoteIP + "\", " + remotePort + ")");
       quote_queried = true;
     }
   }
 
   @Override
   public void generateScript(ScriptWriter writer) {
-    // writer.appendLine("MASTER1_IP = \"" + getHostIP() + "\"");
-    // writer.appendLine("MASTER1_PORT = " + getCustomPort());
-    // writer.appendLine("socket_open(MASTER1_IP, MASTER1_PORT,
-    // \"testserver\")");
-
     // WORKAROUND:
     // Reset this once a new Program is compiled. Otherwise, if we create a program, save it,
     // create another program the static variable will still be true, although the quote string was
@@ -91,9 +82,8 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
 
     // generate quote here!
     writer.appendLine("# get quote for json parsing");
-    writer.defineFunction("rosbridge_get_quote");
-    writer.appendLine(
-        "socket_open(\"" + getHostIP() + "\", " + getCustomPort() + ", \"quotesocket\")");
+    writer.appendLine("def rosbridge_get_quote(remoteIP, remotePort):");
+    writer.appendLine("socket_open(remoteIP, remotePort, \"quotesocket\")");
     String call_time = "{\"op\":\"call_service\", \"service\":\"/rosapi/get_time\"}";
     byte[] bytes = call_time.getBytes();
     char a;
@@ -108,77 +98,18 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     writer.end();
   }
 
-  // IP helper functions
-  public void setHostIP(String ip) {
-    if ("".equals(ip)) {
-      resetToDefaultIP();
-    } else {
-      model.set(HOST_IP, ip);
+  public MasterPair[] loadMastersFromModel() {
+    String[] masters = model.get(MASTERS_KEY, DEFAULT_MASTERS);
+    MasterPair[] items = new MasterPair[masters.length];
+    for (int i = 0; i < masters.length; i++) {
+      System.out.println("Found master in model: " + masters[i]);
+      items[i] = MasterPair.fromString(masters[i]);
     }
-  }
-
-  public String getHostIP() {
-    return model.get(HOST_IP, DEFAULT_IP);
-  }
-
-  // TODO Receive masters list from model
-  public MasterPair[] getMastersList() {
-    MasterPair[] items = new MasterPair[1];
-    items[0] = new MasterPair(getHostIP(), getCustomPort());
     return items;
   }
 
-  private void resetToDefaultIP() {
-    model.set(HOST_IP, DEFAULT_IP);
-  }
-
-  public KeyboardTextInput getInputForIPTextField() {
-    KeyboardTextInput keyboInput = keyboardFactory.createStringKeyboardInput();
-    keyboInput.setInitialValue(getHostIP());
-    return keyboInput;
-  }
-
-  public KeyboardInputCallback<String> getCallbackForIPTextField() {
-    return new KeyboardInputCallback<String>() {
-      @Override
-      public void onOk(String value) {
-        setHostIP(value);
-        view.UpdateIPTextField(value);
-      }
-    };
-  }
-
-  // port helper functions
-  public void setHostPort(String port) {
-    if ("".equals(port)) {
-      resetToDefaultPort();
-    } else {
-      model.set(PORT_NR, port);
-    }
-  }
-
-  public String getCustomPort() {
-    return model.get(PORT_NR, DEFAULT_PORT);
-  }
-
-  private void resetToDefaultPort() {
-    model.set(PORT_NR, DEFAULT_PORT);
-  }
-
-  public KeyboardTextInput getInputForPortTextField() {
-    KeyboardTextInput keyboInput = keyboardFactory.createIPAddressKeyboardInput();
-    keyboInput.setInitialValue(getCustomPort());
-    return keyboInput;
-  }
-
-  public KeyboardInputCallback<String> getCallbackForPortTextField() {
-    return new KeyboardInputCallback<String>() {
-      @Override
-      public void onOk(String value) {
-        setHostPort(value);
-        view.UpdatePortTextField(value);
-      }
-    };
+  public MasterPair[] getMastersList() {
+    return masters;
   }
 
   public String LoadResourceFile(String fileName) {
@@ -197,5 +128,15 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     String line = reader.lines().collect(Collectors.joining("\n"));
 
     return line;
+  }
+
+  public void setMasterList(MasterPair[] data) {
+    masters = data;
+
+    String[] mastersStrings = new String[masters.length];
+    for (int i = 0; i < mastersStrings.length; i++) {
+      mastersStrings[i] = data[i].toString();
+    }
+    model.set(MASTERS_KEY, mastersStrings);
   }
 }
