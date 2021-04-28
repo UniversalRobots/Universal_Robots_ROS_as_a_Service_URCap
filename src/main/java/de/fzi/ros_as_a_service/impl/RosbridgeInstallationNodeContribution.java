@@ -83,7 +83,11 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     // generate quote here!
     writer.appendLine("# get quote for json parsing");
     writer.appendLine("def rosbridge_get_quote(remoteIP, remotePort):");
-    writer.appendLine("socket_open(remoteIP, remotePort, \"quotesocket\")");
+    writer.assign("quote_socket_connected", "socket_open(remoteIP, remotePort, \"quotesocket\")");
+    writer.ifCondition("quote_socket_connected == False");
+    writer.appendLine(
+        "popup(\"Could not connect to rosbridge at \" + remoteIP + \":\" + to_str(remotePort) + \". Following ROS calls will not work! Check your connection setup and make sure the rosbridge is actually running.\", \"Connection failed\", error=True, blocking=True)");
+    writer.end();
     String call_time = "{\"op\":\"call_service\", \"service\":\"/rosapi/get_time\"}";
     byte[] bytes = call_time.getBytes();
     char a;
@@ -91,11 +95,22 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
       a = (char) bytes[j];
       writer.appendLine("socket_send_byte(" + bytes[j] + ", \"quotesocket\")\t# " + a);
     }
-    writer.appendLine("local response = \" \"");
     writer.assign("response", "socket_read_string(\"quotesocket\")");
+    writer.ifCondition("str_len(response) > 2");
+    writer.appendLine("textmsg(response)");
     writer.assign("quote", "str_at(response, 1)");
-    writer.appendLine("socket_close(\"quotesocket\")");
+    writer.assign("bounds", "json_getElement(inp_string=response, name=\"result\")");
+    writer.assign("quote_result", "str_sub(response, bounds[2], bounds[3]-bounds[2]+1)");
+    writer.ifCondition("quote_result != \"true\"");
+    writer.appendLine(
+        "popup(\"Parsing quote from rosbridge answer failed! Make sure that the rosbridge is actually running at \" + remoteIP + \":\" + to_str(remotePort) + \".\", \"Parsing quote char failed\", error=True, blocking=True)");
     writer.end();
+    writer.elseCondition();
+    writer.appendLine(
+        "popup(\"Could not receive quote char from rosbridge. Make sure that the rosbridge is actually running at \" + remoteIP + \":\" + to_str(remotePort) + \".\", \"Did not receive quote char\", error=True, blocking=True)");
+    writer.end(); // if response
+    writer.appendLine("socket_close(\"quotesocket\")");
+    writer.end(); // function definition
   }
 
   public MasterPair[] loadMastersFromModel() {
