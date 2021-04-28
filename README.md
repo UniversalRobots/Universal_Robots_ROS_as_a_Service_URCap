@@ -9,6 +9,8 @@ to help tracking down any issues existing with this URCap.
 
 Not all features are implemented, yet, see the [missing features](doc/missing_features.md) list.
 
+Please give us feedback through the [**survey**](https://share.hsforms.com/1_SsLjqMcT8SfaRUiYWwcrA1kep1), Issues or [ROS@universal-robots.com](mailto:ROS@universal-robots.com) on what you have tested and how it worked out.
+
 ---
 
 This URCaps allows you to call ROS `services`, `actions` and use `topics`
