@@ -11,6 +11,8 @@ Not all features are implemented, yet, see the [missing features](doc/missing_fe
 
 ---
 
+<img height="300" alt="program structure" src="doc/resources/tutorial/7.png"> <img height="300" alt="turtlesim window" src="doc/resources/tutorial/8.png">
+
 This URCaps allows you to call ROS `services`, `actions` and use `topics`
 from within your Universal Robots application setup on the Teach panel. The main program will stay on the robot while
 you can integrate features provided by ROS nodes over the network.
