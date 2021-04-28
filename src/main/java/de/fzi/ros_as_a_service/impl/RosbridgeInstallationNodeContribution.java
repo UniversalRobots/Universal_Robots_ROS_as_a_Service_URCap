@@ -35,7 +35,7 @@ import java.net.URL;
 import java.util.stream.Collectors;
 
 public class RosbridgeInstallationNodeContribution implements InstallationNodeContribution {
-    private static final String MASTERS_KEY = "rosbridge_masters";
+  private static final String MASTERS_KEY = "rosbridge_masters";
   private static final String[] DEFAULT_MASTERS = {"default : 192.168.56.1 : 9090"};
   private DataModel model;
   private final RosbridgeInstallationNodeView view;

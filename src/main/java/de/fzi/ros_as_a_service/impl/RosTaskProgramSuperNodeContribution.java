@@ -396,8 +396,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     List<String> items = new ArrayList<String>();
     // Add the master currently stored
     MasterPair stored_mp = getMaster();
-    if (!stored_mp.getIp().equals(DEFAULT_MASTER))
-    {
+    if (!stored_mp.getIp().equals(DEFAULT_MASTER)) {
       System.out.println("Adding stored master: <" + getMaster().toString() + ">");
       items.add(getMaster().toString());
     }

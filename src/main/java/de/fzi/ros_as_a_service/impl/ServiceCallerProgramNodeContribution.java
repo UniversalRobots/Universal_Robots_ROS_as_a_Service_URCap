@@ -152,7 +152,6 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     writer.sync();
     writer.end(); // while loop
 
-
     writer.appendLine(parser_function_name + "()");
 
     writer.appendLine("socket_close(\"" + sockname + "\")");
