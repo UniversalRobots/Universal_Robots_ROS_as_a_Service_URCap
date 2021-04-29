@@ -4,7 +4,7 @@ import javax.swing.table.AbstractTableModel;
 
 @SuppressWarnings("serial")
 class MasterPairTableModel extends AbstractTableModel {
-  private String[] columnNames = {"Name", "IP Address", "Port"};
+  private String[] columnNames = {"", "Name", "IP Address", "Port"};
   private MasterPair[] data;
 
   public MasterPairTableModel(MasterPair[] data) {
@@ -36,12 +36,15 @@ class MasterPairTableModel extends AbstractTableModel {
     Object value = null;
     switch (col) {
       case 0:
-        value = mp.getName();
+        value = "#" + row;
         break;
       case 1:
-        value = mp.getIp();
+        value = mp.getName();
         break;
       case 2:
+        value = mp.getIp();
+        break;
+      case 3:
         value = mp.getPort();
         break;
     }
@@ -51,13 +54,13 @@ class MasterPairTableModel extends AbstractTableModel {
   @Override
   public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     switch (columnIndex) {
-      case 0:
+      case 1:
         data[rowIndex].setName((String) aValue);
         break;
-      case 1:
+      case 2:
         data[rowIndex].setIp((String) aValue);
         break;
-      case 2:
+      case 3:
         data[rowIndex].setPort((String) aValue);
         break;
     }
@@ -66,7 +69,7 @@ class MasterPairTableModel extends AbstractTableModel {
 
   @Override
   public boolean isCellEditable(int row, int col) {
-    return true;
+    return col > 0;
   }
 
   public void addRow(MasterPair row_data) {
@@ -82,13 +85,16 @@ class MasterPairTableModel extends AbstractTableModel {
   }
 
   public void removeRow(int row) {
-    MasterPair[] new_data = new MasterPair[data.length - 1];
-    for (int i = 0, j = 0; i < data.length; i++) {
-      if (i != row) {
-        new_data[j++] = data[i];
+    if (row > 0) {
+      MasterPair[] new_data = new MasterPair[data.length - 1];
+      for (int i = 0, j = 0; i < data.length; i++) {
+        if (i != row) {
+          new_data[j++] = data[i];
+        }
       }
+      data = new_data;
+      //    fireTableDataChanged();
+      fireTableRowsDeleted(row, row);
     }
-    data = new_data;
-    fireTableDataChanged();
   }
 }
