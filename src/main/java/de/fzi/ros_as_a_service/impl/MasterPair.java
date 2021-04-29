@@ -26,8 +26,8 @@
 package de.fzi.ros_as_a_service.impl;
 
 public class MasterPair {
-  private String ip;
-  private String port;
+  private String ip = "0.0.0.0";
+  private String port = "9090";
   private String name = "no_name";
   public MasterPair(String name, String ip, String port) {
     this.name = name;
@@ -39,8 +39,6 @@ public class MasterPair {
     this.port = port;
   }
   public MasterPair() {
-    this.ip = "";
-    this.port = "";
   }
   public String getIp() {
     return ip;
