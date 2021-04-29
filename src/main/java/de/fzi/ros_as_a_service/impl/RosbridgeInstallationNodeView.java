@@ -74,13 +74,13 @@ public class RosbridgeInstallationNodeView
     table.setFillsViewportHeight(false);
     table.setRowHeight(40);
 
-    TableColumn nameColumn = table.getColumnModel().getColumn(0);
+    TableColumn nameColumn = table.getColumnModel().getColumn(1);
     nameColumn.setCellEditor(
         new MasterPairCellEditorString(keyboardFactory.createStringKeyboardInput()));
-    TableColumn ipColumn = table.getColumnModel().getColumn(1);
+    TableColumn ipColumn = table.getColumnModel().getColumn(2);
     ipColumn.setCellEditor(
         new MasterPairCellEditorString(keyboardFactory.createIPAddressKeyboardInput()));
-    TableColumn portColumn = table.getColumnModel().getColumn(2);
+    TableColumn portColumn = table.getColumnModel().getColumn(3);
     portColumn.setCellEditor(
         new MasterPairCellEditorNum(keyboardFactory.createIntegerKeypadInput()));
 
