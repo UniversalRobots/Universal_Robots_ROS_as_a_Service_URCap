@@ -164,3 +164,30 @@ In your variables tab you should see the name you just entered into the request 
 
 ![](./resources/tutorial/20.png)
 
+
+## Call an action
+
+Using the _Action Call_ node to call a ROS action is very similar to calling services.
+We will use the [turtle_actionlib](http://wiki.ros.org/turtle_actionlib) package for this tutorial. It adds an action server to our turtlesim for drawing polygons.
+
+While having the rosbridge and turtlesim node running as explained above, in another terminal, run
+```bash
+rosrun turtle_actionlib shape_server
+```
+
+We add two float variables to our program in which we can store the action's result.
+This is in fact optional but let's assume you want to delegate a longer running
+task to ROS and make use of the result in your program.
+Add an _Action Call_ node to your program, choose the right ROS master, and */turtle_shape* as _Topic_.
+There should only be this single topic available if your ROS stack does not contain further nodes.
+Insert the _Goal_ fields and assign your _Result_ variables.
+Your screen should look similar to this:
+
+![](./resources/tutorial/21.png)
+
+After playing the program from the beginning, your turtlesim should start moving.
+This node is blocking and your robot program will advance once the action finishes.
+You can check the _Variables_ tab in the mean time and observe how they get filled once the action finishes.
+
+When done, your turtlesim should look similar to this:
+![](./resources/tutorial/22.png)
