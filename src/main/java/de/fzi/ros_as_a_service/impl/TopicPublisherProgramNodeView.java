@@ -31,6 +31,6 @@ public class TopicPublisherProgramNodeView
     extends RosTaskProgramSuperNodeView<TopicPublisherProgramNodeContribution> {
   public TopicPublisherProgramNodeView(ViewAPIProvider apiProvider) {
     super(apiProvider);
-    this.description = "Select the Topic on that you want to publish to.";
+    this.description = "Select the topic to publish to";
   }
 }

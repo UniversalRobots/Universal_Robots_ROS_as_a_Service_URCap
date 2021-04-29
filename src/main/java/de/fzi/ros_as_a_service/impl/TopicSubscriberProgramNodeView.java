@@ -31,6 +31,6 @@ public class TopicSubscriberProgramNodeView
     extends RosTaskProgramSuperNodeView<TopicSubscriberProgramNodeContribution> {
   public TopicSubscriberProgramNodeView(ViewAPIProvider apiProvider) {
     super(apiProvider);
-    this.description = "Select the Topic on that you want to subscribe to.";
+    this.description = "Select the topic you want to subscribe to";
   }
 }

@@ -31,6 +31,6 @@ public class ServiceCallerProgramNodeView
     extends RosTaskProgramSuperNodeView<ServiceCallerProgramNodeContribution> {
   public ServiceCallerProgramNodeView(ViewAPIProvider apiProvider) {
     super(apiProvider);
-    this.description = "Select the Topic on that you want to subscribe to.";
+    this.description = "Select the service you want to call";
   }
 }
