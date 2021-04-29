@@ -142,17 +142,23 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
     writer.appendLine("textmsg(\"sending: " + urscriptifyJson(json) + "\")");
 
-    writer.whileCondition(globalvar + " == \"\"");
-    writer.assign("tmp", "socket_read_string(\"" + sockname + "\")");
-    writer.ifNotCondition("str_empty(tmp)");
+    writer.assign("response_timeout", "10");
+    writer.assign("tmp", "socket_read_string(\"" + sockname + "\", timeout=response_timeout)");
+    writer.appendLine("textmsg(\"received response: \", tmp)");
+    writer.ifCondition("str_empty(tmp)");
+    writer.appendLine("popup(\"Waiting for service response went into timeout.\", \"Response Error\", error=True, blocking=True)");
+    writer.elseCondition();
+    writer.appendLine("local bounds = json_getElement(tmp, \"result\")");
+    writer.appendLine("result = str_sub(tmp, bounds[2], bounds[3]-bounds[2]+1)");
     writer.appendLine("local bounds = json_getElement(tmp, \"values\")");
-    writer.appendLine("msg = str_sub(tmp, bounds[2], bounds[3]-bounds[2]+1)");
-    writer.assign(globalvar, "msg");
-    writer.end(); // if-clause
-    writer.sync();
-    writer.end(); // while loop
-
+    writer.appendLine("values = str_sub(tmp, bounds[2], bounds[3]-bounds[2]+1)");
+    writer.ifCondition("result != \"true\"");
+    writer.appendLine("popup(values, \"Response Error\", error=True, blocking=True)");
+    writer.elseCondition();
+    writer.assign(globalvar, "values");
     writer.appendLine(parser_function_name + "()");
+    writer.end(); // if-clause result_true
+    writer.end(); // if-clause tmp_empty
 
     writer.appendLine("socket_close(\"" + sockname + "\")");
   }
