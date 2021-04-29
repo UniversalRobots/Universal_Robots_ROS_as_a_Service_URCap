@@ -29,6 +29,10 @@ public class MasterPairCellEditorString extends AbstractCellEditor implements Ta
             textField.setText(value);
             stopCellEditing();
           }
+          @Override
+          public void onCancel() {
+            stopCellEditing();
+          }
         });
       }
     });

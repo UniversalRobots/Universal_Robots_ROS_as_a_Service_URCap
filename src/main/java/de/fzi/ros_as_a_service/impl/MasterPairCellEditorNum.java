@@ -30,6 +30,10 @@ public class MasterPairCellEditorNum extends AbstractCellEditor implements Table
             textField.setText(String.valueOf(value));
             stopCellEditing();
           }
+          @Override
+          public void onCancel() {
+            stopCellEditing();
+          }
         });
       }
     });
