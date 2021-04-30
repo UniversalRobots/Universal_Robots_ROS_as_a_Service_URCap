@@ -104,5 +104,7 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
     writer.appendLine("textmsg(\"sending: " + urscriptifyJson(json) + "\")");
+
+    writer.appendLine("socket_close(\"" + sockname + "\")");
   }
 }
