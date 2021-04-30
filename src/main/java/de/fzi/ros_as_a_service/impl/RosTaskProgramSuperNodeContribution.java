@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -860,5 +861,43 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   @Override
   public void generateScript(ScriptWriter writer) {
     getInstallation().generateQuoteQueryScript(writer, getMasterIP(), getMasterPort());
+  }
+
+  /*!
+   * \brief Generates a function to parse a json message into the configured variables
+   *
+   * \param function_name The name the function will have in the script code. It should be unique.
+   * \param writer The ScriptWriter objet
+   * \param values The values as stored in the model which defines what fields should be stored
+   * where
+   * \param buffer_var_name The name of the variable where the jsosnstring that should be parsed is
+   * stored in. This variable should be available inside the scope of this function.
+   */
+  protected void generateParsingFunction(final String function_name, final ScriptWriter writer,
+      final JSONObject values, final String buffer_var_name) {
+    writer.defineFunction(function_name);
+    writer.assign("local l_msg", buffer_var_name);
+    writer.assign("local bounds", "[0, 0, 0, 0]");
+
+    // check for a complete json received
+    writer.ifCondition("json_findCorrespondingDelimiter(l_msg) == -1");
+    writer.appendLine(
+        "popup(\"Received String exceeds maximum length (1023 Bytes).\", \"JSON Error\", error=True, blocking=True)");
+    writer.end(); // if-clause
+
+    List<ValueInputNode> nodes_with_variables = getNodesWithVariables(values, writer);
+    System.out.println("Found tree: " + nodes_with_variables);
+    String l_msg = "l_msg";
+    for (int i = 0; i < nodes_with_variables.size(); i++) {
+      String label = nodes_with_variables.get(i).getLabel();
+      String[] elements = label.split("/");
+      String name = elements[elements.length - 1];
+      l_msg = String.join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
+      if (i > 0) {
+        generateElementParser(name, l_msg, nodes_with_variables.get(i).getValue(),
+            nodes_with_variables.get(i).isNumericType(), writer);
+      }
+    }
+    writer.end(); // end function definition
   }
 }
