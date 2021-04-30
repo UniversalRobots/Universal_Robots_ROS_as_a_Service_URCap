@@ -38,8 +38,7 @@ public class MasterPair {
     this.ip = ip;
     this.port = port;
   }
-  public MasterPair() {
-  }
+  public MasterPair() {}
   public String getIp() {
     return ip;
   }

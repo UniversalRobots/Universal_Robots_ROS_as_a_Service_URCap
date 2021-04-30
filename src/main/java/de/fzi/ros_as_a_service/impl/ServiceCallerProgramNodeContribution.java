@@ -146,7 +146,8 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     writer.assign("tmp", "socket_read_string(\"" + sockname + "\", timeout=response_timeout)");
     writer.appendLine("textmsg(\"received response: \", tmp)");
     writer.ifCondition("str_empty(tmp)");
-    writer.appendLine("popup(\"Waiting for service response went into timeout.\", \"Response Error\", error=True, blocking=True)");
+    writer.appendLine(
+        "popup(\"Waiting for service response went into timeout.\", \"Response Error\", error=True, blocking=True)");
     writer.elseCondition();
     writer.appendLine("local bounds = json_getElement(tmp, \"result\")");
     writer.appendLine("result = str_sub(tmp, bounds[2], bounds[3]-bounds[2]+1)");
