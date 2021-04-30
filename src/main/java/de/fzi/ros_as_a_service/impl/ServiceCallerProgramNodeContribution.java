@@ -28,13 +28,10 @@ package de.fzi.ros_as_a_service.impl;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
-import java.util.Arrays;
-import java.util.List;
-import org.json.JSONObject;
 
 public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
   private final ServiceCallerProgramNodeView view;
-  static int num_contributions;
+  static private int num_contributions;
 
   public ServiceCallerProgramNodeContribution(
       ProgramAPIProvider apiProvider, ServiceCallerProgramNodeView view, DataModel model) {
@@ -97,39 +94,12 @@ public class ServiceCallerProgramNodeContribution extends RosTaskProgramSuperNod
     final String sockname = "servicecall" + ID;
     final String globalvar = "serviceResponse" + ID;
 
-    JSONObject values = getMsgValue(getMsgLayoutKeys()[1]);
-    // System.out.println("Subscription values:\n" + values.toString(2));
-
     final String parser_function_name = "parseServiceResponse" + ID + "_" + num_contributions;
+    generateParsingFunction(
+        parser_function_name, writer, getMsgValue(getMsgLayoutKeys()[1]), globalvar);
     // Increment the subscription counter. This way we can make sure that the parser function IDs
     // are unique
     num_contributions += 1;
-
-    writer.defineFunction(parser_function_name); // add function definition
-    writer.appendLine("textmsg(\"Service response is: \", " + globalvar + ")");
-    writer.assign("local l_msg", globalvar);
-    writer.assign("local bounds", "[0, 0, 0, 0]");
-
-    // check for a complete json received
-    writer.ifCondition("json_findCorrespondingDelimiter(l_msg) == -1");
-    writer.appendLine(
-        "popup(\"Received String exceeds maximum length (1023 Bytes).\", \"JSON Error\", error=True, blocking=True)");
-    writer.end(); // if-clause
-
-    List<ValueInputNode> nodes_with_variables = getNodesWithVariables(values, writer);
-    System.out.println("Found tree: " + nodes_with_variables);
-    String l_msg = "l_msg";
-    for (int i = 0; i < nodes_with_variables.size(); i++) {
-      String label = nodes_with_variables.get(i).getLabel();
-      String[] elements = label.split("/");
-      String name = elements[elements.length - 1];
-      l_msg = String.join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
-      if (i > 0) {
-        generateElementParser(name, l_msg, nodes_with_variables.get(i).getValue(),
-            nodes_with_variables.get(i).isNumericType(), writer);
-      }
-    }
-    writer.end(); // end function definition to parse subscript
 
     writer.appendLine("# open socket for service call");
     writer.appendLine(

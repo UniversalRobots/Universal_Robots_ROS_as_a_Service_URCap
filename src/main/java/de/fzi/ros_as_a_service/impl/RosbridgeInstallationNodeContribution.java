@@ -111,6 +111,31 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
     writer.end(); // if response
     writer.appendLine("socket_close(\"quotesocket\")");
     writer.end(); // function definition
+
+    writer.appendLine("# Action status to string");
+    writer.appendLine("def goalStateString(state_num):");
+    writer.ifCondition("state_num == 0");
+    writer.appendLine("return \"PENDING\"");
+    writer.elseIfCondition("state_num == 1");
+    writer.appendLine("return \"ACTIVE\"");
+    writer.elseIfCondition("state_num == 2");
+    writer.appendLine("return \"PREEMPTED\"");
+    writer.elseIfCondition("state_num == 3");
+    writer.appendLine("return \"SUCCEEDED\"");
+    writer.elseIfCondition("state_num == 4");
+    writer.appendLine("return \"ABORTED\"");
+    writer.elseIfCondition("state_num == 5");
+    writer.appendLine("return \"REJECTED\"");
+    writer.elseIfCondition("state_num == 6");
+    writer.appendLine("return \"PREEMPTING\"");
+    writer.elseIfCondition("state_num == 7");
+    writer.appendLine("return \"RECALLING\"");
+    writer.elseIfCondition("state_num == 8");
+    writer.appendLine("return \"RECALLED\"");
+    writer.elseIfCondition("state_num == 9");
+    writer.appendLine("return \"LOST\"");
+    writer.end();
+    writer.end();
   }
 
   public MasterPair[] loadMastersFromModel() {
