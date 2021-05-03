@@ -564,6 +564,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       System.err.println("getMsgList: Error: " + ex);
     }
 
+    Arrays.sort(items);
     return items;
   }
 
