@@ -37,9 +37,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EventObject;
-import java.util.Iterator;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -64,13 +65,21 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
   private JComboBox<String> variableCombobox = new JComboBox<String>();
   private final KeyboardInputFactory keyboardFactory;
 
+  public static Comparator<Variable> VariableComparator = new Comparator<Variable>() {
+    public int compare(Variable var1, Variable var2) {
+      return var1.getDisplayName().compareTo(var2.getDisplayName());
+    }
+  };
+
   public ValueNodeEditor(JTree tree, Collection<Variable> variableCollection,
       LeafDataDirection direction, KeyboardInputFactory keyboard_factory) {
     this.tree = tree;
     this.datadirection = direction;
     this.keyboardFactory = keyboard_factory;
 
-    Iterator<Variable> variableIterator = variableCollection.iterator();
+    Variable[] variables = new Variable[variableCollection.size()];
+    variableCollection.toArray(variables);
+    Arrays.sort(variables, VariableComparator);
     textfield = new JTextField();
     textfield.setPreferredSize(new Dimension(150, 30));
     textfield.setMaximumSize(textfield.getPreferredSize());
@@ -79,8 +88,8 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
     variableCheckbox.setText("Use variable");
     variableCombobox.setPreferredSize(new Dimension(100, 30));
     variableCombobox.addItem("");
-    while (variableIterator.hasNext()) {
-      variableCombobox.addItem(variableIterator.next().getDisplayName());
+    for (int i = 0; i < variables.length; i++) {
+      variableCombobox.addItem(variables[i].getDisplayName());
     }
 
     textfield.addActionListener(new ActionListener() {

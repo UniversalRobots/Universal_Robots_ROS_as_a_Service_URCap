@@ -29,8 +29,9 @@ import com.ur.urcap.api.domain.variable.Variable;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Comparator;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -50,13 +51,19 @@ class ValueNodeRenderer implements TreeCellRenderer {
   private JTextField textfield = null;
   private JCheckBox variableCheckbox = null;
   private JComboBox<String> variableCombobox = new JComboBox<String>();
-  private Collection<Variable> variableCollection = null;
   private DefaultTreeCellRenderer nonLeafRender = new DefaultTreeCellRenderer();
   private LeafDataDirection datadirection;
 
+  public static Comparator<Variable> VariableComparator = new Comparator<Variable>() {
+    public int compare(Variable var1, Variable var2) {
+      return var1.getDisplayName().compareTo(var2.getDisplayName());
+    }
+  };
+
   public ValueNodeRenderer(Collection<Variable> varCollection, LeafDataDirection direction) {
-    this.variableCollection = varCollection;
-    Iterator<Variable> variableIterator = variableCollection.iterator();
+    Variable[] variables = new Variable[varCollection.size()];
+    varCollection.toArray(variables);
+    Arrays.sort(variables, VariableComparator);
     this.datadirection = direction;
 
     switch (datadirection) {
@@ -64,8 +71,8 @@ class ValueNodeRenderer implements TreeCellRenderer {
         label.setLabelFor(variableCombobox);
         variableCombobox.setPreferredSize(new Dimension(100, 30));
         variableCombobox.addItem("");
-        while (variableIterator.hasNext()) {
-          variableCombobox.addItem(variableIterator.next().getDisplayName());
+        for (int i = 0; i < variables.length; i++) {
+          variableCombobox.addItem(variables[i].getDisplayName());
         }
         leafRender.add(label);
         leafRender.add(variableCombobox);
@@ -80,8 +87,8 @@ class ValueNodeRenderer implements TreeCellRenderer {
         variableCheckbox.setText("Use variable");
         variableCombobox.setPreferredSize(new Dimension(100, 30));
         variableCombobox.addItem("");
-        while (variableIterator.hasNext()) {
-          variableCombobox.addItem(variableIterator.next().getDisplayName());
+        for (int i = 0; i < variables.length; i++) {
+          variableCombobox.addItem(variables[i].getDisplayName());
         }
         leafRender.add(label);
         leafRender.add(textfield);
