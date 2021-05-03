@@ -9,4 +9,4 @@ vice versa, the rosbridge might refuse to execute the command.
 
 ### Support message fields with arrays
 Currently, message fields containing an array (such as `String[]`) are not supported. Messages
-containing those cannot be used with this URCap at the moment.
+containing those cannot be used with this URCap at the moment. See also [#26](https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/issues/26).
