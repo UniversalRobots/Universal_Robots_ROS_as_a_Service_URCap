@@ -48,17 +48,24 @@ your Polyscope programs. For more detailed instructions see the separate
     ```bash
     roslaunch rosbridge_server rosbridge_tcp.launch
     ```
- 
-1. In the _Installation_ tab of Polyscope:
+
+2. In the _Installation_ tab of Polyscope:
 
    Under _URCaps_ on the left, select the _Rosbridge adapter_ and adjust the remote host's IP address and port (If you didn't change it, it should be 9090).
    Use `ip addr` on your ROS PC in a terminal if you are unsure about your PC's IP address in the network. Pick the IP address
    of the interface that is connected to the robot. (Your robot's IP address should be similar, as they are in the same subnet.)
 
-1. In the _Program_ tab of Polyscope:
+3. In the _Program_ tab of Polyscope:
 
    Add program nodes to publish or read data from topics or calling a ROS service to your program.
    Setup variable mapping where desired.
+
+## Troubleshooting
+### Array types are currently unsupported!
+When you select a topic (either in the Publisher, Subscriber, Service Caller or Action Caller) and a
+field doesn't have an input field but shows *"Array types are currently unsupported!"* that's
+because they are currently not implemented. See
+[#26](https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/issues/26) for details
 
 ## Acknowledgments
 
