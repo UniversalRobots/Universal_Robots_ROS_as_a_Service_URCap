@@ -30,6 +30,7 @@ import com.ur.urcap.api.contribution.installation.InstallationAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.stream.Collectors;
@@ -165,9 +166,20 @@ public class RosbridgeInstallationNodeContribution implements InstallationNodeCo
         new InputStreamReader(getClass().getResourceAsStream(fileURL.getPath()));
     BufferedReader reader = new BufferedReader(inputReader);
 
-    String line = reader.lines().collect(Collectors.joining("\n"));
+    String buffer = "";
+    String output = "";
+    try {
+      while (buffer != null) {
+        buffer = reader.readLine();
+        if (buffer != null) {
+          output = output + buffer + "\n";
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
-    return line;
+    return output;
   }
 
   public void setMasterList(MasterPair[] data) {
