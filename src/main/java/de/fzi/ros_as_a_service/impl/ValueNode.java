@@ -75,27 +75,21 @@ class ValueInputNode extends ValueNode {
   }
 
   static public ValueType getTypeFromString(String type_str) {
-    switch (type_str) {
-      case "string":
-        return ValueType.STRING;
-      case "int8":
-      case "int16":
-      case "int32":
-      case "int64":
-        return ValueType.INTEGER;
-      case "uint8":
-      case "uint16":
-      case "uint32":
-      case "uint64":
-        return ValueType.UINTEGER;
-      case "float32":
-      case "float64":
-        return ValueType.FLOAT;
-      case "bool":
-        return ValueType.UINTEGER;
-      default:
-        return ValueType.UNKNOWN;
+    if (type_str.equals("string")) {
+      return ValueType.STRING;
+    } else if (type_str.equals("int8") || type_str.equals("int16") || type_str.equals("int32")
+        || type_str.equals("int64")) {
+      return ValueType.INTEGER;
+    } else if (type_str.equals("uint8") || type_str.equals("uint16") || type_str.equals("uint32")
+        || type_str.equals("uint64")) {
+      return ValueType.UINTEGER;
+    } else if (type_str.equals("float32") || type_str.equals("float64")) {
+      return ValueType.FLOAT;
+    } else if (type_str.equals("bool")) {
+      return ValueType.UINTEGER;
     }
+
+    return ValueType.UNKNOWN;
   }
 
   public String getLabelText() {

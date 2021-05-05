@@ -168,17 +168,13 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       JPanel panel = createMsgPanel(name);
       final JSONObject values = current.getJSONObject("values");
       LeafDataDirection direction;
-      switch (current.getString("direction")) {
-        case "out":
-          direction = LeafDataDirection.OUTPUT;
-          break;
-        case "in":
-          direction = LeafDataDirection.INPUT;
-          break;
-        default:
-          throw new IllegalArgumentException(
-              "Unknown direction: " + current.getString("direction"));
-      };
+      if (current.getString("direction").equals("out")) {
+        direction = LeafDataDirection.OUTPUT;
+      } else if (current.getString("direction").equals("in")) {
+        direction = LeafDataDirection.INPUT;
+      } else {
+        throw new IllegalArgumentException("Unknown direction: " + current.getString("direction"));
+      }
       JTree tree = createMsgTreeLayout(layout, direction, provider.get().getVarCollection());
       trees.add(tree);
 
