@@ -888,6 +888,22 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     getInstallation().generateQuoteQueryScript(writer, getMasterIP(), getMasterPort());
   }
 
+  private static String join(String separator, String[] strings) {
+    if (strings == null || strings.length <= 0)
+      return "";
+
+    StringBuilder sb = new StringBuilder();
+
+    for (int i = 0; i < strings.length; i++) {
+      sb.append(strings[i]);
+      if (i != strings.length - 1) {
+        sb.append(separator);
+      }
+    }
+
+    return sb.toString();
+  }
+
   /*!
    * \brief Generates a function to parse a json message into the configured variables
    *
@@ -917,7 +933,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       String label = nodes_with_variables.get(i).getLabel();
       String[] elements = label.split("/");
       String name = elements[elements.length - 1];
-      l_msg = String.join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
+      l_msg = join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
       if (i > 0) {
         generateElementParser(name, l_msg, nodes_with_variables.get(i).getValue(),
             nodes_with_variables.get(i).isNumericType(), writer);
