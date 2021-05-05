@@ -754,7 +754,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
     String[] field_names = JSONObject.getNames(obj);
 
-    Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+    Pattern p = Pattern.compile("-\\+useVar(Num)?\\+-");
     Matcher m = p.matcher(field_names[0]);
     return m.matches();
   }
@@ -771,7 +771,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
     if (root.names() != null) {
       System.out.println("Fields to check: " + root.names());
-      Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+      Pattern p = Pattern.compile("-\\+useVar(Num)?\\+-");
       for (int i = 0; i < root.names().length(); i++) {
         System.out.println("Checking entry " + root.names().getString(i));
 
@@ -787,7 +787,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
             if (m.matches()) {
               String value = obj.getString(obj.names().getString(0));
               String type = "string";
-              if (m.group("num") != null) {
+              if (m.group(1) != null) {
                 // At this stage we don't know what kind of number it is but for further processing
                 // this might not be of any concern.
                 type = "float64";
