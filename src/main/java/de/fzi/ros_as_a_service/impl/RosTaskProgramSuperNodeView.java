@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -323,7 +322,9 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     System.out.println("### createMsgTreeLayout");
     JTree tree = null;
     try {
-      Objects.requireNonNull(msg_layout, "msg layout undefined");
+      if (msg_layout == null) {
+        throw new NullPointerException("msg layout undefined");
+      }
       JSONObject obj = (JSONObject) msg_layout.get(0);
       TreeNodeVector<Object> rootVector = getRoot(msg_layout, obj, direction);
       tree = new JTree(rootVector);
