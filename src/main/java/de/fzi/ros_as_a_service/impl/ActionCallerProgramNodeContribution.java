@@ -199,7 +199,7 @@ public class ActionCallerProgramNodeContribution extends RosTaskProgramSuperNode
     writer.runThread(listen_thread_name, listen_thread_function_name + "()");
 
     json = "{\"op\":\"publish\", \"topic\": \"" + getMsg() + "/goal"
-        + "\",\"msg\":{\"goal\":" + buildJsonString(false, "Goal") + "}}";
+        + "\",\"msg\":{\"goal\":" + buildJsonString("Goal", writer) + "}}";
 
     writer.appendLine("textmsg(\"Sending: " + urscriptifyJson(json) + "\")");
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
