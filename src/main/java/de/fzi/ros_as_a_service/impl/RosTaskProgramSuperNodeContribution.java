@@ -894,8 +894,19 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       String name = elements[elements.length - 1];
       l_msg = String.join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
       if (i > 0) {
-        generateElementParser(name, l_msg, nodes_with_variables.get(i).getValue(),
-            nodes_with_variables.get(i).isNumericType(), writer);
+        Variable variable = getSelectedVariable(nodes_with_variables.get(i).getValue());
+        String resolved_name = nodes_with_variables.get(i).getValue();
+        // in case variable is unknown use initial name otherwise resolve it
+        if (variable != null) {
+          try {
+            resolved_name = writer.getResolvedVariableName(variable);
+          } catch (Exception e) {
+            System.err.println("Error resolving variable " + resolved_name + ": " + e);
+            // resolved_name still holds initial value from node, continue with that name
+          }
+        }
+        generateElementParser(
+            name, l_msg, resolved_name, nodes_with_variables.get(i).isNumericType(), writer);
       }
     }
     writer.end(); // end function definition
