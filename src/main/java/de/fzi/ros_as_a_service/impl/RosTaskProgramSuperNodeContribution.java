@@ -253,19 +253,18 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     setValues(getDefaultValues());
   }
 
-  // methods used for building of json String from TreeModel created with user
-  public String buildJsonString(final String identifier) {
-    return buildJsonString(false, identifier);
-  }
-
+  /*!
+   * \brief Get JSONString with the given identifier from the model. All variables get resolved
+   */
   public String buildJsonString(final String identifier, ScriptWriter writer) {
-    String json = buildJsonString(false, identifier);
+    String json = buildJsonString(identifier);
     int position = 0;
     int delimiter = 0;
-    System.out.println("JSON: " + json);
+
+    // System.out.println("JSON: " + json);
     String[] variable_identifier = {"{\"-+useVar+-\":\"", "{\"-+useVarNum+-\":\""};
     for (int i = 0; i < variable_identifier.length; i++) {
-      System.out.println("Looking for " + variable_identifier[i]);
+      // System.out.println("Looking for " + variable_identifier[i]);
       for (int index = 0; index < json.length(); index++) {
         position = json.indexOf(variable_identifier[i], index);
         if (position == -1) {
@@ -276,12 +275,12 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
               json.substring(position + variable_identifier[i].length(), delimiter - 1);
           String prefix = json.substring(0, position + variable_identifier[i].length());
           String postfix = json.substring(delimiter - 1);
-          System.out.println("detected variable " + variable_name);
+          // System.out.println("detected variable " + variable_name);
           Variable variable = getSelectedVariable(variable_name);
           if (variable != null) {
             try {
               String resolved_name = writer.getResolvedVariableName(variable);
-              System.out.println("resolved to " + resolved_name);
+              // System.out.println("resolved to " + resolved_name);
               json = prefix + resolved_name + postfix;
             } catch (Exception e) {
               System.err.println("Error resolving variable " + variable_name + ": " + e);
@@ -292,10 +291,12 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       }
     }
 
-    System.out.println("JSON: " + json);
+    // System.out.println("JSON: " + json);
     return json;
   }
-  public String buildJsonString(final boolean readable_vars, final String identifier) {
+
+  // get JSON String with identifier from Model. Variables still unresolved.
+  public String buildJsonString(final String identifier) {
     System.out.println("# buildJsonString");
     try {
       JSONArray values_all = getMsgValues();
@@ -313,12 +314,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
       String output = values.toString();
 
-      if (readable_vars) {
-        output =
-            output.toString().replaceAll("\\{\\\"-\\+useVar\\+-\\\":\\\"([^\\\"]*)\\\"\\}", "$1");
-        output = output.toString().replaceAll("\\{\\\"-\\+useVarNum\\+-\\\":\\\"([^\\\"]*)\\\"\\}",
-            "\"-+useVar+- + to_str($1) + -+useVar+-\"");
-      }
       // System.out.println(output);
       return output;
 
@@ -721,19 +716,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         "\\\" + to_str($1) + \\\"");
 
     return result;
-  }
-
-  // variable setting via UR script (maybe in superclass)
-  // TODO must be adapted for handling multiple variables
-  public void setVariableViaURscript(ScriptWriter writer, String value, String name) {
-    Variable variable = getSelectedVariable(name);
-    System.out.println("# setVariableViaURscript");
-    if (variable != null) {
-      String resolvedVariableName = writer.getResolvedVariableName(variable);
-      writer.assign(variable, value);
-      System.out.println("resolved variable:  " + resolvedVariableName);
-      System.out.println("variable:  " + variable);
-    }
   }
 
   protected void generateElementParser(String element_name, String source_var, String target_var,
