@@ -259,23 +259,41 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   }
 
   public String buildJsonString(final String identifier, ScriptWriter writer) {
-	  String json = buildJsonString(false, identifier);
-	  int position = 0;
-	  int delimiter = 0;
-	  System.out.println("JSON: " + json);
-	  
-	  for(int index = 0; index < json.length(); index++) {
-		  position = json.indexOf("{\"-+useVar+-\":", index);
-		  if(position == -1) {
-			  break;
-		  } else {
-			delimiter = json.indexOf("}", position);
-			String variable_name =  json.substring(position + 15, delimiter - 2);
-			System.out.println("detected variable " + variable_name);
-		  }
-	  }
-	  
-	  return json;
+    String json = buildJsonString(false, identifier);
+    int position = 0;
+    int delimiter = 0;
+    System.out.println("JSON: " + json);
+    String[] variable_identifier = {"{\"-+useVar+-\":\"", "{\"-+useVarNum+-\":\""};
+    for (int i = 0; i < variable_identifier.length; i++) {
+      System.out.println("Looking for " + variable_identifier[i]);
+      for (int index = 0; index < json.length(); index++) {
+        position = json.indexOf(variable_identifier[i], index);
+        if (position == -1) {
+          break;
+        } else {
+          delimiter = json.indexOf("}", position);
+          String variable_name =
+              json.substring(position + variable_identifier[i].length(), delimiter - 1);
+          String prefix = json.substring(0, position + variable_identifier[i].length());
+          String postfix = json.substring(delimiter - 1);
+          System.out.println("detected variable " + variable_name);
+          Variable variable = getSelectedVariable(variable_name);
+          if (variable != null) {
+            try {
+              String resolved_name = writer.getResolvedVariableName(variable);
+              System.out.println("resolved to " + resolved_name);
+              json = prefix + resolved_name + postfix;
+            } catch (Exception e) {
+              System.err.println("Error resolving variable " + variable_name + ": " + e);
+            }
+          }
+        }
+        index = position + variable_identifier[i].length();
+      }
+    }
+
+    System.out.println("JSON: " + json);
+    return json;
   }
   public String buildJsonString(final boolean readable_vars, final String identifier) {
     System.out.println("# buildJsonString");
