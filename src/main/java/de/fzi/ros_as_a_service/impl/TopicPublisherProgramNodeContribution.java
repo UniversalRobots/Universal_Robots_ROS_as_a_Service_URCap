@@ -100,7 +100,7 @@ public class TopicPublisherProgramNodeContribution extends RosTaskProgramSuperNo
 
     System.out.println("Building json string");
     json = "{\"op\": \"publish\", \"topic\": \"" + getMsg()
-        + "\", \"msg\": " + buildJsonString(false, "Data") + "}";
+        + "\", \"msg\": " + buildJsonString("Data", writer) + "}";
 
     writer.appendLine("socket_send_line(\"" + urscriptifyJson(json) + "\", \"" + sockname + "\")");
     writer.appendLine("textmsg(\"sending: " + urscriptifyJson(json) + "\")");

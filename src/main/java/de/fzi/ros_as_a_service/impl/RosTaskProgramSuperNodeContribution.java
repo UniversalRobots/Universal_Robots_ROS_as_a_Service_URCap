@@ -258,6 +258,25 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     return buildJsonString(false, identifier);
   }
 
+  public String buildJsonString(final String identifier, ScriptWriter writer) {
+	  String json = buildJsonString(false, identifier);
+	  int position = 0;
+	  int delimiter = 0;
+	  System.out.println("JSON: " + json);
+	  
+	  for(int index = 0; index < json.length(); index++) {
+		  position = json.indexOf("{\"-+useVar+-\":", index);
+		  if(position == -1) {
+			  break;
+		  } else {
+			delimiter = json.indexOf("}", position);
+			String variable_name =  json.substring(position + 15, delimiter - 2);
+			System.out.println("detected variable " + variable_name);
+		  }
+	  }
+	  
+	  return json;
+  }
   public String buildJsonString(final boolean readable_vars, final String identifier) {
     System.out.println("# buildJsonString");
     try {
