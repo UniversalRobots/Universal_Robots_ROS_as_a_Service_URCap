@@ -55,7 +55,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected boolean useVar = false;
   protected int varCounter = 0;
   protected Collection<Variable> varCollection;
-  protected Object[] varList;
 
   protected final VariableFactory variableFactory;
   protected static final String MASTER_KEY = "MASTER";
@@ -79,7 +78,6 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     this.variableFactory = apiProvider.getProgramAPI().getVariableModel().getVariableFactory();
     this.model = model;
     this.varCollection = apiProvider.getProgramAPI().getVariableModel().getAll();
-    this.varList = varCollection.toArray();
     this.undoRedoManager = this.apiProvider.getProgramAPI().getUndoRedoManager();
 
     ID = getMsg().replaceAll("/", "_");
@@ -88,7 +86,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   public void updateVariables() {
     System.out.println("### updateVariables");
     this.varCollection = apiProvider.getProgramAPI().getVariableModel().getAll();
-    this.varList = varCollection.toArray();
+    System.out.println(this.varCollection);
   }
 
   public MasterPair getMaster() {
@@ -596,6 +594,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       System.err.println("getMsgList: Error: " + ex);
     }
 
+    Arrays.sort(items);
     return items;
   }
 
