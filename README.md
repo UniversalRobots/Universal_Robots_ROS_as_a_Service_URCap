@@ -67,6 +67,26 @@ field doesn't have an input field but shows *"Array types are currently unsuppor
 because they are currently not implemented. See
 [#26](https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/issues/26) for details
 
+### Working with ROS parameters
+Working with parameters is currently not fully supported. Only parameters of type String will work
+as expected. Reasons for that are explained below.
+
+While the [rosbridge protocol](https://github.com/RobotWebTools/rosbridge_suite/blob/develop/ROSBRIDGE_PROTOCOL.md)
+does not contain separate calls for ROS parameter retrieving or manipulation, it offers a couple of
+services around getting and setting parameters. However, the [`GetParam` service](https://github.com/RobotWebTools/rosbridge_suite/blob/develop/rosapi/srv/GetParam.srv)
+will return the parameter's value encapsulated inside a String. So, in order to get a numeric
+parameter you will have to get the parameter into a string variable and then convert it to a numeric
+variable afterwards. See the example program below, where we want to read the value of the parameter
+`/turtlesim/background_b` into `num_var`.
+
+![Program for receiving a numeric parameter](doc/resources/param_workaround.png)
+
+Similarly setting parameters will only work for String parameters, as setting a parameter doesn't
+check the existing type, but writes the value received (which is always a String due to the
+[`SetParam`
+service](https://github.com/RobotWebTools/rosbridge_suite/blob/develop/rosapi/srv/SetParam.srv))
+directly into the parameter.
+
 ## Acknowledgments
 
 Developed in collaboration between:
