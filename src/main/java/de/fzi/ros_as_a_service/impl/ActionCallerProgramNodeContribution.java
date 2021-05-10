@@ -28,7 +28,6 @@ package de.fzi.ros_as_a_service.impl;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
-import java.util.Objects;
 import org.json.JSONObject;
 
 public class ActionCallerProgramNodeContribution extends RosTaskProgramSuperNodeContribution {
@@ -84,13 +83,17 @@ public class ActionCallerProgramNodeContribution extends RosTaskProgramSuperNode
   @Override
   protected String queryTopicType(String topic_name) {
     try {
-      Objects.requireNonNull(topic_name, "Topicname null");
+      if (topic_name == null) {
+        throw new NullPointerException("Topicname null");
+      }
       System.out.println("ActionTopic: " + topic_name);
 
       String request_string = getMsgTypeRequestString(topic_name);
 
       JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
+      if (json_response == null) {
+        throw new NullPointerException("Response null");
+      }
       String response = json_response.getJSONObject("values").getString("type");
       return response.replaceFirst("(?s)(.*)ActionGoal", "$1");
 

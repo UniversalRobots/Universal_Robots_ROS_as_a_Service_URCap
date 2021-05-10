@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -307,7 +306,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         }
       }
 
-      Objects.requireNonNull(values, "No values found for key " + identifier);
+      if (values == null) {
+        throw new NullPointerException("No values found for key " + identifier);
+      }
       // System.out.println(values.toString());
 
       String output = values.toString();
@@ -432,9 +433,13 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       items.add(getMaster().toString());
     }
     try {
-      Objects.requireNonNull(getInstallation(), "InstallationNode not found");
+      if (getInstallation() == null) {
+        throw new NullPointerException("InstallationNode not found");
+      }
       MasterPair[] pairs = getInstallation().getMastersList();
-      Objects.requireNonNull(pairs, "pairs empty");
+      if (pairs == null) {
+        throw new NullPointerException("pairs empty");
+      }
       for (int i = 0; i < pairs.length; i++) {
         // We might have added one master from the installation already, as it was stored
         // previously.
@@ -453,8 +458,12 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected void rosbridgeSend(String msg, DataOutputStream out) {
     System.out.println("### rosbridgeSend");
     try {
-      Objects.requireNonNull(out, "stream null");
-      Objects.requireNonNull(msg, "msg null");
+      if (out == null) {
+        throw new NullPointerException("stream null");
+      }
+      if (msg == null) {
+        throw new NullPointerException("msg null");
+      }
 
       out.write(msg.getBytes("US-ASCII"));
 
@@ -469,7 +478,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected String rosbridgeReceive(DataInputStream in) {
     System.out.println("### rosbridgeReceive");
     try {
-      Objects.requireNonNull(in, "socket null");
+      if (in == null) {
+        throw new NullPointerException("socket null");
+      }
       // TODO define timeout
       byte[] messageByte = new byte[1000];
       boolean end = false;
@@ -555,7 +566,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
         out.close();
         in.close();
         try {
-          Objects.requireNonNull(response, "Response null");
+          if (response == null) {
+            throw new NullPointerException("Response null");
+          }
           json_response = new JSONObject(response);
         } catch (org.json.JSONException e) {
           System.err.println("rosbridgeRequest: JSON-Error: " + e);
@@ -580,7 +593,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     try {
       // JSON parsing
       JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
+      if (json_response == null) {
+        throw new NullPointerException("Response null");
+      }
       JSONArray msgs =
           json_response.getJSONObject("values").getJSONArray(getMsgListResponsePlaceholder());
       items = new String[msgs.length() + 1];
@@ -600,13 +615,17 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   protected String queryTopicType(String topic_name) {
     try {
-      Objects.requireNonNull(topic_name, "Topicname null");
+      if (topic_name == null) {
+        throw new NullPointerException("Topicname null");
+      }
       System.out.println("TopicName: " + topic_name);
 
       String request_string = getMsgTypeRequestString(topic_name);
 
       JSONObject json_response = rosbridgeRequest(request_string);
-      Objects.requireNonNull(json_response, "Response null");
+      if (json_response == null) {
+        throw new NullPointerException("Response null");
+      }
       return json_response.getJSONObject("values").getString("type");
     } catch (org.json.JSONException e) {
       System.err.println("getTopicType: JSON-Error: " + e);
@@ -619,13 +638,17 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
   protected JSONArray queryTopicLayout(String topic_type) {
     try {
       JSONArray resp = new JSONArray();
-      Objects.requireNonNull(topic_type, "TopicType null");
+      if (topic_type == null) {
+        throw new NullPointerException("TopicType null");
+      }
 
       String[] request_strings = getMsgLayoutRequestStrings(topic_type);
 
       for (int i = 0; i < request_strings.length; i++) {
         JSONObject json_response = rosbridgeRequest(request_strings[i]);
-        Objects.requireNonNull(json_response, "Response null");
+        if (json_response == null) {
+          throw new NullPointerException("Response null");
+        }
         resp.put(json_response.getJSONObject("values").getJSONArray("typedefs"));
       }
       return resp;
@@ -654,7 +677,9 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
   public void updateModel(final String name, final JSONObject obj) {
     try {
-      Objects.requireNonNull(obj, "JSON Object of msg null");
+      if (obj == null) {
+        throw new NullPointerException("JSON Object of msg null");
+      }
     } catch (Exception e) {
       System.err.println("updateModel: Error: " + e);
       return;
@@ -747,7 +772,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
     String[] field_names = JSONObject.getNames(obj);
 
-    Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+    Pattern p = Pattern.compile("-\\+useVar(Num)?\\+-");
     Matcher m = p.matcher(field_names[0]);
     return m.matches();
   }
@@ -764,7 +789,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
     if (root.names() != null) {
       System.out.println("Fields to check: " + root.names());
-      Pattern p = Pattern.compile("-\\+useVar(?<num>Num)?\\+-");
+      Pattern p = Pattern.compile("-\\+useVar(Num)?\\+-");
       for (int i = 0; i < root.names().length(); i++) {
         System.out.println("Checking entry " + root.names().getString(i));
 
@@ -780,7 +805,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
             if (m.matches()) {
               String value = obj.getString(obj.names().getString(0));
               String type = "string";
-              if (m.group("num") != null) {
+              if (m.group(1) != null) {
                 // At this stage we don't know what kind of number it is but for further processing
                 // this might not be of any concern.
                 type = "float64";
@@ -881,6 +906,22 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     getInstallation().generateQuoteQueryScript(writer, getMasterIP(), getMasterPort());
   }
 
+  private static String join(String separator, String[] strings) {
+    if (strings == null || strings.length <= 0)
+      return "";
+
+    StringBuilder sb = new StringBuilder();
+
+    for (int i = 0; i < strings.length; i++) {
+      sb.append(strings[i]);
+      if (i != strings.length - 1) {
+        sb.append(separator);
+      }
+    }
+
+    return sb.toString();
+  }
+
   /*!
    * \brief Generates a function to parse a json message into the configured variables
    *
@@ -910,7 +951,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
       String label = nodes_with_variables.get(i).getLabel();
       String[] elements = label.split("/");
       String name = elements[elements.length - 1];
-      l_msg = String.join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
+      l_msg = join("_", Arrays.copyOfRange(elements, 0, elements.length - 1));
       if (i > 0) {
         Variable variable = getSelectedVariable(nodes_with_variables.get(i).getValue());
         String resolved_name = nodes_with_variables.get(i).getValue();

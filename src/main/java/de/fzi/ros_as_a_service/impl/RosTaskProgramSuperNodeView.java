@@ -37,7 +37,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -168,17 +167,13 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
       JPanel panel = createMsgPanel(name);
       final JSONObject values = current.getJSONObject("values");
       LeafDataDirection direction;
-      switch (current.getString("direction")) {
-        case "out":
-          direction = LeafDataDirection.OUTPUT;
-          break;
-        case "in":
-          direction = LeafDataDirection.INPUT;
-          break;
-        default:
-          throw new IllegalArgumentException(
-              "Unknown direction: " + current.getString("direction"));
-      };
+      if (current.getString("direction").equals("out")) {
+        direction = LeafDataDirection.OUTPUT;
+      } else if (current.getString("direction").equals("in")) {
+        direction = LeafDataDirection.INPUT;
+      } else {
+        throw new IllegalArgumentException("Unknown direction: " + current.getString("direction"));
+      }
       JTree tree = createMsgTreeLayout(layout, direction, provider.get().getVarCollection());
       trees.add(tree);
 
@@ -327,7 +322,9 @@ public abstract class RosTaskProgramSuperNodeView<C extends RosTaskProgramSuperN
     System.out.println("### createMsgTreeLayout");
     JTree tree = null;
     try {
-      Objects.requireNonNull(msg_layout, "msg layout undefined");
+      if (msg_layout == null) {
+        throw new NullPointerException("msg layout undefined");
+      }
       JSONObject obj = (JSONObject) msg_layout.get(0);
       TreeNodeVector<Object> rootVector = getRoot(msg_layout, obj, direction);
       tree = new JTree(rootVector);
