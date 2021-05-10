@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.*;
+import javax.swing.JOptionPane;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -235,16 +236,27 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
 
       System.out.println("LAYOUT: " + typedefs);
 
-      for (int i = 0; i < msg_layout_keys.length; i++) {
-        final JSONArray layout = typedefs.getJSONArray(i);
-        final String model_key = MSG_LAYOUT_KEY + "_" + msg_layout_keys[i];
-        undoRedoManager.recordChanges(new UndoableChanges() {
-          @Override
-          public void executeChanges() {
-            // System.out.println("Saving layout for " + model_key + ":\n" + layout.toString(2) );
-            model.set(model_key, layout.toString());
-          }
-        });
+      if (typedefs != null) {
+        for (int i = 0; i < msg_layout_keys.length; i++) {
+          final JSONArray layout = typedefs.getJSONArray(i);
+          final String model_key = MSG_LAYOUT_KEY + "_" + msg_layout_keys[i];
+          undoRedoManager.recordChanges(new UndoableChanges() {
+            @Override
+            public void executeChanges() {
+              // System.out.println("Saving layout for " + model_key + ":\n" + layout.toString(2) );
+              model.set(model_key, layout.toString());
+            }
+          });
+        }
+      } else {
+        String message = "<html><body><p style='width: 400px;'>The message type "
+            + "\"" + topic_type + "\" of topic "
+            + "\"" + topic + "\""
+            + " is unknown to the backend. Please make sure that the message type is available"
+            + " in the environment that the rosbdridge was started in...</p></body></html>";
+        JOptionPane.showMessageDialog(
+            null, message, "Error receiving topic information", JOptionPane.ERROR_MESSAGE);
+        return;
       }
     }
     setValues(getDefaultValues());
