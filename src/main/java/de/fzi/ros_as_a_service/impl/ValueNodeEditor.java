@@ -81,12 +81,12 @@ class ValueNodeEditor extends AbstractCellEditor implements TreeCellEditor {
     variableCollection.toArray(variables);
     Arrays.sort(variables, VariableComparator);
     textfield = new JTextField();
-    textfield.setPreferredSize(new Dimension(150, 30));
+    textfield.setPreferredSize(new Dimension(200, 30));
     textfield.setMaximumSize(textfield.getPreferredSize());
     label.setLabelFor(textfield);
     variableCheckbox = new JCheckBox();
     variableCheckbox.setText("Use variable");
-    variableCombobox.setPreferredSize(new Dimension(100, 30));
+    variableCombobox.setPreferredSize(new Dimension(200, 30));
     variableCombobox.addItem("");
     for (int i = 0; i < variables.length; i++) {
       variableCombobox.addItem(variables[i].getDisplayName());
