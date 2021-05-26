@@ -743,7 +743,7 @@ public abstract class RosTaskProgramSuperNodeContribution implements ProgramNode
     // replace string variables
     result = result.replaceAll(
         "\\{\\\" \\+ quote \\+ \\\"-\\+useVar\\+-\\\" \\+ quote \\+ \\\":\\\" \\+ quote \\+ \\\"([^\\\"]*)\\\" \\+ quote \\+ \\\"\\}",
-        "\\\" + quote + $1 + quote + \\\"");
+        "\\\" + quote + to_str($1) + quote + \\\"");
     // System.out.println("without useVar : " + result);
 
     // replace numeric variables
