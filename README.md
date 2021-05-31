@@ -87,6 +87,25 @@ check the existing type, but writes the value received (which is always a String
 service](https://github.com/RobotWebTools/rosbridge_suite/blob/develop/rosapi/srv/SetParam.srv))
 directly into the parameter.
 
+### Received String exceeds maximum length (1023 Bytes).
+If you get a popup message saying "Received String exceeds maximum length (1023 Bytes)." that's
+unfortunately a limitation of the current implementation / URScript. See
+https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/blob/master/doc/missing_features.md#the-maximum-string-length-of-urscript-is-1023-characters
+for details.
+
+If you get this error, this could have multiple sources depending on the call triggering this. As
+the [rosbridge
+protocol](https://github.com/RobotWebTools/rosbridge_suite/blob/develop/ROSBRIDGE_PROTOCOL.md)
+is mostly request-based the source is either an answer to a request (e.g. Service response, topic
+list, etc.) or message being sent to the robot e.g. via a subscriber or action client. The only way
+to workaround this is to make sure that the message is shorter. For example, if the message contains
+a very long string and you can influence the string's content, make sure it gets shorter.
+
+In situations where you don't have access to the message source, you could write your own relay node
+that subscribes to the original message and re-publishes the message content to a self-defined
+message without the long (text) part. Your robot program could then subscribe to this re-published
+message.
+
 ## Acknowledgments
 
 Developed in collaboration between:
