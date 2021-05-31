@@ -87,6 +87,12 @@ check the existing type, but writes the value received (which is always a String
 service](https://github.com/RobotWebTools/rosbridge_suite/blob/develop/rosapi/srv/SetParam.srv))
 directly into the parameter.
 
+### Received String exceeds maximum length (1023 Bytes).
+If you get a popup message saying "Received String exceeds maximum length (1023 Bytes)." that's
+unfortunately a limitation of the current implementation / URScript. See
+https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/blob/master/doc/missing_features.md#the-maximum-string-length-of-urscript-is-1023-characters
+for details.
+
 ## Acknowledgments
 
 Developed in collaboration between:
