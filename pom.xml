@@ -21,7 +21,7 @@
 		<urcap.symbolicname>de.fzi.ros_as_a_service</urcap.symbolicname>
 		<urcap.vendor>FZI Research Center for Information Technology</urcap.vendor>
 		<urcap.contactAddress>Haid-und-Neu-Straße 10-14, 76131 Karlsruhe</urcap.contactAddress>
-		<urcap.copyright>Copyright 2021 FZI Forschungszentrum Informatik</urcap.copyright>
+		<urcap.copyright>Copyright 2021 FZI Forschungszentrum Informatik, Created on behalf of Universal Robots A/S</urcap.copyright>
 		<urcap.description>This URCap serves as an interface to the ROSBridge server. It abasically implements the rosbridge protocol, see https://github.com/RobotWebTools/rosbridge_suite/blob/develop/ROSBRIDGE_PROTOCOL.md</urcap.description>
 		<urcap.licenseType>Apache Licanse, Version 2.0</urcap.licenseType>
 		<!--********************** END OF URCAP META DATA **********************-->
