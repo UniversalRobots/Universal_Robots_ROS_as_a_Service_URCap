@@ -1,18 +1,5 @@
 # ROS as a Service
 
----
-## Beta version
-
-This project is currently in its beta phase. If you find an error, please open an issue in the
-[issue tracker](https://github.com/UniversalRobots/Universal_Robots_ROS_as_a_Service_URCap/issues)
-to help tracking down any issues existing with this URCap.
-
-Not all features are implemented, yet, see the [missing features](doc/missing_features.md) list.
-
-Please give us feedback through the [**survey**](https://share.hsforms.com/1_SsLjqMcT8SfaRUiYWwcrA1kep1), Issues or [ROS@universal-robots.com](mailto:ROS@universal-robots.com) on what you have tested and how it worked out.
-
----
-
 <img height="300" alt="program structure" src="doc/resources/tutorial/7.png"> <img height="300" alt="turtlesim window" src="doc/resources/tutorial/8.png">
 
 This URCaps allows you to call ROS `services`, `actions` and use `topics`
